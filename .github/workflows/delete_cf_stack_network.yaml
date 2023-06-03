@@ -1,4 +1,4 @@
-name: Delete AWS CloudFormation Stack
+name: Delete AWS CloudFormation Stack for Network
 
 on:
   workflow_dispatch:
@@ -13,7 +13,7 @@ on:
 
 jobs:
   vpc_aws:
-    name: Delete AWS CloudFormation Stack
+    name: Delete AWS CloudFormation Stack for Network
     runs-on: ubuntu-latest
     outputs:
       env-name: ${{ steps.env-name.outputs.environment }}
@@ -24,8 +24,8 @@ jobs:
         id: creds
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ secrets.IAC_ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.IAC_SECRET_KEY }}
+          aws-access-key-id: ${{ secrets.NETWORK_AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.NETWORK_AWS_SECRET_KEY }}
           aws-region: ${{ github.event.inputs.region}}
       - name: Configure environment name
         id: env-name
