@@ -8,7 +8,7 @@ on:
         required: true
         default: 'us-east-1'
       stack-name:
-        description: 'AWS CloudFormation Stack Name'
+        description: 'AWS CloudFormation Stack Name for Network'
         required: true
 
 jobs:
