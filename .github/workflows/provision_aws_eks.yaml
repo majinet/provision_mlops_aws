@@ -51,4 +51,4 @@ jobs:
       - name: create eks cluster
         id: create-eks-cluster
         run: | 
-          eksctl create cluster -f cloudformation/amazon-eks-cluster.yaml
+          eksctl create cluster -f config/amazon-eks-cluster.yaml
