@@ -42,12 +42,12 @@ jobs:
         run: |
           curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
           sudo mv -v /tmp/eksctl /usr/local/bin
-      - name: set vpc id
+      - name: Set VPC ID
         id: set-vpc-id
         run: |
-          VPC-ID=`aws cloudformation describe-stacks --stack-name aws-eks-vpc --query 'Stacks[0].Outputs[?OutputKey=="VpcId"].OutputValue' --output text`
-          echo "VPC ID: $VPC-ID"
-          echo "VPC_ID=$VPC-ID" >> $GITHUB_ENV
+          VPC_ID=$(aws cloudformation describe-stacks --stack-name aws-eks-vpc --query 'Stacks[0].Outputs[?OutputKey==`VpcId`].OutputValue' --output text)
+          echo "VPC ID: $VPC_ID"
+          echo "VPC_ID=$VPC_ID" >> $GITHUB_ENV
       - name: create eks cluster
         id: create-eks-cluster
         run: | 
