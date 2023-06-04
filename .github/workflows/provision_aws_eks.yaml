@@ -37,8 +37,8 @@ jobs:
           echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
       - name: Allow passwordless sudo
         run: echo '${{ secrets.GITHUB_ACTOR }} ALL=(ALL:ALL) NOPASSWD:ALL' | sudo tee -a /etc/sudoers.d/github-actions
-      - name: install kubectl
-        id: install-kubectl
+      - name: install awscli
+        id: install-awscli
         run: |          
           sudo curl --silent --location -o "awscliv2.zip" "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
           sudo unzip awscliv2.zip && sudo ./aws/install
