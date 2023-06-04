@@ -21,11 +21,11 @@ vpc:
 managedNodeGroups:
   - name: ng-workers-1
     desiredCapacity: 1
-    instanceTypes: [ "r4g.small" ]
+    instanceTypes: [ "t2.micro" ]
     spot: true
     availabilityZones: ["us-east-1d"]
   - name: ng-workers-2
     desiredCapacity: 1
-    instanceTypes: [ "r5.large" ]
+    instanceTypes: [ "t2.micro" ]
     spot: true
     availabilityZones: [ "us-east-1f" ]
