@@ -60,7 +60,7 @@ jobs:
       - name: Get subnet IDs from CloudFormation stack output
         id: get-subnet-ids
         run: |
-          subnetIds=$(aws cloudformation describe-stacks --stack-name YOUR_STACK_NAME --query 'Stacks[0].Outputs[?OutputKey==`SubnetIds`].OutputValue' --output text | jq -r '.[]')
+          subnetIds=$(aws cloudformation describe-stacks --stack-name aws-eks-vpc --query 'Stacks[0].Outputs[?OutputKey==`SubnetIds`].OutputValue' --output text | jq -r '.[]')
           echo "Subnet IDs: $subnetIds"
           echo "SUBNET_IDS=$subnetIds" >> $GITHUB_ENV
       - name: create eks cluster
