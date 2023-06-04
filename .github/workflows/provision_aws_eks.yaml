@@ -60,5 +60,5 @@ jobs:
       - name: create eks cluster
         id: create-eks-cluster
         run: | 
-          envsubst '${{ env.VPC_ID }}' > config/amazon-eks-cluster.yaml
-          eksctl create cluster -f config/amazon-eks-cluster.yaml
+          cat config/amazon-eks-cluster.yaml | envsubst '${CLUSTER_NAME}' > amazon-eks-cluster.yaml
+          eksctl create cluster -f amazon-eks-cluster.yaml
