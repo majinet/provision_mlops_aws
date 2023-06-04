@@ -57,20 +57,14 @@ jobs:
       - name: Debug VPC_ID
         run: |
           echo "VPC_ID: ${{ env.VPC_ID }}"
-      - name: Get Subnet ID for us-east-1d
-        id: get-subnet-id-1d
+      - name: Get subnet IDs from CloudFormation stack output
+        id: get-subnet-ids
         run: |
-          SUBNET_ID_1D=$(aws cloudformation describe-stacks --stack-name aws-eks-vpc --query 'Stacks[0].Outputs[?OutputKey==`SubnetIds` && contains(OutputValue, `us-east-1d`)].OutputValue' --output text)
-          echo "SUBNET_ID_1D ID: $SUBNET_ID_1D"
-          echo "SUBNET_ID_1D=$SUBNET_ID_1D" >> $GITHUB_ENV
-      - name: Get Subnet ID for us-east-1f
-        id: get-subnet-id-1f
-        run: |
-          SUBNET_ID_1F=$(aws cloudformation describe-stacks --stack-name aws-eks-vpc --query 'Stacks[0].Outputs[?OutputKey==`SubnetIds` && contains(OutputValue, `us-east-1f`)].OutputValue' --output text)
-          echo "SUBNET_ID_1F ID: $SUBNET_ID_1F"
-          echo "SUBNET_ID_1F=$SUBNET_ID_1F" >> $GITHUB_ENV
+          subnetIds=$(aws cloudformation describe-stacks --stack-name YOUR_STACK_NAME --query 'Stacks[0].Outputs[?OutputKey==`SubnetIds`].OutputValue' --output text | jq -r '.[]')
+          echo "Subnet IDs: $subnetIds"
+          echo "SUBNET_IDS=$subnetIds" >> $GITHUB_ENV
       - name: create eks cluster
         id: create-eks-cluster
         run: | 
-          cat config/amazon-eks-cluster.yaml | '${{ env.VPC_ID }} ${{ env.SUBNET_ID_1D }} ${{ env.SUBNET_ID_1F }}' > amazon-eks-cluster.yaml
+          cat config/amazon-eks-cluster.yaml | '${{ env.VPC_ID }} ${{ env.SUBNET_IDS[0] }} ${{ env.SUBNET_IDS[1] }}' > amazon-eks-cluster.yaml
           eksctl create cluster -f amazon-eks-cluster.yaml
