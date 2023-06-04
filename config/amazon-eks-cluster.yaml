@@ -4,8 +4,9 @@ apiVersion: eksctl.io/v1alpha5
 kind: ClusterConfig
 
 metadata:
-  name: cluster-4
+  name: eks-cluster
   region: us-east-1
+  version: "1.27"
 
 vpc:
   id: ${{ env.VPC_ID }}  # (optional, must match VPC ID used for each subnet below)
