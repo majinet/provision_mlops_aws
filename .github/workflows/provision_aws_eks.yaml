@@ -61,14 +61,14 @@ jobs:
         id: get-subnet-id-1d
         run: |
           SUBNET_ID_1D=$(aws cloudformation describe-stacks --stack-name aws-eks-vpc --query 'Stacks[0].Outputs[?OutputKey==`SubnetId` && contains(OutputValue, `us-east-1d`)].OutputValue' --output text)
-          echo "SUBNET_ID_1D ID: SUBNET_ID_1D"
-          echo "SUBNET_ID_1D=SUBNET_ID_1D" >> $GITHUB_ENV
+          echo "SUBNET_ID_1D ID: $SUBNET_ID_1D"
+          echo "SUBNET_ID_1D=$SUBNET_ID_1D" >> $GITHUB_ENV
       - name: Get Subnet ID for us-east-1f
         id: get-subnet-id-1f
         run: |
           SUBNET_ID_1D=$(aws cloudformation describe-stacks --stack-name aws-eks-vpc --query 'Stacks[0].Outputs[?OutputKey==`SubnetId` && contains(OutputValue, `us-east-1f`)].OutputValue' --output text)
-          echo "SUBNET_ID_1F ID: SUBNET_ID_1F"
-          echo "SUBNET_ID_1F=SUBNET_ID_1F" >> $GITHUB_ENV
+          echo "SUBNET_ID_1F ID: $SUBNET_ID_1F"
+          echo "SUBNET_ID_1F=$SUBNET_ID_1F" >> $GITHUB_ENV
       - name: create eks cluster
         id: create-eks-cluster
         run: | 
