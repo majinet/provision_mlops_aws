@@ -35,8 +35,8 @@ jobs:
           ENVIRONMENT=`echo $REPO | tr "/" "-"`
           echo "Environment name: $ENVIRONMENT"
           echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
-      - name: Allow passwordless sudo
-        run: echo '${{ secrets.GITHUB_ACTOR }} ALL=(ALL:ALL) NOPASSWD:ALL' | sudo tee -a /etc/sudoers.d/github-actions
+      #- name: Allow passwordless sudo
+      #  run: echo '${{ secrets.SUDO_PASSWORD }}' | sudo -Sv
       - name: install awscli
         id: install-awscli
         run: |          
