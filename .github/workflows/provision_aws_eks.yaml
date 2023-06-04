@@ -55,7 +55,7 @@ jobs:
           echo "VPC ID: $VPC_ID"
           echo "VPC_ID=$VPC_ID" >> $GITHUB_ENV
       - name: Debug VPC_ID
-        run:
+        run: |
           echo "VPC_ID: ${{ env.VPC_ID }}"
       - name: create eks cluster
         id: create-eks-cluster
