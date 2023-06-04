@@ -37,6 +37,13 @@ jobs:
           echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
       #- name: Allow passwordless sudo
       #  run: echo '${{ secrets.SUDO_PASSWORD }}' | sudo -Sv
+      - name: install envsubst
+        id: install-envsubst
+        run: |
+
+          curl -L https://github.com/a8m/envsubst/releases/download/v1.2.0/envsubst-`uname -s`-`uname -m` -o envsubst
+          chmod +x envsubst
+          sudo mv envsubst /usr/local/bin
       - name: install eksctl
         id: install-eksctl
         run: |
@@ -48,7 +55,11 @@ jobs:
           VPC_ID=$(aws cloudformation describe-stacks --stack-name aws-eks-vpc --query 'Stacks[0].Outputs[?OutputKey==`VpcId`].OutputValue' --output text)
           echo "VPC ID: $VPC_ID"
           echo "VPC_ID=$VPC_ID" >> $GITHUB_ENV
+      - name: Debug VPC_ID
+        run:
+          echo "VPC_ID: ${{ env.VPC_ID }}"
       - name: create eks cluster
         id: create-eks-cluster
         run: | 
+          envsubst '${{ env.VPC_ID }}' > config/amazon-eks-cluster.yaml
           eksctl create cluster -f config/amazon-eks-cluster.yaml
