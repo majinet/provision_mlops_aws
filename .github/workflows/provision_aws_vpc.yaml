@@ -39,7 +39,7 @@ jobs:
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
           name: aws-eks-vpc
-          template: amazon-eks-fully-private-vpc.yaml #cloudformation/amazon-eks-vpc-private-subnets.yaml
+          template: cloudformation/amazon-eks-fully-private-vpc.yaml #cloudformation/amazon-eks-vpc-private-subnets.yaml
           #parameter-overrides: >-
           #  VpcBlock=192.168.0.0/16,
           #  PublicSubnet01Block=192.168.0.0/18,
