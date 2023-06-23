@@ -19,9 +19,4 @@ vpc:
       us-east-1f:
         id: ${SUBNET_ID_1F}
 
-managedNodeGroups:
-  - name: ng-1
-    desiredCapacity: 2
-    privateNetworking: true # if only 'Private' subnets are given, this must be enabled
-    instanceTypes: [ "t2.micro" ]
-    spot: true
+managedNodeGroups: []
