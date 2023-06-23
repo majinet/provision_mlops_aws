@@ -46,7 +46,7 @@ jobs:
       - name: Set AWS Account ID
         id: set-aws-account-id
         run: |
-          AWS_ACCOUNT_ID=${{ secrets.IAC_EKS_ACCESS_KEY }}
+          AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}
           echo "AWS_ACCOUNT_ID ID: AWS_ACCOUNT_ID"
           echo "AWS_ACCOUNT_ID=AWS_ACCOUNT_ID" >> $GITHUB_ENV
       - name: create iam role for fargate
