@@ -1,0 +1,11 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: eks-cluster
+  region: us-east-1
+
+addons:
+- name: vpc-cni
+  version: latest
+  serviceAccountRoleARN: arn:aws:iam::${AWS_ACCOUNT_ID}:role/AmazonEKSVPCCNIRole
+  resolveConflicts: preserve

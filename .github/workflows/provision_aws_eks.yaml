@@ -70,13 +70,13 @@ jobs:
         run: | 
           cat config/amazon-eks-cluster.yaml | envsubst '${{ env.VPC_ID }} ${{ env.SUBNET_IDS_1 }} ${{ env.SUBNET_IDS_2 }}' > amazon-eks-cluster.yaml
           eksctl create cluster -f amazon-eks-cluster.yaml
-      - name: create fargate profile
-        id: create-fargate-profile
-        run: | 
-          cat config/fargate-eks-cluster.yaml | envsubst '${{ secrets.AWS_ACCOUNT_ID }}' > fargate-eks-cluster.yaml
-          eksctl create fargateprofile -f config/fargate-eks-cluster.yaml
       - name: delete coredns in worker nodes
         id: delete-coredns
         run: | 
           kubectl patch deployment coredns -n kube-system --type json \
           -p='[{"op": "remove", "path": "/spec/template/metadata/annotations/eks.amazonaws.com~1compute-type"}]'
+      - name: create fargate profile
+        id: create-fargate-profile
+        run: | 
+          cat config/fargate-eks-cluster.yaml | envsubst '${{ secrets.AWS_ACCOUNT_ID }}' > fargate-eks-cluster.yaml
+          eksctl create fargateprofile -f config/fargate-eks-cluster.yaml
