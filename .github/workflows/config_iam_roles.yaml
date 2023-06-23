@@ -46,13 +46,13 @@ jobs:
       - name: Set AWS Account ID
         id: set-aws-account-id
         run: |
-          AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-          echo "AWS_ACCOUNT_ID ID: $AWS_ACCOUNT_ID"
-          echo "AWS_ACCOUNT_ID=$AWS_ACCOUNT_ID" >> $GITHUB_ENV
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          echo "ACCOUNT_ID ID: $ACCOUNT_ID"
+          echo "ACCOUNT_ID=$ACCOUNT_ID" >> $GITHUB_ENV
       - name: create iam role for fargate
         id: create-iam-role-for-fargate
         run: |
-          cat config/Pod-execution-role-trust-policy.json | envsubst '${{ env.AWS_ACCOUNT_ID }}' > Pod-execution-role-trust-policy.json
+          cat config/Pod-execution-role-trust-policy.json | envsubst '${{ env.ACCOUNT_ID }}' > Pod-execution-role-trust-policy.json
           
           aws iam create-role \
             --role-name AmazonEKSFargatePodExecutionRole \
