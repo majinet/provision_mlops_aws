@@ -18,5 +18,3 @@ vpc:
 
       us-east-1f:
         id: ${SUBNET_ID_1F}
-
-managedNodeGroups: []
