@@ -9,7 +9,7 @@ metadata:
   version: 1.27
 
 iam:
-  fargatePodExecutionRoleARN: arn:aws:iam::${AWS_ACCOUNT_ID}:role/AmazonEKSFargatePodExecutionRole
+  fargatePodExecutionRoleARN: "arn:aws:iam::${AWS_ACCOUNT_ID}:role/AmazonEKSFargatePodExecutionRole"
 
 vpc:
   id: ${VPC_ID} # (optional, must match VPC ID used for each subnet below)
@@ -18,7 +18,6 @@ vpc:
     # must provide 'private' and/or 'public' subnets by availability zone as shown
     private:
       us-east-1d:
-        id: ${SUBNET_ID_1D}
-
+        id: ${SUBNET_IDS_1}
       us-east-1f:
-        id: ${SUBNET_ID_1F}
+        id: ${SUBNET_IDS_2}
