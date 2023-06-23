@@ -69,4 +69,4 @@ jobs:
         id: create-eks-cluster
         run: | 
           cat config/amazon-eks-cluster.yaml | envsubst '${{ env.VPC_ID }} ${{ env.SUBNET_IDS_1 }} ${{ env.SUBNET_IDS_2 }}' > amazon-eks-cluster.yaml
-          eksctl create cluster -f amazon-eks-cluster.yaml
+          eksctl create cluster -f amazon-eks-cluster.yaml --fargate
