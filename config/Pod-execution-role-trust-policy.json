@@ -5,7 +5,7 @@
       "Effect": "Allow",
       "Condition": {
          "ArnLike": {
-            "aws:SourceArn": "arn:aws:eks:region-code:${$VPC_ID}:fargateprofile/my-cluster/*"
+            "aws:SourceArn": "arn:aws:eks:region-code:${AWS_ACCOUNT_ID}:fargateprofile/my-cluster/*"
          }
       },
       "Principal": {

@@ -43,23 +43,10 @@ jobs:
           curl -L https://github.com/a8m/envsubst/releases/download/v1.2.0/envsubst-`uname -s`-`uname -m` -o envsubst
           chmod +x envsubst
           sudo mv envsubst /usr/local/bin
-      - name: Set VPC ID
-        id: set-vpc-id
-        run: |
-          VPC_ID=$(aws sts get-caller-identity --query Account --output text)
-          echo "VPC ID: $VPC_ID"
-          echo "VPC_ID=$VPC_ID" >> $GITHUB_ENV
-      - name: Set AWS Account ID
-        id: set-aws-account-id
-        run: |
-          echo "ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)" >> $GITHUB_ENV
-      - name: Debug AWS Account ID
-        run: |
-          echo "ACCOUNT_ID: ${{ env.ACCOUNT_ID }}"
       - name: create iam role for fargate
         id: create-iam-role-for-fargate
         run: |
-          cat config/Pod-execution-role-trust-policy.json | envsubst '${{ env.VPC_ID }}' > Pod-execution-role-trust-policy.json
+          cat config/Pod-execution-role-trust-policy.json | envsubst '${{ secrets.AWS_ACCOUNT_ID }}' > Pod-execution-role-trust-policy.json
           
           aws iam create-role \
             --role-name AmazonEKSFargatePodExecutionRole \
