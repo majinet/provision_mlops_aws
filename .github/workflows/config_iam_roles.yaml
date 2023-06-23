@@ -46,7 +46,7 @@ jobs:
       - name: create iam role for fargate
         id: create-iam-role-for-fargate
         run: |
-          cat config/Pod-execution-role-trust-policy.json | envsubst '${{ secrets.AWS_ACCOUNT_ID }}' > Pod-execution-role-trust-policy.json
+          cat config/Pod-execution-role-trust-policy.json > Pod-execution-role-trust-policy.json
           
           aws iam create-role \
             --role-name AmazonEKSFargatePodExecutionRole \
