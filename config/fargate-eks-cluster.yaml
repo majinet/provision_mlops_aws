@@ -14,4 +14,3 @@ fargateProfiles:
       # All workloads in the "kube-system" Kubernetes namespace will be
       # scheduled onto Fargate:
       - namespace: kube-system
-    podExecutionRoleArn: arn:aws:iam::${AWS_ACCOUNT_ID}:role/AmazonEKSFargatePodExecutionRole

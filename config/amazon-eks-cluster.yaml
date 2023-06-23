@@ -6,6 +6,10 @@ kind: ClusterConfig
 metadata:
   name: eks-cluster
   region: us-east-1
+  version: 1.27
+
+iam:
+  fargatePodExecutionRoleARN: arn:aws:iam::${AWS_ACCOUNT_ID}:role/AmazonEKSFargatePodExecutionRole
 
 vpc:
   id: ${VPC_ID} # (optional, must match VPC ID used for each subnet below)
