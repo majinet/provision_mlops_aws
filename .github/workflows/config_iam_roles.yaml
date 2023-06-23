@@ -46,9 +46,10 @@ jobs:
       - name: Set AWS Account ID
         id: set-aws-account-id
         run: |
-          ACCOUNT_ID=404886641986
-          echo "ACCOUNT_ID ID: $ACCOUNT_ID"
-          echo "ACCOUNT_ID=$ACCOUNT_ID" >> $GITHUB_ENV
+          echo "ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)" >> $GITHUB_ENV
+      - name: Debug AWS Account ID
+        run: |
+          echo "ACCOUNT_ID: ${{ env.ACCOUNT_ID }}"
       - name: create iam role for fargate
         id: create-iam-role-for-fargate
         run: |
