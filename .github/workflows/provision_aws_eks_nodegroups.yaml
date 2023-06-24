@@ -1,4 +1,4 @@
-name: Provisioning AWS EKS
+Provisioning AWS EKS Nodegroups
 
 on:
   workflow_dispatch:
@@ -13,7 +13,7 @@ on:
 
 jobs:
   eks_aws:
-    name: Provisioning AWS EKS
+    name: Provisioning AWS EKS Nodegroups
     runs-on: ubuntu-latest
     outputs:
       env-name: ${{ steps.env-name.outputs.environment }}
@@ -48,26 +48,19 @@ jobs:
         run: |
           curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
           sudo mv -v /tmp/eksctl /usr/local/bin
-      - name: Set VPC ID
-        id: set-vpc-id
+      #- name: delete coredns in worker nodes
+      #  id: delete-coredns
+      #  run: |
+      #    kubectl patch deployment coredns -n kube-system --type json \
+      #    -p='[{"op": "remove", "path": "/spec/template/metadata/annotations/eks.amazonaws.com~1compute-type"}]'
+      - name: create managed node group
+        id: create-managed-node-group
         run: |
-          VPC_ID=$(aws cloudformation describe-stacks --stack-name aws-eks-vpc --query 'Stacks[0].Outputs[?OutputKey==`VpcId`].OutputValue' --output text)
-          echo "VPC ID: $VPC_ID"
-          echo "VPC_ID=$VPC_ID" >> $GITHUB_ENV
-      - name: Debug VPC_ID
-        run: |
-          echo "VPC_ID: ${{ env.VPC_ID }}"
-      - name: Get Subnet IDs
-        id: get-subnet-ids
-        run: |
-          subnetIds=$(aws cloudformation describe-stacks --stack-name aws-eks-vpc --query 'Stacks[0].Outputs[?OutputKey==`SubnetIds`].OutputValue' --output text)
-          echo "Subnet IDs: $subnetIds"
-          IFS=", " read -r var1 var2 <<< "$subnetIds"
-          echo "SUBNET_IDS_1=$var1" >> $GITHUB_ENV
-          echo "SUBNET_IDS_2=$var2" >> $GITHUB_ENV
-      - name: create eks cluster
-        id: create-eks-cluster
-        run: | 
-          cat config/amazon-eks-cluster.yaml | envsubst '${{ secrets.AWS_ACCOUNT_ID }} ${{ env.VPC_ID }} ${{ env.SUBNET_IDS_1 }} ${{ env.SUBNET_IDS_2 }}' > amazon-eks-cluster.yaml
-          cat amazon-eks-cluster.yaml
-          eksctl create cluster -f amazon-eks-cluster.yaml
+          aws eks update-kubeconfig --region us-east-1 --name eks-cluster
+          cat config/amazon-eks-managedNodeGroups.yaml > amazon-eks-managedNodeGroups.yaml
+          eksctl create nodegroup --config-file=amazon-eks-managedNodeGroups.yaml
+      #- name: create fargate profile
+      #  id: create-fargate-profile
+      #  run: |
+      #    cat config/fargate-eks-cluster.yaml | envsubst '${{ secrets.AWS_ACCOUNT_ID }}' > fargate-eks-cluster.yaml
+      #    eksctl create fargateprofile -f fargate-eks-cluster.yaml
