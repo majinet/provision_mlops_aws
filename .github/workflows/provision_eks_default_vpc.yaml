@@ -48,9 +48,17 @@ jobs:
         run: |
           curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
           sudo mv -v /tmp/eksctl /usr/local/bin
+      - name: install kubectl
+        id: install-kubectl
+        run: |
+          curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.27.1/2023-04-19/bin/linux/amd64/kubectl
+          chmod +x ./kubectl
+          mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$HOME/bin:$PATH
+          kubectl version --short --client
       - name: create eks cluster
         id: create-eks-cluster
         run: | 
           cat config/amazon-eks-cluster.yaml | envsubst '${{ secrets.AWS_ACCOUNT_ID }}' > amazon-eks-cluster.yaml
           cat amazon-eks-cluster.yaml
           eksctl create cluster -f amazon-eks-cluster.yaml
+          kubectl get svc
