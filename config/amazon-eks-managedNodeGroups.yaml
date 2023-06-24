@@ -1,6 +1,15 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: eks-cluster
+  region: us-east-1
+
 managedNodeGroups:
-  - name: ng-1
+  - name: on-demand
     desiredCapacity: 2
     privateNetworking: true # if only 'Private' subnets are given, this must be enabled
-    instanceTypes: [ "t2.micro" ]
-    spot: true
+    instanceTypes:
+    - t2.micro
+    #spot: true
+    volumeSize: 30
