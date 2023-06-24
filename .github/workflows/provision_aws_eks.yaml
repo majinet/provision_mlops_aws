@@ -46,8 +46,14 @@ jobs:
       - name: install eksctl
         id: install-eksctl
         run: |
-          curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
-          sudo mv -v /tmp/eksctl /usr/local/bin
+          # for ARM systems, set ARCH to: `arm64`, `armv6` or `armv7`
+          ARCH=amd64
+          PLATFORM=$(uname -s)_$ARCH
+
+          curl -sLO "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$PLATFORM.tar.gz"
+          tar -xzf eksctl_$PLATFORM.tar.gz -C /tmp && rm eksctl_$PLATFORM.tar.gz
+          sudo mv /tmp/eksctl /usr/local/bin
+
       - name: Set VPC ID
         id: set-vpc-id
         run: |
