@@ -13,11 +13,9 @@ managedNodeGroups:
     instanceType: t2.micro
     #spot: true
     volumeSize: 20
-    availabilityZones: ["us-east-1d", "us-east-1f"]
     minSize: 1
     maxSize: 5
-    ssh:
-      enableSsm: true
+
     iam:
       withAddonPolicies:
         imageBuilder: true
