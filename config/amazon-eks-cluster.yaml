@@ -8,13 +8,15 @@ metadata:
   region: us-east-1
   version: "1.27"
 
-  additionalEndpointServices:
+#privateCluster:
+#  enabled: true
+#  additionalEndpointServices:
     # For Cluster Autoscaler
-    - "autoscaling"
+#    - "autoscaling"
     # CloudWatch logging
-    - "logs"
+#    - "logs"
     # Cloudformation
-    - "cloudformation"
+#    - "cloudformation"
 
 iam:
   fargatePodExecutionRoleARN: "arn:aws:iam::${AWS_ACCOUNT_ID}:role/AmazonEKSFargatePodExecutionRole"
