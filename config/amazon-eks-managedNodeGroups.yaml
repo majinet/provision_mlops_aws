@@ -8,12 +8,12 @@ metadata:
 managedNodeGroups:
   - name: on-demand
     labels: { role: workers }
-    desiredCapacity: 2
+    desiredCapacity: 1
     privateNetworking: true # if only 'Private' subnets are given, this must be enabled
-    instanceType: t2.micro
-    #spot: true
+    instanceTypes: ["r5.large"]
+    spot: true
     volumeSize: 20
-    minSize: 1
+    minSize: 0
     maxSize: 5
 
     iam:
@@ -21,3 +21,5 @@ managedNodeGroups:
         imageBuilder: true
         autoScaler: true
         ebs: true
+        fsx: true
+        efs: true

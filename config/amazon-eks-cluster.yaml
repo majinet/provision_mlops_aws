@@ -18,6 +18,16 @@ metadata:
     # Cloudformation
 #    - "cloudformation"
 
+availabilityZones: ["us-east-1d",  "us-east-1f"]
+
+addons:
+  - name: vpc-cni
+    version: latest
+  - name: coredns
+    version: latest
+  - name: kube-proxy
+    version: latest
+
 iam:
   fargatePodExecutionRoleARN: "arn:aws:iam::${AWS_ACCOUNT_ID}:role/AmazonEKSFargatePodExecutionRole"
 
