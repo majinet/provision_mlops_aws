@@ -1,4 +1,4 @@
-Provisioning AWS EKS Nodegroups
+name: Provisioning AWS EKS Nodegroups
 
 on:
   workflow_dispatch:
