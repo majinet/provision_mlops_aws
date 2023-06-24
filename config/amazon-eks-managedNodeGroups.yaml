@@ -16,7 +16,8 @@ managedNodeGroups:
     availabilityZones: ["us-east-1d", "us-east-1f"]
     minSize: 1
     maxSize: 5
-    enableSsm: true
+    ssh:
+      enableSsm: true
     iam:
       withAddonPolicies:
         imageBuilder: true
