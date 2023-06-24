@@ -46,8 +46,20 @@ jobs:
       - name: install eksctl
         id: install-eksctl
         run: |
-          curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
-          sudo mv -v /tmp/eksctl /usr/local/bin
+          # for ARM systems, set ARCH to: `arm64`, `armv6` or `armv7`
+          ARCH=amd64
+          PLATFORM=$(uname -s)_$ARCH
+
+          curl -sLO "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$PLATFORM.tar.gz"
+          tar -xzf eksctl_$PLATFORM.tar.gz -C /tmp && rm eksctl_$PLATFORM.tar.gz
+          sudo mv /tmp/eksctl /usr/local/bin
+      - name: install kubectl
+        id: install-kubectl
+        run: |
+          curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.27.1/2023-04-19/bin/linux/amd64/kubectl
+          chmod +x ./kubectl
+          mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$HOME/bin:$PATH
+          kubectl version --short --client
       #- name: delete coredns in worker nodes
       #  id: delete-coredns
       #  run: |
@@ -59,6 +71,7 @@ jobs:
           aws eks update-kubeconfig --region us-east-1 --name eks-cluster
           cat config/amazon-eks-managedNodeGroups.yaml > amazon-eks-managedNodeGroups.yaml
           eksctl create nodegroup --config-file=amazon-eks-managedNodeGroups.yaml
+          kubectl get all -A
       #- name: create fargate profile
       #  id: create-fargate-profile
       #  run: |
