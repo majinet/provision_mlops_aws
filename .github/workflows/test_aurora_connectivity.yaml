@@ -44,4 +44,4 @@ jobs:
         run: |
           aws eks update-kubeconfig --region us-east-1 --name eks-cluster
           kubectl create ns testdb
-          kubectl run pgsql-postgresql-client --rm --tty -i --restart='Never' --namespace testdb --image docker.io/bitnami/postgresql:11.7.0-debian-10-r9 --env="PGPASSWORD=${{ secrets.FLYTEADMIN }}" --command -- psql testdb --host flyteadmin.cluster-c7c9lvin3sa8.us-east-1.rds.amazonaws.com -U flyteadmin -d flyteadmin -p 5432
+          kubectl run pgsql-postgresql-client --rm --tty -i --restart='Never' --namespace testdb --image public.ecr.aws/bitnami/postgresql:latest --env="PGPASSWORD=${{ secrets.FLYTEADMIN }}" --command -- psql testdb --host flyteadmin.cluster-c7c9lvin3sa8.us-east-1.rds.amazonaws.com -U flyteadmin -d flyteadmin -p 5432
