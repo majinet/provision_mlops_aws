@@ -43,5 +43,14 @@ jobs:
         id: test-conn-aurora
         run: |
           aws eks update-kubeconfig --region us-east-1 --name eks-cluster
-          kubectl create ns testdb
+          NAMESPACE="testdb"
+
+          # Check if the namespace exists
+          if kubectl get namespace "$NAMESPACE" >/dev/null 2>&1; then
+            echo "Namespace $NAMESPACE already exists. Skipping creation."
+          else
+            echo "Namespace $NAMESPACE does not exist. Creating..."
+            kubectl create namespace "$NAMESPACE"
+          fi
+
           kubectl run pgsql-postgresql-client --rm --tty -i --restart='Never' --namespace testdb --image public.ecr.aws/bitnami/postgresql:latest --env="PGPASSWORD=${{ secrets.FLYTEADMIN }}" --command -- psql testdb --host flyteadmin.cluster-c7c9lvin3sa8.us-east-1.rds.amazonaws.com -U flyteadmin -d flyteadmin -p 5432
