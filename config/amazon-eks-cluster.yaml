@@ -20,13 +20,13 @@ privateCluster:
 
 availabilityZones: ["us-east-1d",  "us-east-1f"]
 
-addons:
-  - name: vpc-cni
-    version: latest
-  - name: coredns
-    version: latest
-  - name: kube-proxy
-    version: latest
+#addons:
+#  - name: vpc-cni
+#    version: latest
+#  - name: coredns
+#    version: latest
+#  - name: kube-proxy
+#    version: latest
 
 iam:
   serviceRoleARN: "arn:aws:iam::${AWS_ACCOUNT_ID}:role/eksClusterRole"
@@ -38,10 +38,10 @@ vpc:
   #clusterEndpoints:
   #  publicAccess: true
   #  privateAccess: true
-  subnets:
+  #subnets:
     # must provide 'private' and/or 'public' subnets by availability zone as shown
-    private:
-      us-east-1d:
-        id: ${SUBNET_IDS_1}
-      us-east-1f:
-        id: ${SUBNET_IDS_2}
+  #  private:
+  #    us-east-1d:
+  #      id: ${SUBNET_IDS_1}
+  #    us-east-1f:
+  #      id: ${SUBNET_IDS_2}
