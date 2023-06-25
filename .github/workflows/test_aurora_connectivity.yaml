@@ -54,6 +54,12 @@ jobs:
           fi
 
           kubectl get all -A
-          lookup public.ecr.aws
-          set -e
-          kubectl run pgsql-postgresql-client --rm --tty -i --restart='Never' --namespace testdb --image public.ecr.aws/bitnami/postgresql:latest --env="PGPASSWORD=${{ secrets.FLYTEADMIN }}" --command -- psql testdb --host flyteadmin.cluster-c7c9lvin3sa8.us-east-1.rds.amazonaws.com -U flyteadmin -d flyteadmin -p 5432
+          
+          kubectl run -i \
+          --tty load-generator \
+          --rm --image=busybox \
+          --restart=Never \
+          -- /bin/sh -c "while sleep 0.01; do wget -q -O- curl -v https://gallery.ecr.aws/bitnami/postgresql; done"
+    
+          #set -e
+          #kubectl run pgsql-postgresql-client --rm --tty -i --restart='Never' --namespace testdb --image public.ecr.aws/bitnami/postgresql:latest --env="PGPASSWORD=${{ secrets.FLYTEADMIN }}" --command -- psql testdb --host flyteadmin.cluster-c7c9lvin3sa8.us-east-1.rds.amazonaws.com -U flyteadmin -d flyteadmin -p 5432
