@@ -18,7 +18,7 @@ privateCluster:
     # Cloudformation
 #    - "cloudformation"
 
-availabilityZones: ["us-east-1c", "us-east-1d",  "us-east-1f"]
+#availabilityZones: ["us-east-1c", "us-east-1d",  "us-east-1f"]
 
 #addons:
 #  - name: vpc-cni
@@ -38,10 +38,10 @@ vpc:
   #clusterEndpoints:
   #  publicAccess: true
   #  privateAccess: true
-  #subnets:
+  subnets:
     # must provide 'private' and/or 'public' subnets by availability zone as shown
-  #  private:
-  #    us-east-1d:
-  #      id: ${SUBNET_IDS_1}
-  #    us-east-1f:
-  #      id: ${SUBNET_IDS_2}
+    private:
+      us-east-1d:
+        id: ${SUBNET_IDS_1}
+      us-east-1f:
+        id: ${SUBNET_IDS_2}
