@@ -20,7 +20,7 @@ permissions:
 
 jobs:
   eks_aws:
-    name: Provisioning AWS EKS
+    name: Test Connectivity
     runs-on: ubuntu-latest
     outputs:
       env-name: ${{ steps.env-name.outputs.environment }}
