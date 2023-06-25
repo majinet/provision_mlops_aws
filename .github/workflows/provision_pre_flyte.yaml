@@ -1,0 +1,96 @@
+ame: Provisioning AWS EKS with default VPC
+
+on:
+  workflow_dispatch:
+    inputs:
+      region:
+        description: 'AWS Region'
+        required: true
+        default: 'us-east-1'
+      #keypair:
+      #  description: 'SSH Key Pair'
+      #  required: true
+
+env:
+  AWS_REGION : ${{ github.event.inputs.region}} #Change to reflect your Region
+
+jobs:
+  eks_aws:
+    name: Provisioning AWS EKS
+    runs-on: ubuntu-latest
+    outputs:
+      env-name: ${{ steps.env-name.outputs.environment }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v1.7.0
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubAction-AssumeRoleWithAction #change to reflect your IAM role’s ARN
+          role-session-name: GitHub_to_AWS_via_FederatedOIDC
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Check if IAM Cluster role exists
+        id: check-cluster-role
+        run: |
+          aws iam get-role --role-name eksClusterRole > /dev/null 2>&1 || echo "::set-output name=role_exists::false"
+      - name: Create IAM role for Cluster
+        id: create-iam-role-for-cluster
+        if: steps.check-cluster-role.outputs.role_exists == 'false'
+        run: |
+          aws iam create-role \
+            --role-name eksClusterRole \
+            --assume-role-policy-document file://"config/cluster-trust-policy.json"
+          
+          aws iam attach-role-policy \
+            --policy-arn arn:aws:iam::aws:policy/AmazonEKSClusterPolicy \
+            --role-name eksClusterRole
+      - name: Check if EKS Node IAM role exists
+        id: check-node-role
+        run: |
+          aws iam get-role --role-name AmazonEKSNodeRole > /dev/null 2>&1 || echo "::set-output name=role_exists::false"
+      - name: Create IAM role for Node
+        id: create-iam-role-for-node
+        if: steps.check-node-role.outputs.role_exists == 'false'
+        run: |
+          aws iam create-role \
+            --role-name AmazonEKSNodeRole \
+            --assume-role-policy-document file://"config/node-role-trust-relationship.json"
+
+          aws iam attach-role-policy \
+            --policy-arn arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy \
+            --role-name AmazonEKSNodeRole
+          
+          aws iam attach-role-policy \
+            --policy-arn arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly \
+            --role-name AmazonEKSNodeRole
+      - name: Check if Flyte system IAM role exists
+        id: check-flyte-system-role
+        run: |
+          aws iam get-role --role-name FlyteSystemRole > /dev/null 2>&1 || echo "::set-output name=role_exists::false"
+      - name: Create IAM role for Flyte system
+        id: create-iam-role-for-flyte-system
+        if: steps.check-flyte-system-role.outputs.role_exists == 'false'
+        run: |
+          aws iam create-role \
+            --role-name FlyteSystemRole \
+            --assume-role-policy-document file://"config/node-role-trust-relationship.json"
+
+          aws iam attach-role-policy \
+            --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess \
+            --role-name FlyteSystemRole
+      - name: Check if Flyte user IAM role exists
+        id: check-flyte-user-role
+        run: |
+          aws iam get-role --role-name FlyteUserRole > /dev/null 2>&1 || echo "::set-output name=role_exists::false"
+      - name: Create IAM role for Flyte user
+        id: create-iam-role-for-flyte-user
+        if: steps.check-flyte-user-role.outputs.role_exists == 'false'
+        run: |
+          aws iam create-role \
+            --role-name FlyteUserRole \
+            --assume-role-policy-document file://"config/node-role-trust-relationship.json"
+
+          aws iam attach-role-policy \
+            --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess \
+            --role-name FlyteUserRole
+          
