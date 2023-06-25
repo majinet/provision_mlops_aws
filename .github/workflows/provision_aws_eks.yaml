@@ -73,9 +73,10 @@ jobs:
         run: |
           subnetIds=$(aws cloudformation describe-stacks --stack-name aws-eks-vpc --query 'Stacks[0].Outputs[?OutputKey==`SubnetIds`].OutputValue' --output text)
           echo "Subnet IDs: $subnetIds"
-          IFS=", " read -r var1 var2 <<< "$subnetIds"
+          IFS=", " read -r var1 var2  var3 <<< "$subnetIds"
           echo "SUBNET_IDS_1=$var1" >> $GITHUB_ENV
           echo "SUBNET_IDS_2=$var2" >> $GITHUB_ENV
+          echo "SUBNET_IDS_3=$var3" >> $GITHUB_ENV
       - name: create eks cluster
         id: create-eks-cluster
         run: | 
