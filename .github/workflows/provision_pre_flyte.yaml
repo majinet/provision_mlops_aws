@@ -1,4 +1,4 @@
-ame: Provisioning AWS EKS with default VPC
+name: Provisioning AWS EKS with default VPC
 
 on:
   workflow_dispatch:
