@@ -34,6 +34,12 @@ jobs:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubAction-AssumeRoleWithAction #change to reflect your IAM role’s ARN
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
           aws-region: ${{ env.AWS_REGION }}
+      - name: install envsubst
+        id: install-envsubst
+        run: |
+          curl -L https://github.com/a8m/envsubst/releases/download/v1.2.0/envsubst-`uname -s`-`uname -m` -o envsubst
+          chmod +x envsubst
+          sudo mv envsubst /usr/local/bin
       - name: Check if IAM Cluster role exists
         id: check-cluster-role
         run: |
@@ -68,6 +74,17 @@ jobs:
           aws iam attach-role-policy \
             --policy-arn arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly \
             --role-name AmazonEKSNodeRole
+      - name: Get ARN of ODIC provider
+        id: get-oidc-provider-arn
+        run: |
+          OIDC_PROVIDER_NAME=$(aws iam list-open-id-connect-providers --query 'OpenIDConnectProviderList[?contains(Arn, `oidc.eks.us-east-1.amazonaws.com`)].Arn' --output text)
+
+          OIDC_PROVIDER_ARN=$(aws iam list-open-id-connect-providers --query 'OpenIDConnectProviderList[?Arn==`arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:oidc-provider/$OIDC_PROVIDER_NAME`].Arn' --output text)
+          echo "OIDC_PROVIDER_ARN: $OIDC_PROVIDER_ARN"
+          echo "OIDC_PROVIDER_ARN=$OIDC_PROVIDER_ARN" >> $GITHUB_ENV
+      - name: Trust between ODIC and Flyte
+        id: trust-between-oidc-and-flyte
+        run: |
       - name: Check if Flyte system IAM role exists
         id: check-flyte-system-role
         run: |
@@ -76,13 +93,16 @@ jobs:
         id: create-iam-role-for-flyte-system
         if: steps.check-flyte-system-role.outputs.role_exists == 'false'
         run: |
+          cat config/odic-flyte-trust-policy.json | envsubst '${{ secrets.AWS_ACCOUNT_ID }} ${{ env.AWS_REGION }} ${{ env.OIDC_PROVIDER_ARN }}' > odic-flyte-trust-policy.json
+          cat odic-flyte-trust-policy.json
+          
           aws iam create-role \
-            --role-name FlyteSystemRole \
-            --assume-role-policy-document file://"config/node-role-trust-relationship.json"
+            --role-name iam-role-flyte \
+            --assume-role-policy-document file://"odic-flyte-trust-policy.json"
 
           aws iam attach-role-policy \
             --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess \
-            --role-name FlyteSystemRole
+            --role-name iam-role-flyte
       - name: Check if Flyte user IAM role exists
         id: check-flyte-user-role
         run: |
@@ -92,10 +112,15 @@ jobs:
         if: steps.check-flyte-user-role.outputs.role_exists == 'false'
         run: |
           aws iam create-role \
-            --role-name FlyteUserRole \
-            --assume-role-policy-document file://"config/node-role-trust-relationship.json"
+            --role-name flyte-user-role \
+            --assume-role-policy-document file://"odic-flyte-trust-policy.json"
 
           aws iam attach-role-policy \
             --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess \
-            --role-name FlyteUserRole
-          
+            --role-name flyte-user-role
+      - name: Set VPC ID
+        id: set-vpc-id
+        run: |
+          VPC_ID=$(aws cloudformation describe-stacks --stack-name eksctl-eks-cluster-cluster --query 'Stacks[0].Outputs[?OutputKey==`VPC`].OutputValue' --output text)
+          echo "VPC ID: $VPC_ID"
+          echo "VPC_ID=$VPC_ID" >> $GITHUB_ENV

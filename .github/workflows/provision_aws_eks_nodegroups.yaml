@@ -69,7 +69,8 @@ jobs:
         id: create-managed-node-group
         run: |
           aws eks update-kubeconfig --region us-east-1 --name eks-cluster
-          cat config/amazon-eks-managedNodeGroups.yaml > amazon-eks-managedNodeGroups.yaml
+          cat config/amazon-eks-managedNodeGroups.yaml | envsubst '${{ secrets.AWS_ACCOUNT_ID }}' > amazon-eks-managedNodeGroups.yaml
+          cat amazon-eks-managedNodeGroups.yaml
           eksctl create nodegroup --config-file=amazon-eks-managedNodeGroups.yaml
           kubectl get all -A
       #- name: create fargate profile

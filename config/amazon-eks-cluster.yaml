@@ -29,7 +29,8 @@ addons:
     version: latest
 
 iam:
-  fargatePodExecutionRoleARN: "arn:aws:iam::${AWS_ACCOUNT_ID}:role/AmazonEKSFargatePodExecutionRole"
+  serviceRoleARN: "arn:aws:iam::${AWS_ACCOUNT_ID}:role/eksClusterRole"
+  #fargatePodExecutionRoleARN: "arn:aws:iam::${AWS_ACCOUNT_ID}:role/AmazonEKSFargatePodExecutionRole"
 
 vpc:
   #id: ${VPC_ID} # (optional, must match VPC ID used for each subnet below)
