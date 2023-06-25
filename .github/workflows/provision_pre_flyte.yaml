@@ -93,7 +93,7 @@ jobs:
         id: create-iam-role-for-flyte-system
         if: steps.check-flyte-system-role.outputs.role_exists == 'false'
         run: |
-          cat config/odic-flyte-trust-policy.json | envsubst '${{ secrets.AWS_ACCOUNT_ID }} ${{ env.AWS_REGION }} ${{ env.OIDC_PROVIDER_ARN }}' > odic-flyte-trust-policy.json
+          cat config/odic-flyte-trust-policy.json | envsubst > odic-flyte-trust-policy.json
           cat odic-flyte-trust-policy.json
           
           aws iam create-role \

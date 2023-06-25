@@ -11,6 +11,15 @@ on:
       #  description: 'SSH Key Pair'
       #  required: true
 
+env:
+  AWS_REGION : ${{ github.event.inputs.region}} #Change to reflect your Region
+  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+
+# Permission can be added at job level or workflow level
+permissions:
+      id-token: write   # This is required for requesting the JWT
+      contents: read    # This is required for actions/checkout
+
 jobs:
   eks_aws:
     name: Provisioning AWS EKS Nodegroups
@@ -20,13 +29,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Configure AWS credentials
-        id: creds
-        uses: aws-actions/configure-aws-credentials@v1
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v1.7.0
         with:
-          aws-access-key-id: ${{ secrets.IAC_EKS_ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.IAC_EKS_SECRET_KEY }}
-          aws-region: ${{ github.event.inputs.region}}
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubAction-AssumeRoleWithAction #change to reflect your IAM role’s ARN
+          role-session-name: GitHub_to_AWS_via_FederatedOIDC
+          aws-region: ${{ env.AWS_REGION }}
       - name: Configure environment name
         id: env-name
         env:
@@ -69,7 +77,7 @@ jobs:
         id: create-managed-node-group
         run: |
           aws eks update-kubeconfig --region us-east-1 --name eks-cluster
-          cat config/amazon-eks-managedNodeGroups.yaml | envsubst '${{ secrets.AWS_ACCOUNT_ID }}' > amazon-eks-managedNodeGroups.yaml
+          cat config/amazon-eks-managedNodeGroups.yaml | envsubst > amazon-eks-managedNodeGroups.yaml
           cat amazon-eks-managedNodeGroups.yaml
           eksctl create nodegroup --config-file=amazon-eks-managedNodeGroups.yaml
           kubectl get all -A
