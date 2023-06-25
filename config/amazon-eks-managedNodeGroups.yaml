@@ -18,9 +18,9 @@ managedNodeGroups:
 
     iam:
       instanceRoleARN: "arn:aws:iam::${AWS_ACCOUNT_ID}:role/AmazonEKSNodeRole"
-      withAddonPolicies:
-        imageBuilder: true
-        autoScaler: false
-        ebs: true
-        fsx: true
-        efs: true
+      #withAddonPolicies:
+      #  imageBuilder: true
+      #  autoScaler: true
+      #  ebs: true
+      #  fsx: true
+      #  efs: true
