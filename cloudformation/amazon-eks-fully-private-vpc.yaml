@@ -57,9 +57,6 @@ Conditions:
       - Fn::Equals:
         - {Ref: 'AWS::Region'}
         - us-west-1
-      - Fn::Equals:
-        - { Ref: 'AWS::Region' }
-        - us-east-1
 
   HasMoreThan2Azs:
     Fn::Not:
@@ -97,7 +94,7 @@ Resources:
     Properties:
       AvailabilityZone:
         Fn::Select:
-        - '3'
+        - '0'
         - Fn::GetAZs:
             Ref: AWS::Region
       CidrBlock:
@@ -117,7 +114,7 @@ Resources:
     Properties:
       AvailabilityZone:
         Fn::Select:
-        - '5'
+        - '1'
         - Fn::GetAZs:
             Ref: AWS::Region
       CidrBlock:
