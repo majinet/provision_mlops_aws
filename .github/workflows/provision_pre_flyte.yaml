@@ -1,4 +1,4 @@
-name: Provisioning AWS EKS with default VPC
+name: Provisioning Flyte Pre-requisites
 
 on:
   workflow_dispatch:
