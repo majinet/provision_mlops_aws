@@ -8,8 +8,8 @@ metadata:
   region: us-east-1
   version: "1.27"
 
-privateCluster:
-  enabled: true
+#privateCluster:
+#  enabled: true
 #  additionalEndpointServices:
     # For Cluster Autoscaler
 #    - "autoscaling"
