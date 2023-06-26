@@ -37,12 +37,13 @@ jobs:
           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
           unzip awscliv2.zip
           sudo ./aws/install
-      - name: configure aws credentials
-        uses: aws-actions/configure-aws-credentials@v1.7.0
+      - name: Configure AWS credentials
+        id: creds
+        uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubAction-AssumeRoleWithAction #change to reflect your IAM role’s ARN
-          role-session-name: GitHub_to_AWS_via_FederatedOIDC
-          aws-region: ${{ env.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.NETWORK_AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.NETWORK_AWS_SECRET_KEY }}
+          aws-region: ${{ github.event.inputs.region}}
       - name: Configure environment name
         id: env-name
         env:
