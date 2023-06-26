@@ -9,7 +9,7 @@ metadata:
   version: "1.27"
 
 privateCluster:
-  enabled: true
+  enabled: false
 #  additionalEndpointServices:
     # For Cluster Autoscaler
 #    - "autoscaling"
