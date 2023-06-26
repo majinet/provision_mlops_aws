@@ -1,4 +1,4 @@
-name: test eks connectivity
+name: install pre-configured tools for self-hosted runner
 
 on:
   workflow_dispatch:
@@ -22,7 +22,7 @@ permissions:
 
 jobs:
   eks_aws:
-    name: test eks connectivity
+    name: install pre-configured tools
     runs-on: self-hosted
     outputs:
       env-name: ${{ steps.env-name.outputs.environment }}
