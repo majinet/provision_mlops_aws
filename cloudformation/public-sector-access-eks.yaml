@@ -62,7 +62,7 @@ Resources:
 
   Outputs:
 
-    SubnetIds:
+    SubnetId:
       Description: Subnets IDs in the VPC
       Value: !Ref PublicSubnet01
 
