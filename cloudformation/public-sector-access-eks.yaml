@@ -60,12 +60,12 @@ Resources:
       SubnetId: !Ref PublicSubnet01
       RouteTableId: !Ref PublicRouteTable
 
-  Outputs:
+Outputs:
 
-    SubnetIds:
-      Description: Subnets IDs in the VPC
-      Value: !Join [ ",", [ !Ref PublicSubnet01] ]
+  SubnetIds:
+    Description: Subnets IDs in the VPC
+    Value: !Join [ ",", [ !Ref PublicSubnet01] ]
 
-    VpcId:
-      Description: The VPC Id
-      Value: ${VPC_ID}
+  VpcId:
+    Description: The VPC Id
+    Value: ${VPC_ID}
