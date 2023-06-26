@@ -48,8 +48,7 @@ Resources:
               Ref: AWS::Region
       CidrBlock:
         Ref: PublicSubnet01Block
-      VpcId:
-        Ref: VPC
+      VpcId: ${VPC_ID}
       Tags:
         - Key: Name
           Value: !Sub "${AWS::StackName}-PublicSubnet01"
