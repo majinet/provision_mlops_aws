@@ -23,17 +23,18 @@ permissions:
 jobs:
   eks_aws:
     name: test eks connectivity
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     outputs:
       env-name: ${{ steps.env-name.outputs.environment }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Configure AWS credentials
-        id: creds
-        uses: aws-actions/configure-aws-credentials@v2
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v1.7.0
         with:
-          aws-region: ${{ github.event.inputs.region}}
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubAction-AssumeRoleWithAction #change to reflect your IAM role’s ARN
+          role-session-name: GitHub_to_AWS_via_FederatedOIDC
+          aws-region: ${{ env.AWS_REGION }}
       - name: Configure environment name
         id: env-name
         env:
@@ -70,5 +71,6 @@ jobs:
       - name: test connection
         id: test-conn
         run: |
-          aws eks update-kubeconfig --region us-east-1 --name eks-cluster
+          aws sts get-caller-identity
+          aws eks update-kubeconfig --region us-east-1 --name eks-cluster --role-arn arn:aws:iam::404886641986:role/eksClusterRole
           kubectl get all -A
