@@ -62,9 +62,9 @@ Resources:
 
   Outputs:
 
-    SubnetId:
+    SubnetIds:
       Description: Subnets IDs in the VPC
-      Value: !Ref PublicSubnet01
+      Value: !Join [ ",", [ !Ref PublicSubnet01] ]
 
     VpcId:
       Description: The VPC Id
