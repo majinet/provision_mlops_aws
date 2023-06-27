@@ -63,4 +63,4 @@ jobs:
           #-- /bin/sh -c "echo \"Hello World!\""
     
           #set -e
-          kubectl run pgsql-postgresql-client --rm --tty -i --restart='Never' --namespace testdb --image public.ecr.aws/bitnami/postgresql:latest --env="PGPASSWORD=flyteadmin" --command -- psql testdb --host flyteadmin-instance-1.c7c9lvin3sa8.us-east-1.rds.amazonaws.com -U flyteadmin -d flyteadmin -p 5432
+          kubectl run pgsql-postgresql-client --rm --tty -i --restart='Never' --namespace testdb --image public.ecr.aws/bitnami/postgresql:latest --env="PGPASSWORD=flyteadmin" --command -- psql testdb --host flyteadmin.cluster-c7c9lvin3sa8.us-east-1.rds.amazonaws.com -U flyteadmin -d flyteadmin -p 5432
