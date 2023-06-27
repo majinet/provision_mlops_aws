@@ -125,7 +125,7 @@ jobs:
       - name: Check if Flyte user IAM role exists
         id: check-flyte-user-role
         run: |
-          aws iam get-role --role-name FlyteUserRole > /dev/null 2>&1 || echo "::set-output name=role_exists::false"
+          aws iam get-role --role-name flyte-user-role > /dev/null 2>&1 || echo "::set-output name=role_exists::false"
       - name: Create IAM role for Flyte user
         id: create-iam-role-for-flyte-user
         if: steps.check-flyte-user-role.outputs.role_exists == 'false'
