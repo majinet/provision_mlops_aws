@@ -8,10 +8,10 @@ metadata:
 managedNodeGroups:
   - name: on-demand
     labels: { role: workers }
-    desiredCapacity: 1
+    desiredCapacity: 2
     privateNetworking: true # if only 'Private' subnets are given, this must be enabled
-    instanceTypes: ["t2.micro"]
-    spot: true
+    instanceTypes: ["t3.medium"]
+    spot: false
     volumeSize: 20
     minSize: 0
     maxSize: 5
