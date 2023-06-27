@@ -149,7 +149,13 @@ jobs:
       - name: check aws elb policy if exists
         id: check-aws-elb-policy
         run: |
-          aws iam get-policy --policy-name AWSLoadBalancerControllerIAMPolicy > /dev/null 2>&1 || echo "::set-output name=policy_exists::false"
+          if aws iam get-policy --policy-name AWSLoadBalancerControllerIAMPolicy --quiet 2>/dev/null; then
+            echo "IAM policy exists"
+            echo "::set-output name=policy_exists::true"
+          else
+            echo "IAM policy does not exist"
+            echo "::set-output name=policy_exists::false"
+          fi
       - name: create aws elb policy
         id: create-aw-elb-policy
         if: steps.check-aws-elb-policy.outputs.policy_exists == 'false'
