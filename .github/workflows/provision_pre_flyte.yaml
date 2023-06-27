@@ -180,7 +180,7 @@ jobs:
       - name: sign SSL Cert (https://docs.flyte.org/en/v1.0.0/deployment/aws/manual.html)
         id: sign-ssl-cert
         run: |
-          aws acm import-certificate --certificate fileb://config/flyte/crt.out --private-key fileb://config/flyte/key.out --region ${{env.AWS_REGION}}
+          aws acm import-certificate --certificate fileb://config/certs/flyte/crt.out --private-key fileb://config/certs/flyte/key.out --region ${{env.AWS_REGION}}
       - name: Create aws elb
         id: create-aws-elb
         run: |
