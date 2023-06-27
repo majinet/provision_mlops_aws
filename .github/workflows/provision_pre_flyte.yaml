@@ -156,9 +156,9 @@ jobs:
             echo "IAM policy does not exist"
             echo "::set-output name=policy_exists::false"
           fi
-      - name: create aws elb policy
+      - name: skip if policy_exists is true, otherwise create aws elb policy
         id: create-aw-elb-policy
-        if: steps.check-aws-elb-policy.outputs.policy_exists == 'false'
+        if: steps.check-aws-elb-policy.outputs.policy_exists == 'true'
         run: |
           # Download the IAM policy for the AWS Load Balancer Controller
           curl -o iam-policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.2.0/docs/install/iam_policy.json
