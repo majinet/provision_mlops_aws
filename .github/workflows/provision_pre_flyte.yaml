@@ -180,7 +180,19 @@ jobs:
       - name: sign SSL Cert (https://docs.flyte.org/en/v1.0.0/deployment/aws/manual.html)
         id: sign-ssl-cert
         run: |
-          aws acm import-certificate --certificate fileb://config/certs/flyte/crt.out --private-key fileb://config/certs/flyte/key.out --region ${{env.AWS_REGION}}
+          echo "self-signed SSL Cert pre-generated"
+          #certificate_arn=$(aws acm import-certificate --certificate fileb://config/certs/flyte/crt.out --private-key fileb://config/certs/flyte/key.out --region ${{env.AWS_REGION}})
+          #echo "certificate_arn: $certificate_arn"
+          #echo "certificate_arn=$certificate_arn" >> $GITHUB_ENV
+      - name: Deploy S3 AWS CloudFormation
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        with:
+          name: deploy-s3
+          template: cloudformation/aws_s3_bucket.yaml
+      - name: create log group
+        id: create-log-group
+        run: |
+          aws logs create-log-group --log-group-name flyteplatform
       - name: Create aws elb
         id: create-aws-elb
         run: |
@@ -197,6 +209,3 @@ jobs:
           
           Verify load balancer webhook service is running in kube-system ns
           kubectl get service -n kube-system
-      #- name: create s3 bucket
-      #- name: create log group
-          

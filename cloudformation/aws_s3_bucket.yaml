@@ -1,0 +1,93 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Create S3 Buckets for s360 workshop
+
+Parameters:
+  ProjectName:
+    ConstraintDescription: Project name that will be used as the prefix for all deployed resources
+    Default: s360
+    Description: Project name that will be used as the prefix for all deployed resources
+    Type: String
+
+  BucketNameSuffix:
+    ConstraintDescription: Bucket name suffix (e.g., global unique id); prefix is ${ProjectName}-${AssetType}-
+    Description: Bucket name suffix (e.g., global unique id); prefix is ${ProjectName}-${AssetType}-
+    Type: String
+
+  ProjectKeyArn:
+    ConstraintDescription: Project KMS Key ARN
+    Description: Project KMS Key ARN
+    Type: String
+
+Resources:
+  #########################
+  #
+  # Raw Data Bucket
+  #
+  #########################
+  RawDataBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: Private
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - BucketKeyEnabled: true
+            ServerSideEncryptionByDefault:
+              KMSMasterKeyID: !Ref ProjectKeyArn
+              SSEAlgorithm: 'aws\:kms'
+      BucketName: !Sub ${ProjectName}-raw-${BucketNameSuffix}
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: TRUE
+        BlockPublicPolicy: TRUE
+        IgnorePublicAcls: TRUE
+        RestrictPublicBuckets: TRUE
+      VersioningConfiguration:
+        Status: Enabled
+
+  RawDataBucketPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref RawDataBucket
+      PolicyDocument:
+        Id: S3 Put Object Policy
+        Version: 2012-10-17
+        Statement:
+          - Sid: Require SSE-KMS Encryption
+            Action:
+              - s3\:PutObject
+            Condition:
+              StringNotEquals:
+                's3\:x-amz-server-side-encryption': 'aws\:kms'
+            Effect: Deny
+            Principal: '*'
+            Resource:
+              - !Sub 'arn\:aws\:s3:::${RawDataBucket}/*'
+          - Sid: Require SSE-KMS Encryption Key
+            Action:
+              - s3\:PutObject
+            Condition:
+              StringNotLikeIfExists:
+                's3\:x-amz-server-side-encryption-aws-kms-key-id': !Ref ProjectKeyArn
+            Effect: Deny
+            Principal: '*'
+            Resource:
+              - !Sub 'arn\:aws\:s3:::${RawDataBucket}/*'
+
+  #########################
+  #
+  # Parameter Store Parameters
+  #
+  #########################
+
+  ParamRawDataBucketName:
+    Type: 'AWS::SSM::Parameter'
+    Properties:
+      Description: Raw Data Bucket Name
+      Name: /s360/s3/raw-data-bucket-name
+      Type: String
+      Value: !Ref RawDataBucket
+
+Outputs:
+
+  RawDataBucketName:
+    Description: Raw Data Bucket Name
+    Value: !Ref RawDataBucket

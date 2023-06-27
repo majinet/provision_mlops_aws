@@ -1,10 +1,10 @@
 userSettings:
   accountNumber: ${AWS_ACCOUNT_ID}
   accountRegion: ${AWS_REGION}
-  certificateArn: arn:aws:acm:us-east-1:404886641986:certificate/70eeb02b-9182-43c7-b502-f4ca067613bf
+  certificateArn: arn:aws:acm:us-east-1:404886641986:certificate/70eeb02b-9182-43c7-b502-f4ca067613bf #${certificate_arn}
   dbPassword: flyteadmin
   rdsHost: flyteadmin.cluster-c7c9lvin3sa8.us-east-1.rds.amazonaws.com
-  bucketName: eks-cluster-bucket-1
+  bucketName: ${BUCKET_NAME}
   logGroup: flyteplatform
   #redisHostUrl: <REDIS_HOST_URL>
   #redisHostKey: <REDIS_HOST_KEY>
