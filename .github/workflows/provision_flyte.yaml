@@ -63,10 +63,12 @@ jobs:
       - name: install Flyte
         id: install-flyte
         run: |
+          aws eks update-kubeconfig --region us-east-1 --name eks-cluster
+          
           helm repo add flyteorg https://flyteorg.github.io/flyte
           cat config/charts/flyte/values-eks.yaml | envsubst > values-eks.yaml
-          cat values-eks.yaml
+          
           helm install -n flyte -f values-eks.yaml -f config/charts/flyte/values-eks-override.yaml --create-namespace flyte flyteorg/flyte-core
           
           kubectl get pods -n flyte
-          aws eks update-kubeconfig --region us-east-1 --name eks-cluster
+          

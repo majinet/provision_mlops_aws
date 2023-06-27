@@ -19,7 +19,7 @@ flyteadmin:
   serviceAccount:
     # -- If the service account is created by you, make this false, else a new service account will be created and the iam-role-flyte will be added
     # you can change the name of this role
-    create: true
+    create: false
     annotations:
       eks.amazonaws.com/role-arn: arn:aws:iam::{{ .Values.userSettings.accountNumber }}:role/iam-role-flyte
 
@@ -52,7 +52,7 @@ datacatalog:
   replicaCount: 2
   serviceAccount:
     # -- If the service account is created by you, make this false
-    create: true
+    create: false
     annotations:
       eks.amazonaws.com/role-arn: arn:aws:iam::{{ .Values.userSettings.accountNumber }}:role/iam-role-flyte
   resources:
@@ -80,7 +80,7 @@ flytepropeller:
   manager: false
   serviceAccount:
     # -- If the service account is created by you, make this false
-    create: true
+    create: false
     annotations:
       eks.amazonaws.com/role-arn: arn:aws:iam::{{ .Values.userSettings.accountNumber }}:role/iam-role-flyte
   resources:
