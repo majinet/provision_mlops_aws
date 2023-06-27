@@ -167,6 +167,8 @@ jobs:
           # Add the EKS chart repo to helm
           helm repo add eks https://aws.github.io/eks-charts
           
+          aws eks update-kubeconfig --region us-east-1 --name eks-cluster
+          
           # Install the TargetGroupBinding CRDs
           kubectl apply -k "github.com/aws/eks-charts/stable/aws-load-balancer-controller//crds?ref=master"
           
