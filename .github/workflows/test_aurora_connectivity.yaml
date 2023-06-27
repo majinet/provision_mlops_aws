@@ -60,7 +60,7 @@ jobs:
           --tty load-generator \
           --rm --image=public.ecr.aws/docker/library/busybox:stable-musl \
           --restart=Never \
-          -- /bin/sh -c "while sleep 0.01; do wget -q -O- curl -v https://gallery.ecr.aws/bitnami/postgresql; done"
+          -- /bin/sh -c "echo \"Hello World!\""
     
           #set -e
-          #kubectl run pgsql-postgresql-client --rm --tty -i --restart='Never' --namespace testdb --image public.ecr.aws/bitnami/postgresql:latest --env="PGPASSWORD=${{ secrets.FLYTEADMIN }}" --command -- psql testdb --host flyteadmin.cluster-c7c9lvin3sa8.us-east-1.rds.amazonaws.com -U flyteadmin -d flyteadmin -p 5432
+          kubectl run pgsql-postgresql-client --rm --tty -i --restart='Never' --namespace testdb --image public.ecr.aws/bitnami/postgresql:latest --env="PGPASSWORD=${{ secrets.FLYTEADMIN }}" --command -- psql testdb --host flyteadmin.cluster-c7c9lvin3sa8.us-east-1.rds.amazonaws.com -U flyteadmin -d flyteadmin -p 5432
