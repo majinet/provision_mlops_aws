@@ -10,14 +10,14 @@ managedNodeGroups:
     labels: { role: workers }
     desiredCapacity: 2
     privateNetworking: true # if only 'Private' subnets are given, this must be enabled
-    instanceTypes: ["t3.medium"]
+    instanceTypes: ["t2.micro"]
     spot: true
     volumeSize: 20
     minSize: 0
     maxSize: 5
 
-    iam:
-      instanceRoleARN: "arn:aws:iam::${AWS_ACCOUNT_ID}:role/AmazonEKSNodeRole"
+    #iam:
+      #instanceRoleARN: "arn:aws:iam::${AWS_ACCOUNT_ID}:role/AmazonEKSNodeRole"
       #withAddonPolicies:
       #  imageBuilder: true
       #  autoScaler: true
