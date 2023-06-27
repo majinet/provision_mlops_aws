@@ -130,6 +130,9 @@ jobs:
         id: create-iam-role-for-flyte-user
         if: steps.check-flyte-user-role.outputs.role_exists == 'false'
         run: |
+          cat config/odic-flyte-trust-policy.json | envsubst > odic-flyte-trust-policy.json
+          cat odic-flyte-trust-policy.json
+          
           aws iam create-role \
             --role-name flyte-user-role \
             --assume-role-policy-document file://"odic-flyte-trust-policy.json"
