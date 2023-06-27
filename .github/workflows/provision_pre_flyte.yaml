@@ -186,7 +186,7 @@ jobs:
           aws eks update-kubeconfig --region us-east-1 --name eks-cluster
           
           # Install the TargetGroupBinding CRDs
-          kubectl apply -k "github.com/aws/eks-charts/stable/aws-load-balancer-controller//crds?ref=master"
+          kubectl apply -k "github.com/aws/eks-charts/master/stable/aws-load-balancer-controller/crds/crds.yaml"
           
           # Install the load balancer controller using helm
           helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system --set clusterName=eks-cluster --set serviceAccount.create=false --set serviceAccount.name=aws-load-balancer-controller
