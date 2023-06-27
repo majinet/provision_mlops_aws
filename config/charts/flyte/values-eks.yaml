@@ -138,7 +138,7 @@ common:
       # -- aws-load-balancer-controller v2.1 or higher is required - https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.1/
       # For EKS if using [ALB](https://kubernetes-sigs.github.io/aws-load-balancer-controller/guide/ingress/annotations/), these annotations are set
       kubernetes.io/ingress.class: alb
-      alb.ingress.kubernetes.io/tags: service_instance=production
+      alb.ingress.kubernetes.io/tags: service_instance=staging
       alb.ingress.kubernetes.io/scheme: internet-facing
       alb.ingress.kubernetes.io/target-type: ip
       # -- This is the certificate arn of the cert imported in AWS certificate manager.
