@@ -146,8 +146,13 @@ jobs:
           VPC_ID=$(aws cloudformation describe-stacks --stack-name eksctl-eks-cluster-cluster --query 'Stacks[0].Outputs[?OutputKey==`VPC`].OutputValue' --output text)
           echo "VPC ID: $VPC_ID"
           echo "VPC_ID=$VPC_ID" >> $GITHUB_ENV
-      - name: Create aws elb
-        id: create-aws-elb
+      - name: check aws elb policy if exists
+        id: check-aws-elb-policy
+        run: |
+          aws iam get-policy aws iam get-policy --policy-name AWSLoadBalancerControllerIAMPolicy > /dev/null 2>&1 || echo "::set-output name=policy_exists::false"
+      - name: create aws elb policy
+        id: create-aw-elb-policy
+        if: steps.check-aws-elb-policy.outputs.policy_exists == 'false'
         run: |
           # Download the IAM policy for the AWS Load Balancer Controller
           curl -o iam-policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.2.0/docs/install/iam_policy.json
@@ -156,7 +161,9 @@ jobs:
           aws iam create-policy \
             --policy-name AWSLoadBalancerControllerIAMPolicy \
             --policy-document file://iam-policy.json
-          
+      - name: Create aws elb
+        id: create-aws-elb
+        run: |
           # Create an IAM role and ServiceAccount for the AWS Load Balancer controller
           eksctl create iamserviceaccount \
             --cluster=eks-cluster \
