@@ -1,5 +1,5 @@
 # Event-Driven MLOps Platform
-This repository showcases an Distributed Event-Driven MLOps Platform that has been meticulously designed to facilitate the fine-tuning of pre-training models. It provides a highly scalable, fault-tolerant, and cost-effective solution, delivering exceptional performance, all specifically tailored to cater to the demands of AI/ML applications.
+This repository showcases an Distributed Event-Driven MLOps Platform that has been meticulously designed to facilitate the fine-tuning of pre-training models or building a new AI Models. It provides a highly scalable, fault-tolerant, and cost-effective solution, delivering exceptional performance, all specifically tailored to cater to the demands of AI/ML applications.
 
 ## Benefits
 
@@ -17,8 +17,14 @@ Event-driven triggers for automation: Events can serve as triggers for automatin
 
 Event-driven data integration: MLOps often involves working with diverse data sources and systems. An event-driven architecture facilitates seamless integration of data from different sources and systems, enabling efficient data ingestion, transformation, and sharing across the MLOps pipeline.
 
-## Architecture
-We use AWS Cloud as implementation solution on MLOps. 
+## AWS Architectures
+By leveraging AWS Cloud for our MLOps implementation, we gain several benefits. Firstly, we can take advantage of managed services provided by AWS, which alleviates the burden of infrastructure management. This enables us to focus more on developing applications rather than dealing with on-premise infrastructure or maintaining data centers.
+
+Additionally, utilizing the cloud allows us to significantly reduce the time required for provisioning infrastructures. With AWS, we can rapidly set up and scale resources as needed, providing agility and flexibility for our MLOps workflows.
+
+Furthermore, opting for the cloud eliminates the need for upfront investments in hardware and software. By leveraging AWS Cloud, we can avoid the initial costs associated with purchasing and maintaining physical infrastructure, resulting in cost savings and improved financial efficiency.
+
+With the utilization of the Cloud, we can effortlessly implement agile and TDD (Test-Driven Development) methodologies, enabling us to achieve accelerated development processes.
 
 ### Core components:
 - Virtual Private Cloud (VPC)
