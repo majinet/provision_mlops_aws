@@ -1,0 +1,27 @@
+apiVersion: rds.services.k8s.aws/v1alpha1
+kind: DBInstance
+metadata:
+  name: flyteadmin
+  namespace: flyte
+spec:
+  allocatedStorage: 20
+  autoMinorVersionUpgrade: true
+  backupRetentionPeriod: 7
+  dbInstanceClass: db.t3.medium
+  dbInstanceIdentifier: flyteadmin
+  dbName: flyteadmin
+  dbSubnetGroupName: flyte_db_subnet_group
+  enablePerformanceInsights: true
+  engine: postgres
+  engineVersion: "14"
+  masterUsername: flyteadmin
+  masterUserPassword:
+    namespace: flyte
+    name: flyte-postgres-creds
+    key: password
+  multiAZ: true
+  publiclyAccessible: false
+  storageEncrypted: true
+  storageType: gp3
+  vpcSecurityGroupIDs:
+    - ${RDS_SECURITY_GROUP_ID}

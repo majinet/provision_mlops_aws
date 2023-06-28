@@ -1,0 +1,149 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Private DB subnet group'
+
+Parameters:
+
+  VpcBlock:
+    Type: String
+    Default: 192.168.0.0/16
+    Description:
+      The CIDR range for the VPC. This should be a valid private (RFC 1918) CIDR range.
+
+  PrivateDBSubnet01Block:
+    Type: String
+    Default: 192.168.200.0/18
+    Description: CidrBlock for private subnet 01 within the VPC
+
+  PrivateDBSubnet02Block:
+    Type: String
+    Default: 192.168.201.0/18
+    Description: CidrBlock for private subnet 02 within the VPC
+
+  DBPort:
+    Description: TCP/IP Port for the Database Instance
+    Type: Number
+    Default: 5432
+    ConstraintDescription: 'Must be in the range [1150-65535]'
+    MinValue: 1150
+    MaxValue: 65535
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      -
+        Label:
+          default: "Worker Network Configuration"
+        Parameters:
+          - VpcBlock
+          - PrivateDBSubnet01Block
+          - PrivateDBSubnet02Block
+          - DBPort
+
+Resources:
+  PrivateDBSubnet01:
+    Type: AWS::EC2::Subnet
+    Metadata:
+      Comment: DB Private Subnet 01
+    Properties:
+      AvailabilityZone:
+        Fn::Select:
+          - '3'
+          - Fn::GetAZs:
+              Ref: AWS::Region
+      CidrBlock:
+        Ref: PrivateDBSubnet01Block
+      VpcId: ${VPC_ID}
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-PrivateDBSubnet01"
+        - Key: kubernetes.io/role/internal-elb
+          Value: 1
+
+  PrivateDBSubnet02:
+    Type: AWS::EC2::Subnet
+    Metadata:
+      Comment: DB Private Subnet 02
+    Properties:
+      AvailabilityZone:
+        Fn::Select:
+          - '5'
+          - Fn::GetAZs:
+              Ref: AWS::Region
+      CidrBlock:
+        Ref: PrivateDBSubnet02Block
+      VpcId: ${VPC_ID}
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-PrivateSubnet02"
+        - Key: kubernetes.io/role/internal-elb
+          Value: 1
+
+  PrivateDBRouteTable01:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: ${VPC_ID}
+      Tags:
+        - Key: Name
+          Value: Private DB Subnet AZ1
+        - Key: Network
+          Value: PrivateDB01
+
+  PrivateDBRouteTable02:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: ${VPC_ID}
+      Tags:
+        - Key: Name
+          Value: Private DB Subnet AZ2
+        - Key: Network
+          Value: PrivateDB02
+
+  PrivateSubnet01RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PrivateDBSubnet01
+      RouteTableId: !Ref PrivateDBRouteTable01
+
+  PrivateSubnet02RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PrivateDBSubnet02
+      RouteTableId: !Ref PrivateDBRouteTable02
+
+  ClusterSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: !Ref 'AWS::StackName'
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: !Ref DBPort
+          ToPort: !Ref DBPort
+          SourceSecurityGroupId: { 'Fn::ImportValue': !Sub '${Eks-Cluster-SG}' }
+          Description: 'Eks Cluster Security Group'
+      VpcId: ${VPC_ID}
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName}-AuroraClusterSecurityGroup'
+
+  ClusterSecurityGroupIngress:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      GroupId: !GetAtt 'ClusterSecurityGroup.GroupId'
+      IpProtocol: -1
+      SourceSecurityGroupId: !Ref ClusterSecurityGroup
+      Description: 'Self Reference'
+
+Outputs:
+
+  DBSubnetIds:
+    Description: Subnets IDs in the VPC
+    Value: !Join [ ",", [ !Ref PrivateDBSubnet01, !Ref PrivateDBSubnet02 ] ]
+
+  SecurityGroups:
+    Description: Security group for the cluster control plane communication with worker nodes
+    Value: !Join [ ",", [ !Ref ClusterSecurityGroup ] ]
+
+  VpcId:
+    Description: The VPC Id
+    Value: ${VPC_ID}

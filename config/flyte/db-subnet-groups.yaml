@@ -1,0 +1,10 @@
+apiVersion: rds.services.k8s.aws/v1alpha1
+kind: DBSubnetGroup
+metadata:
+  name: flyte_db_subnet_group
+  namespace: flyte
+spec:
+  name: flyte_db_subnet_group
+  description: Flyte DB Subnet Group
+  subnetIDs: [${EKS_SUBNET_IDS}]
+  tags: []
