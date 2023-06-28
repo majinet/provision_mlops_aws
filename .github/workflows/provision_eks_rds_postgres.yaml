@@ -64,12 +64,4 @@ jobs:
           Eks-Cluster-SG=$(aws cloudformation describe-stacks --stack-name eksctl-eks-cluster-cluster --query 'Stacks[0].Outputs[?OutputKey==`SecurityGroup`].OutputValue' --output text)
           echo "Eks-Cluster-SG: $Eks-Cluster-SG"
           echo "Eks-Cluster-SG=$Eks-Cluster-SG" >> $GITHUB_ENV
-      - name: update template
-        id: update-template
-        run: |
-          cat cloudformation/Aurora-Postgres-DB-Cluster.yaml | envsubst  > Aurora-Postgres-DB-Cluster.yaml
-      - name: Deploy to AWS CloudFormation
-        uses: aws-actions/aws-cloudformation-github-deploy@v1
-        with:
-          name: aws-eks-vpc
-          template: Aurora-Postgres-DB-Cluster.yaml
+      - name:

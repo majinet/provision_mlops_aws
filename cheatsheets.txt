@@ -1,0 +1,5 @@
+After created eks cluster, you can use create kubeconfig.
+
+''' aws eks update-kubeconfig --region us-east-1 --name eks-cluster --role-arn arn:aws:sts::404886641986:assumed-role/AWSReservedSSO_AdministratorAccess_5935e07ccaac217a/majinet-udacity-admin'''
+
+results: Added new context arn:aws:eks:us-east-1:404886641986:cluster/eks-cluster to /home/cloudshell-user/.kube/config
