@@ -1,0 +1,168 @@
+name: Provisioning AWS ACK SageMaker Controller
+
+on:
+  workflow_dispatch:
+    inputs:
+      region:
+        description: 'AWS Region'
+        required: true
+        default: 'us-east-1'
+      #keypair:
+      #  description: 'SSH Key Pair'
+      #  required: true
+
+env:
+  AWS_REGION : ${{ github.event.inputs.region}} #Change to reflect your Region
+  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+  CLUSTER_NAME: 'eks-cluster'
+
+# Permission can be added at job level or workflow level
+permissions:
+      id-token: write   # This is required for requesting the JWT
+      contents: read    # This is required for actions/checkout
+
+jobs:
+  ack_aws:
+    name: Provisioning AWS ACK SageMaker Controller
+    runs-on: ubuntu-latest
+    outputs:
+      env-name: ${{ steps.env-name.outputs.environment }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Configure AWS credentials
+        id: creds
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.IAC_EKS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.IAC_EKS_SECRET_KEY }}
+          aws-region: ${{ github.event.inputs.region}}
+      - name: Configure environment name
+        id: env-name
+        env:
+          REPO: ${{ github.repository }}
+        run: |
+          ENVIRONMENT=`echo $REPO | tr "/" "-"`
+          echo "Environment name: $ENVIRONMENT"
+          echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
+      #- name: Allow passwordless sudo
+      #  run: echo '${{ secrets.SUDO_PASSWORD }}' | sudo -Sv
+      - name: install envsubst
+        id: install-envsubst
+        run: |
+          curl -L https://github.com/a8m/envsubst/releases/download/v1.2.0/envsubst-`uname -s`-`uname -m` -o envsubst
+          chmod +x envsubst
+          sudo mv envsubst /usr/local/bin
+      - name: install eksctl
+        id: install-eksctl
+        run: |
+          # for ARM systems, set ARCH to: `arm64`, `armv6` or `armv7`
+          ARCH=amd64
+          PLATFORM=$(uname -s)_$ARCH
+
+          curl -sLO "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$PLATFORM.tar.gz"
+          tar -xzf eksctl_$PLATFORM.tar.gz -C /tmp && rm eksctl_$PLATFORM.tar.gz
+          sudo mv /tmp/eksctl /usr/local/bin
+      - name: install kubectl
+        id: install-kubectl
+        run: |
+          curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.27.1/2023-04-19/bin/linux/amd64/kubectl
+          chmod +x ./kubectl
+          mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$HOME/bin:$PATH
+          kubectl version --short --client
+      - name: install helm
+        id: install-helm
+        run: |
+          curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
+          sudo apt-get install apt-transport-https --yes
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+          sudo apt-get update -y
+          sudo apt-get install helm -y
+      - name: install yq
+        id: install-yq\
+        run: |
+          sudo add-apt-repository ppa:rmescandon/yq
+          sudo apt update -y
+          sudo apt install yq -y
+      - name: Health Check Cluster
+        id: health-check-eks
+        run: |
+          aws eks update-kubeconfig --name ${{env.CLUSTER_NAME}} --region ${{env.AWS_REGION}}
+          kubectl config get-contexts
+          
+          # Ensure cluster has compute
+          kubectl get nodes
+      - name: Configure IAM Permissions
+        id: config-iam-permission
+        run: |
+          # Before you can deploy your SageMaker service controller using an IAM role, associate an OpenID Connect (OIDC) provider with your IAM role to authenticate your cluster with the IAM service.
+          eksctl utils associate-iam-oidc-provider --cluster ${{env.CLUSTER_NAME}} \
+          --region ${{env.AWS_REGION}} --approve
+          
+          # Get the following OIDC information for future reference
+          OIDC_PROVIDER_URL=$(aws eks describe-cluster --name ${{env.CLUSTER_NAME}} --region ${{env.AWS_REGION}} \
+          --query "cluster.identity.oidc.issuer" --output text | cut -c9-)
+          
+          echo "OIDC_PROVIDER_URL: $OIDC_PROVIDER_URL"
+          echo "OIDC_PROVIDER_URL=$OIDC_PROVIDER_URL" >> $GITHUB_ENV
+          
+          cat config/ack/trust.json | envsubst  > trust.json
+          
+          # Run the iam create-role command to create an IAM role with the trust relationship you just defined in trust.json. This IAM role enables the Amazon EKS cluster to get and refresh credentials from IAM.
+          OIDC_ROLE_NAME=ack-controller-role-${{env.CLUSTER_NAME}}
+          aws --region ${{env.AWS_REGION}} iam create-role --role-name $OIDC_ROLE_NAME --assume-role-policy-document file://trust.json
+          
+          # Attach the AmazonSageMakerFullAccess Policy to the IAM Role to ensure that your SageMaker service controller has access to the appropriate resources.
+          aws --region ${{env.AWS_REGION}} iam attach-role-policy --role-name $OIDC_ROLE_NAME --policy-arn arn:aws:iam::aws:policy/AmazonSageMakerFullAccess
+          IAM_ROLE_ARN_FOR_IRSA=$(aws --region $SERVICE_REGION iam get-role --role-name $OIDC_ROLE_NAME --output text --query 'Role.Arn')
+          echo "IAM_ROLE_ARN_FOR_IRSA: $IAM_ROLE_ARN_FOR_IRSA"
+          echo "IAM_ROLE_ARN_FOR_IRSA=$IAM_ROLE_ARN_FOR_IRSA" >> $GITHUB_ENV
+          
+          # AmazonSageMakerFullAccess policy does not include permissions required to manage Domain, UserProfile or App resource. Create and attach the following Policy to the IAM Role to ensure that your SageMaker service controller has access to these resources.
+          aws --region ${{env.AWS_REGION}} iam put-role-policy --role-name $OIDC_ROLE_NAME --policy-name SagemakerStudioAccess --policy-document file://config/ack/sagemaker_studio_access.json
+      - name: Install the SageMaker ACK service controller
+        id: install-ack
+        run: |
+          # Get the SageMaker Helm chart and make it available on the client machine
+          HELM_EXPERIMENTAL_OCI=1
+          SERVICE=sagemaker
+          RELEASE_VERSION=$(curl -sL https://api.github.com/repos/aws-controllers-k8s/$SERVICE-controller/releases/latest | grep '"tag_name":' | cut -d'"' -f4)
+
+          if [[ -z "$RELEASE_VERSION" ]]; then
+            RELEASE_VERSION=v1.2.0
+          fi
+
+          CHART_EXPORT_PATH=/tmp/chart
+          CHART_REF=$SERVICE-chart
+          CHART_REPO=public.ecr.aws/aws-controllers-k8s/$CHART_REF
+          CHART_PACKAGE=$CHART_REF-$RELEASE_VERSION.tgz
+
+          mkdir -p $CHART_EXPORT_PATH
+
+          helm pull oci://$CHART_REPO --version $RELEASE_VERSION -d $CHART_EXPORT_PATH
+          tar xvf $CHART_EXPORT_PATH/$CHART_PACKAGE -C $CHART_EXPORT_PATH
+          
+          # Update the following values in the Helm chart
+          cd $CHART_EXPORT_PATH/$SERVICE-chart
+          yq e '.aws.region = env(${{env.AWS_REGION}})' -i values.yaml
+          yq e '.serviceAccount.annotations."eks.amazonaws.com/role-arn" = env(${{env.IAM_ROLE_ARN_FOR_IRSA}})' -i values.yaml
+          cd -
+          
+          # install the relevant custom resource definitions (CRDs) for the SageMaker ACK service controller
+          kubectl apply -f $CHART_EXPORT_PATH/$SERVICE-chart/crds
+          
+          # Create a namespace and install the SageMaker ACK service controller with the Helm chart
+          ACK_K8S_NAMESPACE=ack-system
+          helm install -n $ACK_K8S_NAMESPACE --create-namespace --skip-crds ack-$SERVICE-controller \
+           $CHART_EXPORT_PATH/$SERVICE-chart
+          
+          # Verify that the CRDs and Helm charts were deployed
+          kubectl get crds | grep "services.k8s.aws"
+          kubectl get pods -n $ACK_K8S_NAMESPACE
+      - name: Create S3 bucket
+        id: create-s3-bucket
+        run: |
+          SAGEMAKER_BUCKET=ack-sagemaker-bucket-${{AWS_ACCOUNT_ID}}
+          
+          # Create the S3 bucket
+          aws s3api create-bucket --bucket "$SAGEMAKER_BUCKET" --region ${{env.AWS_REGION}}

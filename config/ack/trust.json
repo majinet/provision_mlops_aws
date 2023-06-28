@@ -1,0 +1,21 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::'$AWS_ACCOUNT_ID':oidc-provider/'${OIDC_PROVIDER_URL}'"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "'$OIDC_PROVIDER_URL':aud": "sts.amazonaws.com",
+          "'$OIDC_PROVIDER_URL':sub": [
+            "system:serviceaccount:ack-system:ack-sagemaker-controller",
+            "system:serviceaccount:ack-system:ack-applicationautoscaling-controller"
+          ]
+        }
+      }
+    }
+  ]
+}
