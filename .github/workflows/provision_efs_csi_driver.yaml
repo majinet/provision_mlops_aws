@@ -1,0 +1,201 @@
+name: Provisioning Amazon EFS CSI driver
+
+on:
+  workflow_dispatch:
+    inputs:
+      region:
+        description: 'AWS Region'
+        required: true
+        default: 'us-east-1'
+      #keypair:
+      #  description: 'SSH Key Pair'
+      #  required: true
+
+env:
+  AWS_REGION : ${{ github.event.inputs.region}} #Change to reflect your Region
+  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+  CLUSTER_NAME: 'eks-cluster'
+
+# Permission can be added at job level or workflow level
+permissions:
+      id-token: write   # This is required for requesting the JWT
+      contents: read    # This is required for actions/checkout
+
+jobs:
+  efs_csi_aws:
+    name: Provisioning Amazon EFS CSI driver
+    runs-on: ubuntu-latest
+    outputs:
+      env-name: ${{ steps.env-name.outputs.environment }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Configure AWS credentials
+        id: creds
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.IAC_EKS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.IAC_EKS_SECRET_KEY }}
+          aws-region: ${{ github.event.inputs.region}}
+      - name: Configure environment name
+        id: env-name
+        env:
+          REPO: ${{ github.repository }}
+        run: |
+          ENVIRONMENT=`echo $REPO | tr "/" "-"`
+          echo "Environment name: $ENVIRONMENT"
+          echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
+      #- name: Allow passwordless sudo
+      #  run: echo '${{ secrets.SUDO_PASSWORD }}' | sudo -Sv
+      - name: install envsubst
+        id: install-envsubst
+        run: |
+          curl -L https://github.com/a8m/envsubst/releases/download/v1.2.0/envsubst-`uname -s`-`uname -m` -o envsubst
+          chmod +x envsubst
+          sudo mv envsubst /usr/local/bin
+      - name: install eksctl
+        id: install-eksctl
+        run: |
+          # for ARM systems, set ARCH to: `arm64`, `armv6` or `armv7`
+          ARCH=amd64
+          PLATFORM=$(uname -s)_$ARCH
+
+          curl -sLO "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$PLATFORM.tar.gz"
+          tar -xzf eksctl_$PLATFORM.tar.gz -C /tmp && rm eksctl_$PLATFORM.tar.gz
+          sudo mv /tmp/eksctl /usr/local/bin
+      - name: install kubectl
+        id: install-kubectl
+        run: |
+          curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.27.1/2023-04-19/bin/linux/amd64/kubectl
+          chmod +x ./kubectl
+          mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$HOME/bin:$PATH
+          kubectl version --short --client
+      - name: install helm
+        id: install-helm
+        run: |
+          curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
+          sudo apt-get install apt-transport-https --yes
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+          sudo apt-get update -y
+          sudo apt-get install helm -y
+      - name: install yq
+        id: install-yq
+        run: |
+          sudo add-apt-repository ppa:rmescandon/yq
+          sudo apt update -y
+          sudo apt install yq -y
+      - name: Health Check Cluster
+        id: health-check-eks
+        run: |
+          aws eks update-kubeconfig --name ${{env.CLUSTER_NAME}} --region ${{env.AWS_REGION}}
+          kubectl config get-contexts
+          
+          # Ensure cluster has compute
+          kubectl get nodes
+      - name: Set VPC ID
+        id: set-vpc-id
+        run: |
+          VPC_ID=$(aws eks describe-cluster \
+                    --name ${{env.CLUSTER_NAME}} \
+                    --query "cluster.resourcesVpcConfig.vpcId" \
+                    --output text)
+          echo "VPC ID: $VPC_ID"
+          echo "VPC_ID=$VPC_ID" >> $GITHUB_ENV
+      - name: Set CIDR range
+        id: set-CIDR
+        run: |
+          cidr_range=$(aws ec2 describe-vpcs \
+              --vpc-ids ${{env.VPC_ID}} \
+              --query "Vpcs[].CidrBlock" \
+              --output text \
+              --region ${{env.AWS_REGION}})
+          
+          echo "CIDR_RANGE: $cidr_range"
+          echo "CIDR_RANGE=$cidr_range" >> $GITHUB_ENV
+      - name: Set Subnet ID for EFS
+        id: set-subnet-id
+        run: |
+          subnet_ids=$(aws eks describe-nodegroup --cluster-name ${{env.CLUSTER_NAME}} --nodegroup-name on-demand --query 'nodegroup.resourcesVpcConfig.subnetIds' --output text)
+          subnet_id_1=$(echo "$subnet_ids" | awk '{print $1}')
+          subnet_id_2=$(echo "$subnet_ids" | awk '{print $2}')
+          
+          echo "SUBNET_ID_1: $subnet_id_1"
+          echo "SUBNET_ID_1=$subnet_id_1" >> $GITHUB_ENV
+          
+          echo "SUBNET_ID_2: $subnet_id_2"
+          echo "SUBNET_ID_2=$subnet_id_2" >> $GITHUB_ENV
+      - name: Create an IAM policy and role
+        id: create-iam-role
+        run: |
+          aws iam create-policy \
+              --policy-name AmazonEKS_EFS_CSI_Driver_Policy \
+              --policy-document file://config/csi/efs/efs-csi-policy.json
+          
+          eksctl create iamserviceaccount \
+              --cluster ${{env.CLUSTER_NAME}} \
+              --namespace kube-system \
+              --name efs-csi-controller-sa \
+              --attach-policy-arn arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:policy/AmazonEKS_EFS_CSI_Driver_Policy \
+              --approve \
+              --region ${{env.AWS_REGION}}
+      - name: Install Amazon EFS driver
+        id: install-aws-efs-driver
+        run: |
+          # Add the Helm repo
+          helm repo add aws-efs-csi-driver https://kubernetes-sigs.github.io/aws-efs-csi-driver/
+          
+          # Update the repo
+          helm repo update aws-efs-csi-driver
+          
+          # Install a release of the driver using the Helm chart. Replace the repository address with the cluster's container image address
+          helm upgrade -i aws-efs-csi-driver aws-efs-csi-driver/aws-efs-csi-driver \
+              --namespace kube-system \
+              --set image.repository=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{env.AWS_REGION}}.amazonaws.com/eks/aws-efs-csi-driver \
+              --set controller.serviceAccount.create=false \
+              --set controller.serviceAccount.name=efs-csi-controller-sa
+      - name: Create security group with an inbound
+        id: create-sg-inbound
+        run: |
+          security_group_id=$(aws ec2 create-security-group \
+              --group-name MyEfsSecurityGroup \
+              --description "My EFS security group" \
+              --vpc-id ${{env.VPC_ID}} \
+              --output text)
+          
+          aws ec2 authorize-security-group-ingress \
+              --group-id $security_group_id \
+              --protocol tcp \
+              --port 2049 \
+              --cidr {{env.CIDR_RANGE}}
+          
+          echo "SECURITY_GROUP_ID: $security_group_id"
+          echo "SECURITY_GROUP_ID=$security_group_id" >> $GITHUB_ENV
+      - name: Create an Amazon EFS file system
+        id: create-aws-efs
+        run: |        
+          # Create a file system
+          file_system_id=$(aws efs create-file-system \
+              --region ${{env.AWS_REGION}} \
+              --performance-mode generalPurpose \
+              --query 'FileSystemId' \
+              --output text)
+          
+          # Add mount targets
+          aws efs create-mount-target \
+              --file-system-id $file_system_id \
+              --subnet-id ${{env.SUBNET_ID_1}} \
+              --security-groups ${{env.SECURITY_GROUP_ID}}
+          
+          echo "FILE_SYSTEM_ID: $file_system_id"
+          echo "FILE_SYSTEM_ID=$file_system_id" >> $GITHUB_ENV
+      - name: Create storage class
+        id: create-storage-class
+        run: |
+          cat config/csi/efs/storageclass.yaml | envsubst > storageclass.yaml
+          kubectl apply -f storageclass.yaml
+      - name: setup PersistentVolumeClaim
+        id: setup-pvc
+        run: |
+          kubectl apply -f config/csi/efs/pod.yaml
+          
+          kubectl get pods -n kube-system | grep efs-csi-controller
