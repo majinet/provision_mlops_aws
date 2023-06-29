@@ -109,7 +109,7 @@ jobs:
         run: |
           aws iam get-role --role-name ack-controller-role-${{env.CLUSTER_NAME}} > /dev/null 2>&1 || echo "::set-output name=role_exists::false"
           
-          IAM_ROLE_ARN_FOR_IRSA=$(aws --region $SERVICE_REGION iam get-role --role-name $OIDC_ROLE_NAME --output text --query 'Role.Arn')
+          IAM_ROLE_ARN_FOR_IRSA=$(aws --region ${{env.AWS_REGION}} iam get-role --role-name ack-controller-role-${{env.CLUSTER_NAME}} --output text --query 'Role.Arn')
           echo "IAM_ROLE_ARN_FOR_IRSA: $IAM_ROLE_ARN_FOR_IRSA"
           echo "IAM_ROLE_ARN_FOR_IRSA=$IAM_ROLE_ARN_FOR_IRSA" >> $GITHUB_ENV
       - name: Create ack role
