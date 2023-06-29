@@ -69,7 +69,7 @@ jobs:
         run: |
           aws iam create-role \
             --role-name eksClusterRole \
-            --assume-role-policy-document file://"config/cluster-trust-policy.json"
+            --assume-role-policy-document file://"config/eks/cluster-trust-policy.json"
           
           aws iam attach-role-policy \
             --policy-arn arn:aws:iam::aws:policy/AmazonEKSClusterPolicy \
@@ -84,7 +84,7 @@ jobs:
         run: |
           aws iam create-role \
             --role-name AmazonEKSNodeRole \
-            --assume-role-policy-document file://"config/node-role-trust-relationship.json"
+            --assume-role-policy-document file://"config/eks/node-role-trust-relationship.json"
 
           aws iam attach-role-policy \
             --policy-arn arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy \
@@ -112,7 +112,7 @@ jobs:
         id: create-iam-role-for-flyte-system
         if: steps.check-flyte-system-role.outputs.role_exists == 'false'
         run: |
-          cat config/odic-flyte-trust-policy.json | envsubst > odic-flyte-trust-policy.json
+          cat config/flyte/odic-flyte-trust-policy.json | envsubst > odic-flyte-trust-policy.json
           cat odic-flyte-trust-policy.json
           
           aws iam create-role \
@@ -130,7 +130,7 @@ jobs:
         id: create-iam-role-for-flyte-user
         if: steps.check-flyte-user-role.outputs.role_exists == 'false'
         run: |
-          cat config/odic-flyte-trust-policy.json | envsubst > odic-flyte-trust-policy.json
+          cat config/flyte/odic-flyte-trust-policy.json | envsubst > odic-flyte-trust-policy.json
           cat odic-flyte-trust-policy.json
           
           aws iam create-role \

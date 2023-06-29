@@ -1,4 +1,4 @@
-name: Provisioning Flyte
+name: Provisioning AWS EKS Nodegroups
 
 on:
   workflow_dispatch:
@@ -22,7 +22,7 @@ permissions:
 
 jobs:
   eks_aws:
-    name: Provisioning Flyte
+    name: Provisioning AWS EKS Nodegroups
     runs-on: ubuntu-latest
     outputs:
       env-name: ${{ steps.env-name.outputs.environment }}
@@ -36,20 +36,22 @@ jobs:
           aws-access-key-id: ${{ secrets.IAC_EKS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.IAC_EKS_SECRET_KEY }}
           aws-region: ${{ github.event.inputs.region}}
+      - name: Configure environment name
+        id: env-name
+        env:
+          REPO: ${{ github.repository }}
+        run: |
+          ENVIRONMENT=`echo $REPO | tr "/" "-"`
+          echo "Environment name: $ENVIRONMENT"
+          echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
+      #- name: Allow passwordless sudo
+      #  run: echo '${{ secrets.SUDO_PASSWORD }}' | sudo -Sv
       - name: install envsubst
         id: install-envsubst
         run: |
           curl -L https://github.com/a8m/envsubst/releases/download/v1.2.0/envsubst-`uname -s`-`uname -m` -o envsubst
           chmod +x envsubst
           sudo mv envsubst /usr/local/bin
-      - name: install helm
-        id: install-helm
-        run: |
-          curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
-          sudo apt-get install apt-transport-https --yes
-          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
-          sudo apt-get update -y
-          sudo apt-get install helm -y
       - name: install eksctl
         id: install-eksctl
         run: |
@@ -60,21 +62,28 @@ jobs:
           curl -sLO "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$PLATFORM.tar.gz"
           tar -xzf eksctl_$PLATFORM.tar.gz -C /tmp && rm eksctl_$PLATFORM.tar.gz
           sudo mv /tmp/eksctl /usr/local/bin
-      - name: Set S3 Bucket
-        id: set-s3-bucket
+      - name: install kubectl
+        id: install-kubectl
         run: |
-          BUCKET_NAME=$(aws cloudformation describe-stacks --stack-name <S3 Bucket Name> --query 'Stacks[0].Outputs[?OutputKey==`RawDataBucketName`].OutputValue' --output text)
-          echo "BUCKET_NAME: $BUCKET_NAME"
-          echo "BUCKET_NAME=$BUCKET_NAME" >> $GITHUB_ENV
-      - name: install Flyte
-        id: install-flyte
+          curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.27.1/2023-04-19/bin/linux/amd64/kubectl
+          chmod +x ./kubectl
+          mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$HOME/bin:$PATH
+          kubectl version --short --client
+      #- name: delete coredns in worker nodes
+      #  id: delete-coredns
+      #  run: |
+      #    kubectl patch deployment coredns -n kube-system --type json \
+      #    -p='[{"op": "remove", "path": "/spec/template/metadata/annotations/eks.amazonaws.com~1compute-type"}]'
+      - name: create managed node group
+        id: create-managed-node-group
         run: |
           aws eks update-kubeconfig --region us-east-1 --name eks-cluster
-          
-          helm repo add flyteorg https://flyteorg.github.io/flyte
-          cat config/charts/flyte/values-eks.yaml | envsubst > values-eks.yaml
-          
-          helm install -n flyte -f values-eks.yaml -f config/charts/flyte/values-eks-override.yaml --create-namespace flyte flyteorg/flyte-core
-          
-          kubectl get pods -n flyte
-          
+          cat config/eks/amazon-eks-managedNodeGroups.yaml | envsubst > amazon-eks-managedNodeGroups.yaml
+          cat amazon-eks-managedNodeGroups.yaml
+          eksctl create nodegroup --config-file=amazon-eks-managedNodeGroups.yaml
+          kubectl get all -A
+      #- name: create fargate profile
+      #  id: create-fargate-profile
+      #  run: |
+      #    cat config/fargate-eks-cluster.yaml | envsubst '${{ secrets.AWS_ACCOUNT_ID }}' > fargate-eks-cluster.yaml
+      #    eksctl create fargateprofile -f fargate-eks-cluster.yaml

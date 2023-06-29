@@ -72,7 +72,7 @@ jobs:
       - name: create eks cluster
         id: create-eks-cluster
         run: | 
-          cat config/amazon-eks-cluster.yaml | envsubst  > amazon-eks-cluster.yaml
+          cat config/eks/amazon-eks-cluster.yaml | envsubst  > amazon-eks-cluster.yaml
           cat amazon-eks-cluster.yaml
           eksctl create cluster -f amazon-eks-cluster.yaml
           kubectl get svc
