@@ -166,7 +166,7 @@ jobs:
               --group-id $security_group_id \
               --protocol tcp \
               --port 2049 \
-              --cidr {{env.CIDR_RANGE}}
+              --cidr ${{env.CIDR_RANGE}}
           
           echo "SECURITY_GROUP_ID: $security_group_id"
           echo "SECURITY_GROUP_ID=$security_group_id" >> $GITHUB_ENV
