@@ -78,7 +78,7 @@ jobs:
       - name: Get Subnet IDs
         id: get-subnet-ids
         run: |
-          subnetIds=$(aws cloudformation describe-stacks --stack-name aws-eks-vpc --query 'Stacks[0].Outputs[?OutputKey==`DBSubnetIds`].OutputValue' --output text)
+          subnetIds=$(aws cloudformation describe-stacks --stack-name aws-db-vpc --query 'Stacks[0].Outputs[?OutputKey==`DBSubnetIds`].OutputValue' --output text)
           echo "Subnet IDs: $subnetIds"
           #IFS=", " read -r var1 var2 <<< "$subnetIds"
           echo "EKS_SUBNET_IDS=$subnetIds" >> $GITHUB_ENV
@@ -86,6 +86,7 @@ jobs:
         id: setup-db-network
         run: |
           cat config/ack/db-subnet-groups.yaml | envsubst  > db-subnet-groups.yaml 
+          cat db-subnet-groups.yaml
           kubectl apply -f db-subnet-groups.yaml
       - name: Provision an Amazon RDS for PostgreSQL database instance
         id: create-rds-postgres-db
