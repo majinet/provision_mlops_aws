@@ -134,11 +134,7 @@ jobs:
           # Get the SageMaker Helm chart and make it available on the client machine
           HELM_EXPERIMENTAL_OCI=1
           SERVICE=sagemaker
-          RELEASE_VERSION=$(curl -sL https://api.github.com/repos/aws-controllers-k8s/$SERVICE-controller/releases/latest | grep '"tag_name":' | cut -d'"' -f4)
-
-          if [[ -z "$RELEASE_VERSION" ]]; then
-            RELEASE_VERSION=v1.2.0
-          fi
+          RELEASE_VERSION="1.2.2"
 
           CHART_EXPORT_PATH=/tmp/chart
           CHART_REF=$SERVICE-chart
