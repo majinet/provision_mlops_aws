@@ -1,4 +1,4 @@
-name: Provisioning AWS ACK SageMaker Controller
+name: Step 7 - Provisioning AWS ACK SageMaker Controller
 
 on:
   workflow_dispatch:

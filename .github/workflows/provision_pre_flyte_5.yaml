@@ -1,4 +1,4 @@
-name: Provisioning Flyte Pre-requisites
+name: Step 5 - Provisioning Flyte Pre-requisites
 
 on:
   workflow_dispatch:

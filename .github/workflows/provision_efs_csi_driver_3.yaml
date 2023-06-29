@@ -1,4 +1,4 @@
-name: Provisioning Amazon EFS CSI driver
+name: Step 3 - Provisioning Amazon EFS CSI driver
 
 on:
   workflow_dispatch:
