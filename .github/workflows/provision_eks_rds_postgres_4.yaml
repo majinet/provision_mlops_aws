@@ -62,9 +62,9 @@ jobs:
       - name: Set Eks-Cluster-SG
         id: set-eks-cluster-sg
         run: |
-          Eks-Cluster-SG=$(aws cloudformation describe-stacks --stack-name eksctl-eks-cluster-cluster --query 'Stacks[0].Outputs[?OutputKey==`SecurityGroup`].OutputValue' --output text)
-          echo "Eks-Cluster-SG: $Eks-Cluster-SG"
-          echo "Eks-Cluster-SG=$Eks-Cluster-SG" >> $GITHUB_ENV
+          Eks_Cluster_SG=$(aws cloudformation describe-stacks --stack-name eksctl-eks-cluster-cluster --query 'Stacks[0].Outputs[?OutputKey==`SecurityGroup`].OutputValue' --output text)
+          echo "Eks-Cluster-SG: $Eks_Cluster_SG"
+          echo "Eks-Cluster-SG=$Eks_Cluster_SG" >> $GITHUB_ENV
       - name: update cloudformation
         id: update-cloudformation
         run: |
