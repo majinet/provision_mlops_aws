@@ -34,3 +34,7 @@ With the utilization of the Cloud, we can effortlessly implement agile and TDD (
 - AWS SageMaker
 - AWS Apache Kafka (MSK)
 - S3 Bucket
+
+### VPC Network diagrams
+
+![eks-arch.png](architecture/images/eks-arch.png)
