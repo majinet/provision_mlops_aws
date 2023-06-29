@@ -212,7 +212,9 @@ jobs:
           
           echo "FILE_SYSTEM_ID: $file_system_id"
           echo "FILE_SYSTEM_ID=$file_system_id" >> $GITHUB_ENV
-          
+      - name: Mount efs to node
+        id: mount-efs
+        run: |
           # Add mount targets
           aws efs create-mount-target \
               --file-system-id ${{env.FILE_SYSTEM_ID}} \
