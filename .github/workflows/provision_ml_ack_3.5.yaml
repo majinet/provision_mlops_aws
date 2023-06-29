@@ -162,7 +162,7 @@ jobs:
       - name: Create S3 bucket
         id: create-s3-bucket
         run: |
-          SAGEMAKER_BUCKET=ack-sagemaker-bucket-${{AWS_ACCOUNT_ID}}
+          SAGEMAKER_BUCKET=ack-sagemaker-bucket-${{secrets.AWS_ACCOUNT_ID}}
           
           # Create the S3 bucket
           aws s3api create-bucket --bucket "$SAGEMAKER_BUCKET" --region ${{env.AWS_REGION}}
