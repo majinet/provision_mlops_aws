@@ -210,16 +210,15 @@ jobs:
               --query 'FileSystemId' \
               --output text)
           
-          echo $file_system_id
+          echo "FILE_SYSTEM_ID: $file_system_id"
+          echo "FILE_SYSTEM_ID=$file_system_id" >> $GITHUB_ENV
           
           # Add mount targets
           aws efs create-mount-target \
-              --file-system-id $file_system_id \
+              --file-system-id ${{env.FILE_SYSTEM_ID}} \
               --subnet-id ${{env.SUBNET_ID_1}} \
               --security-groups ${{env.SECURITY_GROUP_ID}}
-          
-          echo "FILE_SYSTEM_ID: $file_system_id"
-          echo "FILE_SYSTEM_ID=$file_system_id" >> $GITHUB_ENV
+
       - name: Create storage class
         id: create-storage-class
         run: |
