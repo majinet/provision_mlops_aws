@@ -104,7 +104,14 @@ jobs:
           
           echo "OIDC_PROVIDER_URL: $OIDC_PROVIDER_URL"
           echo "OIDC_PROVIDER_URL=$OIDC_PROVIDER_URL" >> $GITHUB_ENV
-          
+      - name: Check if IAM ack role exists
+        id: check-ack-role
+        run: |
+          aws iam get-role --role-name ack-controller-role-${{env.CLUSTER_NAME}} > /dev/null 2>&1 || echo "::set-output name=role_exists::false"
+      - name: Create ack role
+        id: create-ack-role
+        if: steps.check-ack-role.outputs.role_exists == 'false'
+        run: |
           cat config/ack/trust.json | envsubst  > trust.json
           
           # Run the iam create-role command to create an IAM role with the trust relationship you just defined in trust.json. This IAM role enables the Amazon EKS cluster to get and refresh credentials from IAM.
@@ -116,9 +123,11 @@ jobs:
           IAM_ROLE_ARN_FOR_IRSA=$(aws --region $SERVICE_REGION iam get-role --role-name $OIDC_ROLE_NAME --output text --query 'Role.Arn')
           echo "IAM_ROLE_ARN_FOR_IRSA: $IAM_ROLE_ARN_FOR_IRSA"
           echo "IAM_ROLE_ARN_FOR_IRSA=$IAM_ROLE_ARN_FOR_IRSA" >> $GITHUB_ENV
-          
+      - name: create inline policy
+        id: create-inline-policy
+        run: |
           # AmazonSageMakerFullAccess policy does not include permissions required to manage Domain, UserProfile or App resource. Create and attach the following Policy to the IAM Role to ensure that your SageMaker service controller has access to these resources.
-          aws --region ${{env.AWS_REGION}} iam put-role-policy --role-name $OIDC_ROLE_NAME --policy-name SagemakerStudioAccess --policy-document file://config/ack/sagemaker_studio_access.json
+          aws --region ${{env.AWS_REGION}} iam put-role-policy --role-name ack-controller-role-${{env.CLUSTER_NAME}} --policy-name SagemakerStudioAccess --policy-document file://config/ack/sagemaker_studio_access.json
       - name: Install the SageMaker ACK service controller
         id: install-ack
         run: |
