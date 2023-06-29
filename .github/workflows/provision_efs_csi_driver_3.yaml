@@ -210,6 +210,8 @@ jobs:
               --query 'FileSystemId' \
               --output text)
           
+          echo $file_system_id
+          
           # Add mount targets
           aws efs create-mount-target \
               --file-system-id $file_system_id \
