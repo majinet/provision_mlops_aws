@@ -124,8 +124,22 @@ jobs:
           
           echo "SUBNET_ID_2: $subnet_id_2"
           echo "SUBNET_ID_2=$subnet_id_2" >> $GITHUB_ENV
+      - name: Check if IAM policy and role exists
+        id: check-iamserviceaccount
+        run: |
+          output=$(aws eks describe-iam-service-account --cluster-name <cluster-name> --name efs-csi-controller-sa --output json)
+
+          if [[ -z "$output" ]]; then
+            echo "IAM Service Account does not exist."
+            echo "::set-output name=role_exists::true"
+          else
+            echo "IAM Service Account exists."
+            echo "::set-output name=role_exists::false"
+          fi
+
       - name: Create an IAM policy and role
         id: create-iam-role
+        if: steps.check-iamserviceaccount.outputs.role_exists == 'false'
         run: |
           aws iam create-policy \
               --policy-name AmazonEKS_EFS_CSI_Driver_Policy \
