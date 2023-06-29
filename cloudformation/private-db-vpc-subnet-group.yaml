@@ -12,12 +12,12 @@ Parameters:
 
   PrivateDBSubnet01Block:
     Type: String
-    Default: 192.168.200.0/18
+    Default: 192.168.200.0/24
     Description: CidrBlock for private subnet 01 within the VPC
 
   PrivateDBSubnet02Block:
     Type: String
-    Default: 192.168.201.0/18
+    Default: 192.168.201.0/24
     Description: CidrBlock for private subnet 02 within the VPC
 
   DBPort:
