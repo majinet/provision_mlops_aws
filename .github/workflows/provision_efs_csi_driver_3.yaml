@@ -167,8 +167,25 @@ jobs:
               --set image.repository=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{env.AWS_REGION}}.amazonaws.com/eks/aws-efs-csi-driver \
               --set controller.serviceAccount.create=false \
               --set controller.serviceAccount.name=efs-csi-controller-sa
+      - name: check security group if exists
+        id: check-security-group
+        run: |
+          security_group_id=$(aws ec2 describe-security-groups --filters Name=vpc-id,Values=vpc-064ca1ec3af3a4b81 Name=group-name,Values=MyEfsSecurityGroup --query 'SecurityGroups[0].GroupId' --output t
+          ext)
+          
+          if [[ -z "$output" ]]; then
+            echo "IAM Service Account does not exist."
+            echo "::set-output name=exists::false"
+          else
+            echo "IAM Service Account exists."
+            echo "::set-output name=exists::true"
+          
+            echo "SECURITY_GROUP_ID: $security_group_id"
+            echo "SECURITY_GROUP_ID=$security_group_id" >> $GITHUB_ENV
+          fi
       - name: Create security group with an inbound
         id: create-sg-inbound
+        if: steps.check-check-security-group.outputs.exists == 'false'
         run: |
           security_group_id=$(aws ec2 create-security-group \
               --group-name MyEfsSecurityGroup \
