@@ -127,7 +127,7 @@ jobs:
       - name: Check if IAM policy and role exists
         id: check-iamserviceaccount
         run: |
-          output=$(aws eks describe-iam-service-account --cluster-name ${{env.CLUSTER_NAME}} --name efs-csi-controller-sa --output json)
+          output=$(kubectl describe serviceaccount efs-csi-controller-sa -n kube-system)
 
           if [[ -z "$output" ]]; then
             echo "IAM Service Account does not exist."
