@@ -140,6 +140,9 @@ jobs:
           CHART_REF=$SERVICE-chart
           CHART_REPO=public.ecr.aws/aws-controllers-k8s/$CHART_REF
           CHART_PACKAGE=$CHART_REF-$RELEASE_VERSION.tgz
+          
+          SERVICE_REGION=${{env.AWS_REGION}}
+          IAM_ROLE_ARN_FOR_IRSA=${{env.IAM_ROLE_ARN_FOR_IRSA}}
 
           mkdir -p $CHART_EXPORT_PATH
 
@@ -148,8 +151,8 @@ jobs:
           
           # Update the following values in the Helm chart
           cd $CHART_EXPORT_PATH/$SERVICE-chart
-          yq e '.aws.region = env(${{env.AWS_REGION}})' -i values.yaml
-          yq e '.serviceAccount.annotations."eks.amazonaws.com/role-arn" = env(${{env.IAM_ROLE_ARN_FOR_IRSA}})' -i values.yaml
+          yq e '.aws.region = env(SERVICE_REGION)' -i values.yaml
+          yq e '.serviceAccount.annotations."eks.amazonaws.com/role-arn" = env(IAM_ROLE_ARN_FOR_IRSA)' -i values.yaml
           cd -
           
           # install the relevant custom resource definitions (CRDs) for the SageMaker ACK service controller
