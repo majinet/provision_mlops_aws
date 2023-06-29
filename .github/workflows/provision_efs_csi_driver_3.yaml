@@ -170,7 +170,7 @@ jobs:
       - name: check security group if exists
         id: check-security-group
         run: |
-          security_group_id=$(aws ec2 describe-security-groups --filters Name=vpc-id,Values=vpc-064ca1ec3af3a4b81 Name=group-name,Values=MyEfsSecurityGroup --query 'SecurityGroups[0].GroupId' --output t
+          security_group_id=$(aws ec2 describe-security-groups --filters Name=vpc-id,Values=vpc-064ca1ec3af3a4b81 Name=group-name,Values=MyEfsSecurityGroup --query 'SecurityGroups[0].GroupId' --output text)
           ext)
           
           if [[ -z "$output" ]]; then
