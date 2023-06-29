@@ -119,7 +119,7 @@ Resources:
         - IpProtocol: tcp
           FromPort: !Ref DBPort
           ToPort: !Ref DBPort
-          SourceSecurityGroupId: { 'Fn::ImportValue': !Sub '${Eks-Cluster-SG}' }
+          SourceSecurityGroupId: { 'Fn::ImportValue': !Sub '${Eks_Cluster_SG}' }
           Description: 'Eks Cluster Security Group'
       VpcId: ${VPC_ID}
       Tags:
