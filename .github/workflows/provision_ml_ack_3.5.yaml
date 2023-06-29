@@ -96,8 +96,7 @@ jobs:
         id: config-iam-permission
         run: |
           # Before you can deploy your SageMaker service controller using an IAM role, associate an OpenID Connect (OIDC) provider with your IAM role to authenticate your cluster with the IAM service.
-          eksctl utils associate-iam-oidc-provider --cluster ${{env.CLUSTER_NAME}} \
-          --region ${{env.AWS_REGION}} --approve
+          # this has been performed in step 1 already.
           
           # Get the following OIDC information for future reference
           OIDC_PROVIDER_URL=$(aws eks describe-cluster --name ${{env.CLUSTER_NAME}} --region ${{env.AWS_REGION}} \
