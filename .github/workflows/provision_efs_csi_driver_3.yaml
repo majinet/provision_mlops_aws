@@ -220,7 +220,7 @@ jobs:
               --file-system-id ${{env.FILE_SYSTEM_ID}} \
               --subnet-id ${{env.SUBNET_ID_1}} \
               --security-groups ${{env.SECURITY_GROUP_ID}}
-
+        continue-on-error: true
       - name: Create storage class
         id: create-storage-class
         run: |
