@@ -85,7 +85,7 @@ jobs:
       - name: Set up the database networking
         id: setup-db-network
         run: |
-          cat config/ack/db-subnet-groups.yaml | envsubst  > db-subnet-groups.yaml 
+          cat config/flyte/db-subnet-groups.yaml | envsubst  > db-subnet-groups.yaml 
           cat db-subnet-groups.yaml
           kubectl apply -f db-subnet-groups.yaml
       - name: Provision an Amazon RDS for PostgreSQL database instance
