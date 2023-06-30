@@ -185,7 +185,7 @@ jobs:
         continue-on-error: true
       - name: Create security group with an inbound
         id: create-sg-inbound
-        if: steps.check-check-security-group.outputs.exists == 'false'
+        if: steps.check-security-group.outputs.exists == 'false'
         run: |
           security_group_id=$(aws ec2 create-security-group \
               --group-name MyEfsSecurityGroup \
