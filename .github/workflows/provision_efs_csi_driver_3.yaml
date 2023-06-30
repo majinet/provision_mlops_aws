@@ -130,20 +130,13 @@ jobs:
 
           output=$(kubectl get serviceaccount efs-csi-controller-sa -n kube-system -o custom-columns=:metadata.name)
           
-          if echo "$output" | grep -q "Error from server (NotFound): serviceaccounts \"efs-csi-controller-sa\" not found"; then
-            echo "The specified service account was not found."
+          if [[ -z "$output" ]]; then
+            echo "IAM Service Account does not exist."
             echo "::set-output name=role_exists::false"
-            exit 0
           else
-            if [[ -z "$output" ]]; then
-              echo "IAM Service Account does not exist."
-              echo "::set-output name=role_exists::false"
-            else
-              echo "IAM Service Account exists."
-              echo "::set-output name=role_exists::true"
-            fi
-          fi
-
+            echo "IAM Service Account exists."
+            echo "::set-output name=role_exists::true"
+        continue-on-error: true
       - name: Create an IAM policy and role
         id: create-iam-role
         if: steps.check-iamserviceaccount.outputs.role_exists == 'false'
@@ -189,6 +182,7 @@ jobs:
             echo "SECURITY_GROUP_ID: $security_group_id"
             echo "SECURITY_GROUP_ID=$security_group_id" >> $GITHUB_ENV
           fi
+        continue-on-error: true
       - name: Create security group with an inbound
         id: create-sg-inbound
         if: steps.check-check-security-group.outputs.exists == 'false'
