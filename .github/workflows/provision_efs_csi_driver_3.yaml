@@ -172,7 +172,7 @@ jobs:
         run: |
           security_group_id=$(aws ec2 describe-security-groups --filters Name=vpc-id,Values=${{env.VPC_ID}} Name=group-name,Values=MyEfsSecurityGroup --query 'SecurityGroups[0].GroupId' --output text)
           
-          if [[ -z "$security_group_id" ]]; then
+          if [[ $security_group_id == 'None' ]]; then
             echo "IAM Service Account does not exist."
             echo "::set-output name=exists::false"
           else
