@@ -96,7 +96,7 @@ jobs:
         id: install-ack
         run: |
           SERVICE=s3
-          RELEASE_VERSION=$(curl -sL https://api.github.com/repos/aws-controllers-k8s/$SERVICE-controller/releases/latest | grep '"tag_name":' | cut -d'"' -f4)
+          RELEASE_VERSION=1.04       
           ACK_SYSTEM_NAMESPACE=ack-system
 
           aws ecr-public get-login-password --region ${{env.AWS_REGION}} | helm registry login --username AWS --password-stdin public.ecr.aws
