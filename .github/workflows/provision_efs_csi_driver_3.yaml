@@ -127,9 +127,14 @@ jobs:
       - name: Check if IAM policy and role exists
         id: check-iamserviceaccount
         run: |
-          try {
-            output=$(kubectl get serviceaccount efs-csi-controller-sa -n kube-system -o custom-columns=:metadata.name)
+
+          output=$(kubectl get serviceaccount efs-csi-controller-sa -n kube-system -o custom-columns=:metadata.name)
           
+          if echo "$output" | grep -q "Error from server (NotFound): serviceaccounts \"efs-csi-controller-sa\" not found"; then
+            echo "The specified service account was not found."
+            echo "::set-output name=role_exists::false"
+            exit 0
+          else
             if [[ -z "$output" ]]; then
               echo "IAM Service Account does not exist."
               echo "::set-output name=role_exists::false"
@@ -137,15 +142,7 @@ jobs:
               echo "IAM Service Account exists."
               echo "::set-output name=role_exists::true"
             fi
-          } catch {
-            if echo "$output" | grep -q "Error from server (NotFound): serviceaccounts \"efs-csi-controller-sa\" not found"; then
-              echo "The specified service account was not found."
-              echo "::set-output name=role_exists::false"
-            else
-              echo "An error occurred: $output"
-              exit 1
-            fi
-          }
+          fi
 
       - name: Create an IAM policy and role
         id: create-iam-role
