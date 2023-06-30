@@ -95,8 +95,8 @@ jobs:
       - name: install ack
         id: install-ack
         run: |
-          SERVICE=s3
-          RELEASE_VERSION=1.0.4       
+          SERVICE=rds
+          RELEASE_VERSION=1.1.5       
           ACK_SYSTEM_NAMESPACE=ack-system
 
           aws ecr-public get-login-password --region ${{env.AWS_REGION}} | helm registry login --username AWS --password-stdin public.ecr.aws
