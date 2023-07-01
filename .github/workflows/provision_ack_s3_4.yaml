@@ -127,8 +127,14 @@ jobs:
 
           ACK_CONTROLLER_IAM_ROLE="ack-${SERVICE}-controller"
           ACK_CONTROLLER_IAM_ROLE_DESCRIPTION="IRSA role for ACK ${SERVICE} controller deployment on EKS cluster using Helm charts"
+          
+          echo "ACK_CONTROLLER_IAM_ROLE: $ACK_CONTROLLER_IAM_ROLE"
+          echo "ACK_CONTROLLER_IAM_ROLE_DESCRIPTION: $ACK_CONTROLLER_IAM_ROLE_DESCRIPTION"
+          
           aws iam create-role --role-name "${ACK_CONTROLLER_IAM_ROLE}" --assume-role-policy-document file://ack_s3_trust.json --description "${ACK_CONTROLLER_IAM_ROLE_DESCRIPTION}"
           ACK_CONTROLLER_IAM_ROLE_ARN=$(aws iam get-role --role-name=$ACK_CONTROLLER_IAM_ROLE --query Role.Arn --output text)
+          
+          echo "ACK_CONTROLLER_IAM_ROLE_ARN: $ACK_CONTROLLER_IAM_ROLE_ARN"
           
           # Download the recommended managed and inline policies and apply them to the
           # newly created IRSA role
