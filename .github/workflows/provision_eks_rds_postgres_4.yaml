@@ -88,13 +88,11 @@ jobs:
         run: |
           subnetIds=$(aws cloudformation describe-stacks --stack-name aws-db-vpc --query 'Stacks[0].Outputs[?OutputKey==`DBSubnetIds`].OutputValue' --output text)
           echo "Subnet IDs: $subnetIds"
-          #IFS=", " read -r var1 var2 <<< "$subnetIds"
-          
-          subnets = [$subnetIds]
-          quoted_subnets = ['"{}"'.format(subnet) for subnet in $subnets]
-          combined_subnets = ','.join($quoted_subnets)
-          echo "EKS_SUBNET_IDS: $combined_subnets"
-          echo "EKS_SUBNET_IDS=$combined_subnets" >> $GITHUB_ENV
+          IFS=", " read -r var1 var2 <<< "$subnetIds"
+          echo "EKS_SUBNET_ID_1: $var1"
+          echo "EKS_SUBNET_ID_1=$var1" >> $GITHUB_ENV
+          echo "EKS_SUBNET_ID_2: $var2"
+          echo "EKS_SUBNET_ID_2=$var2" >> $GITHUB_ENV
       - name: create namespace
         id: create-ns
         run: |

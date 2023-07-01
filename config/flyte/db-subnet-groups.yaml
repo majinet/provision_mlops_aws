@@ -6,5 +6,5 @@ metadata:
 spec:
   name: flyte_db_subnet_group
   description: Flyte DB Subnet Group
-  subnetIDs: [${EKS_SUBNET_IDS}]
+  subnetIDs: ["${EKS_SUBNET_ID_1}", "${EKS_SUBNET_ID_2}"]
   tags: []
