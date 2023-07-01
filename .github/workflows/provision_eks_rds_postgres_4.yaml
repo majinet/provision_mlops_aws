@@ -115,7 +115,7 @@ jobs:
           RDS_DB_STORAGE_SIZE=20
           
           # get RDS_SECURITY_GROUP_ID
-          sg_ids=$(aws cloudformation describe-stacks --stack-name aws-eks-vpc --query 'Stacks[0].Outputs[?OutputKey==`SecurityGroups`].OutputValue' --output text)
+          sg_ids=$(aws cloudformation describe-stacks --stack-name aws-db-vpc --query 'Stacks[0].Outputs[?OutputKey==`SecurityGroups`].OutputValue' --output text)
           echo "SecurityGroup IDs: $sg_ids"
           echo "RDS_SECURITY_GROUP_ID=$sg_ids" >> $GITHUB_ENV
 
