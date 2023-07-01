@@ -118,34 +118,16 @@ jobs:
           ACK_K8S_NAMESPACE=${{env.ACK_K8S_NAMESPACE}}
 
           ACK_K8S_SERVICE_ACCOUNT_NAME=${{env.ACK_K8S_SERVICE_ACCOUNT_NAME}}
-
-          read -r -d '' TRUST_RELATIONSHIP <<EOF
-          {
-            "Version": "2012-10-17",
-            "Statement": [
-              {
-                "Effect": "Allow",
-                "Principal": {
-                  "Federated": "arn:aws:iam::${AWS_ACCOUNT_ID}:oidc-provider/${OIDC_PROVIDER}"
-                },
-                "Action": "sts:AssumeRoleWithWebIdentity",
-                "Condition": {
-                  "StringEquals": {
-                    "${OIDC_PROVIDER}:sub": "system:serviceaccount:${ACK_K8S_NAMESPACE}:${ACK_K8S_SERVICE_ACCOUNT_NAME}"
-                  }
-                }
-              }
-            ]
-          }
-          EOF
-          echo "${TRUST_RELATIONSHIP}" > trust.json
           
-          cat trust.json
-      - name: Create an IAM role and policy for your service account (step 2)
-        run: |
+          echo "OIDC_PROVIDER: $OIDC_PROVIDER"
+          echo "OIDC_PROVIDER=$OIDC_PROVIDER" >> $GITHUB_ENV
+          
+          cat config/ack/ack_s3_trust.json | envsubst > ack_s3_trust.json
+          cat ack_s3_trust.json
+
           ACK_CONTROLLER_IAM_ROLE="ack-${SERVICE}-controller"
           ACK_CONTROLLER_IAM_ROLE_DESCRIPTION="IRSA role for ACK ${SERVICE} controller deployment on EKS cluster using Helm charts"
-          aws iam create-role --role-name "${ACK_CONTROLLER_IAM_ROLE}" --assume-role-policy-document file://trust.json --description "${ACK_CONTROLLER_IAM_ROLE_DESCRIPTION}"
+          aws iam create-role --role-name "${ACK_CONTROLLER_IAM_ROLE}" --assume-role-policy-document file://ack_s3_trust.json --description "${ACK_CONTROLLER_IAM_ROLE_DESCRIPTION}"
           ACK_CONTROLLER_IAM_ROLE_ARN=$(aws iam get-role --role-name=$ACK_CONTROLLER_IAM_ROLE --query Role.Arn --output text)
           
           # Download the recommended managed and inline policies and apply them to the
@@ -192,7 +174,7 @@ jobs:
         run: |
           # Note the deployment name for ACK service controller from following command
           kubectl get deployments -n ${{env.ACK_K8S_NAMESPACE}}
-          kubectl -n ${{env.ACK_K8S_NAMESPACE}} rollout restart deployment <ACK deployment name>
+          kubectl -n ${{env.ACK_K8S_NAMESPACE}} rollout restart deployment ack-${{env.SERVICE}}-controller-${{env.SERVICE}}-chart
       - name: verify
         id: verify
         run: |
