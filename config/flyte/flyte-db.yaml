@@ -11,7 +11,6 @@ spec:
   dbInstanceIdentifier: flyteadmin
   dbName: flyteadmin
   dbSubnetGroupName: flyte-db-subnet-group
-  enablePerformanceInsights: true
   engine: postgres
   engineVersion: "14"
   masterUsername: flyteadmin
