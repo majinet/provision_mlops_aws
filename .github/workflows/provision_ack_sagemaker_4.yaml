@@ -1,4 +1,4 @@
-name: Step 7 - Provisioning AWS ACK SageMaker Controller
+name: Step 4 - Provisioning AWS ACK SageMaker Controller
 
 on:
   workflow_dispatch:
@@ -170,10 +170,3 @@ jobs:
           # Verify that the CRDs and Helm charts were deployed
           kubectl get crds | grep "services.k8s.aws"
           kubectl get pods -n $ACK_K8S_NAMESPACE
-      - name: Create S3 bucket
-        id: create-s3-bucket
-        run: |
-          SAGEMAKER_BUCKET=ack-sagemaker-bucket-${{secrets.AWS_ACCOUNT_ID}}
-          
-          # Create the S3 bucket
-          aws s3api create-bucket --bucket "$SAGEMAKER_BUCKET" --region ${{env.AWS_REGION}}
