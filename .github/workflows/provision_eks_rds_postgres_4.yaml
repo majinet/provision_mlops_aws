@@ -90,6 +90,10 @@ jobs:
           echo "Subnet IDs: $subnetIds"
           #IFS=", " read -r var1 var2 <<< "$subnetIds"
           echo "EKS_SUBNET_IDS=$subnetIds" >> $GITHUB_ENV
+      - name: create namespace
+        id: create-ns
+        run: |
+          kubectl create namespace flyte
       - name: Set up the database networking
         id: setup-db-network
         run: |
