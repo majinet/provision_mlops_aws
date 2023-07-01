@@ -89,11 +89,17 @@ jobs:
           subnetIds=$(aws cloudformation describe-stacks --stack-name aws-db-vpc --query 'Stacks[0].Outputs[?OutputKey==`DBSubnetIds`].OutputValue' --output text)
           echo "Subnet IDs: $subnetIds"
           #IFS=", " read -r var1 var2 <<< "$subnetIds"
-          echo "EKS_SUBNET_IDS=$subnetIds" >> $GITHUB_ENV
+          
+          subnets = [$subnetIds]
+          quoted_subnets = ['"{}"'.format(subnet) for subnet in subnets]
+          combined_subnets = ','.join(quoted_subnets)
+          echo "EKS_SUBNET_IDS: $combined_subnets"
+          echo "EKS_SUBNET_IDS=$combined_subnets" >> $GITHUB_ENV
       - name: create namespace
         id: create-ns
         run: |
           kubectl create namespace flyte
+        continue-on-error: true
       - name: Set up the database networking
         id: setup-db-network
         run: |
