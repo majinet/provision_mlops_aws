@@ -10,7 +10,7 @@ spec:
   dbInstanceClass: db.t3.medium
   dbInstanceIdentifier: flyteadmin
   dbName: flyteadmin
-  dbSubnetGroupName: flyte_db_subnet_group
+  dbSubnetGroupName: flyte-db-subnet-group
   enablePerformanceInsights: true
   engine: postgres
   engineVersion: "14"
