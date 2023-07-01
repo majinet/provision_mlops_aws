@@ -101,10 +101,12 @@ jobs:
           SERVICE=${{env.SERVICE}}
           RELEASE_VERSION=1.0.4      
           ACK_SYSTEM_NAMESPACE=${{env.ACK_SYSTEM_NAMESPACE}}
+          AWS_REGION=${{env.AWS_REGION}}
 
-          aws ecr-public get-login-password --region ${{env.AWS_REGION}} | helm registry login --username AWS --password-stdin public.ecr.aws
+          aws ecr-public get-login-password --region $AWS_REGION | helm registry login --username AWS --password-stdin public.ecr.aws
+          
           helm install --create-namespace -n $ACK_SYSTEM_NAMESPACE ack-$SERVICE-controller \
-            oci://public.ecr.aws/aws-controllers-k8s/$SERVICE-chart --version=$RELEASE_VERSION --set=aws.region=${{env.AWS_REGION}}
+            oci://public.ecr.aws/aws-controllers-k8s/$SERVICE-chart --version=$RELEASE_VERSION --set=aws.region=$AWS_REGION
       - name: Create an IAM role and policy for your service account
         id: create-iam-role
         run: |
