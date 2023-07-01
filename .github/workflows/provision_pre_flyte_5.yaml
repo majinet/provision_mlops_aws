@@ -184,11 +184,6 @@ jobs:
           #certificate_arn=$(aws acm import-certificate --certificate fileb://config/certs/flyte/crt.out --private-key fileb://config/certs/flyte/key.out --region ${{env.AWS_REGION}})
           #echo "certificate_arn: $certificate_arn"
           #echo "certificate_arn=$certificate_arn" >> $GITHUB_ENV
-      - name: Deploy S3 AWS CloudFormation
-        uses: aws-actions/aws-cloudformation-github-deploy@v1
-        with:
-          name: deploy-s3
-          template: cloudformation/aws_s3_bucket.yaml
       - name: create log group
         id: create-log-group
         run: |

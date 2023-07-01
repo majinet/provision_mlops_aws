@@ -1,0 +1,216 @@
+name: Step 4 - Provisioning AWS ACK Controller for s3
+
+on:
+  workflow_dispatch:
+    inputs:
+      region:
+        description: 'AWS Region'
+        required: true
+        default: 'us-east-1'
+      #keypair:
+      #  description: 'SSH Key Pair'
+      #  required: true
+
+env:
+  AWS_REGION : ${{ github.event.inputs.region}} #Change to reflect your Region
+  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+  CLUSTER_NAME: 'eks-cluster'
+  ACK_K8S_NAMESPACE: "ack-system"
+  SERVICE: "s3"
+  ACK_K8S_SERVICE_ACCOUNT_NAME: "ack-s3-controller"
+
+# Permission can be added at job level or workflow level
+permissions:
+      id-token: write   # This is required for requesting the JWT
+      contents: read    # This is required for actions/checkout
+
+jobs:
+  ack_aws:
+    name: Provisioning AWS ACK Controller for s3
+    runs-on: ubuntu-latest
+    outputs:
+      env-name: ${{ steps.env-name.outputs.environment }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Configure AWS credentials
+        id: creds
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.IAC_EKS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.IAC_EKS_SECRET_KEY }}
+          aws-region: ${{ github.event.inputs.region}}
+      - name: Configure environment name
+        id: env-name
+        env:
+          REPO: ${{ github.repository }}
+        run: |
+          ENVIRONMENT=`echo $REPO | tr "/" "-"`
+          echo "Environment name: $ENVIRONMENT"
+          echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
+      #- name: Allow passwordless sudo
+      #  run: echo '${{ secrets.SUDO_PASSWORD }}' | sudo -Sv
+      - name: install envsubst
+        id: install-envsubst
+        run: |
+          curl -L https://github.com/a8m/envsubst/releases/download/v1.2.0/envsubst-`uname -s`-`uname -m` -o envsubst
+          chmod +x envsubst
+          sudo mv envsubst /usr/local/bin
+      - name: install eksctl
+        id: install-eksctl
+        run: |
+          # for ARM systems, set ARCH to: `arm64`, `armv6` or `armv7`
+          ARCH=amd64
+          PLATFORM=$(uname -s)_$ARCH
+
+          curl -sLO "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$PLATFORM.tar.gz"
+          tar -xzf eksctl_$PLATFORM.tar.gz -C /tmp && rm eksctl_$PLATFORM.tar.gz
+          sudo mv /tmp/eksctl /usr/local/bin
+      - name: install kubectl
+        id: install-kubectl
+        run: |
+          curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.27.1/2023-04-19/bin/linux/amd64/kubectl
+          chmod +x ./kubectl
+          mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$HOME/bin:$PATH
+          kubectl version --short --client
+      - name: install helm
+        id: install-helm
+        run: |
+          curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
+          sudo apt-get install apt-transport-https --yes
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+          sudo apt-get update -y
+          sudo apt-get install helm -y
+      - name: install yq
+        id: install-yq
+        run: |
+          sudo add-apt-repository ppa:rmescandon/yq
+          sudo apt update -y
+          sudo apt install yq -y
+      - name: Health Check Cluster
+        id: health-check-eks
+        run: |
+          aws eks update-kubeconfig --name ${{env.CLUSTER_NAME}} --region ${{env.AWS_REGION}}
+          kubectl config get-contexts
+          
+          # Ensure cluster has compute
+          kubectl get nodes
+      - name: install ack
+        id: install-ack
+        run: |
+          SERVICE=${{env.SERVICE}}
+          RELEASE_VERSION=1.0.4      
+          ACK_SYSTEM_NAMESPACE=${{env.ACK_SYSTEM_NAMESPACE}}
+
+          aws ecr-public get-login-password --region ${{env.AWS_REGION}} | helm registry login --username AWS --password-stdin public.ecr.aws
+          helm install --create-namespace -n $ACK_SYSTEM_NAMESPACE ack-$SERVICE-controller \
+            oci://public.ecr.aws/aws-controllers-k8s/$SERVICE-chart --version=$RELEASE_VERSION --set=aws.region=${{env.AWS_REGION}}
+      - name: Create an IAM role and policy for your service account
+        id: create-iam-role
+        run: |
+          # Update the service name variables as needed
+          SERVICE=${{env.SERVICE}}
+          AWS_ACCOUNT_ID=${{secrets.AWS_ACCOUNT_ID}}
+          OIDC_PROVIDER=$(aws eks describe-cluster --name ${{env.CLUSTER_NAME}} --region ${{env.AWS_REGION}} --query "cluster.identity.oidc.issuer" --output text | sed -e "s/^https:\/\///")
+          ACK_K8S_NAMESPACE=${{env.ACK_K8S_NAMESPACE}}
+
+          ACK_K8S_SERVICE_ACCOUNT_NAME=${{env.ACK_K8S_SERVICE_ACCOUNT_NAME}}
+
+          read -r -d '' TRUST_RELATIONSHIP <<EOF
+          {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Principal": {
+                  "Federated": "arn:aws:iam::${AWS_ACCOUNT_ID}:oidc-provider/${OIDC_PROVIDER}"
+                },
+                "Action": "sts:AssumeRoleWithWebIdentity",
+                "Condition": {
+                  "StringEquals": {
+                    "${OIDC_PROVIDER}:sub": "system:serviceaccount:${ACK_K8S_NAMESPACE}:${ACK_K8S_SERVICE_ACCOUNT_NAME}"
+                  }
+                }
+              }
+            ]
+          }
+          EOF
+          echo "${TRUST_RELATIONSHIP}" > trust.json
+
+          ACK_CONTROLLER_IAM_ROLE="ack-${SERVICE}-controller"
+          ACK_CONTROLLER_IAM_ROLE_DESCRIPTION="IRSA role for ACK ${SERVICE} controller deployment on EKS cluster using Helm charts"
+          aws iam create-role --role-name "${ACK_CONTROLLER_IAM_ROLE}" --assume-role-policy-document file://trust.json --description "${ACK_CONTROLLER_IAM_ROLE_DESCRIPTION}"
+          ACK_CONTROLLER_IAM_ROLE_ARN=$(aws iam get-role --role-name=$ACK_CONTROLLER_IAM_ROLE --query Role.Arn --output text)
+          
+          # Download the recommended managed and inline policies and apply them to the
+          # newly created IRSA role
+          BASE_URL=https://raw.githubusercontent.com/aws-controllers-k8s/${SERVICE}-controller/main
+          POLICY_ARN_URL=${BASE_URL}/config/iam/recommended-policy-arn
+          POLICY_ARN_STRINGS="$(wget -qO- ${POLICY_ARN_URL})"
+
+          INLINE_POLICY_URL=${BASE_URL}/config/iam/recommended-inline-policy
+          INLINE_POLICY="$(wget -qO- ${INLINE_POLICY_URL})"
+
+          while IFS= read -r POLICY_ARN; do
+              echo -n "Attaching $POLICY_ARN ... "
+              aws iam attach-role-policy \
+                  --role-name "${ACK_CONTROLLER_IAM_ROLE}" \
+                  --policy-arn "${POLICY_ARN}"
+              echo "ok."
+          done <<< "$POLICY_ARN_STRINGS"
+
+          if [ ! -z "$INLINE_POLICY" ]; then
+              echo -n "Putting inline policy ... "
+              aws iam put-role-policy \
+                  --role-name "${ACK_CONTROLLER_IAM_ROLE}" \
+                  --policy-name "ack-recommended-policy" \
+                  --policy-document "$INLINE_POLICY"
+              echo "ok."
+          fi
+          
+          echo "ACK_CONTROLLER_IAM_ROLE_ARN: $ACK_CONTROLLER_IAM_ROLE_ARN"
+          echo "ACK_CONTROLLER_IAM_ROLE_ARN=$ACK_CONTROLLER_IAM_ROLE_ARN" >> $GITHUB_ENV
+      - name: Associate an IAM role to a service account
+        id: associate-iam-role
+        run: |
+          ACK_K8S_SERVICE_ACCOUNT_NAME=${{env.ACK_K8S_SERVICE_ACCOUNT_NAME}}
+          ACK_CONTROLLER_IAM_ROLE_ARN=${{env.ACK_CONTROLLER_IAM_ROLE_ARN}}
+          
+          kubectl describe serviceaccount/$ACK_K8S_SERVICE_ACCOUNT_NAME -n ${{env.ACK_K8S_NAMESPACE}}
+          
+          # Annotate the service account with the ARN
+          export IRSA_ROLE_ARN=eks.amazonaws.com/role-arn=$ACK_CONTROLLER_IAM_ROLE_ARN
+          kubectl annotate serviceaccount -n $ACK_K8S_NAMESPACE $ACK_K8S_SERVICE_ACCOUNT_NAME $IRSA_ROLE_ARN
+      - name: restart deployment
+        id: restart-deployment
+        run: |
+          # Note the deployment name for ACK service controller from following command
+          kubectl get deployments -n ${{ACK_K8S_NAMESPACE}}
+          kubectl -n ${{ACK_K8S_NAMESPACE}} rollout restart deployment <ACK deployment name>
+      - name: verify
+        id: verify
+        run: |
+          kubectl get pods -n ${{ACK_K8S_NAMESPACE}}
+          kubectl describe pod -n ${{ACK_K8S_NAMESPACE}} <NAME> | grep "^\s*AWS_"
+      - name: Deploy s3
+        id: deploy-s3
+        run: |
+          export AWS_ACCOUNT_ID=${{secrets.AWS_ACCOUNT_ID}}
+          export BUCKET_NAME=my-ack-s3-bucket-$AWS_ACCOUNT_ID
+
+          read -r -d '' BUCKET_MANIFEST <<EOF
+            apiVersion: s3.services.k8s.aws/v1alpha1
+            kind: Bucket
+            metadata:
+              name: $BUCKET_NAME
+              annotations:
+                services.k8s.aws/region: us-east-1
+            spec:
+              name: $BUCKET_NAME
+          EOF
+
+          echo "${BUCKET_MANIFEST}" > bucket.yaml
+
+          kubectl create -f bucket.yaml
+
+          kubectl describe bucket/$BUCKET_NAME
