@@ -91,8 +91,8 @@ jobs:
           #IFS=", " read -r var1 var2 <<< "$subnetIds"
           
           subnets = [$subnetIds]
-          quoted_subnets = ['"{}"'.format(subnet) for subnet in subnets]
-          combined_subnets = ','.join(quoted_subnets)
+          quoted_subnets = ['"{}"'.format(subnet) for subnet in $subnets]
+          combined_subnets = ','.join($quoted_subnets)
           echo "EKS_SUBNET_IDS: $combined_subnets"
           echo "EKS_SUBNET_IDS=$combined_subnets" >> $GITHUB_ENV
       - name: create namespace
