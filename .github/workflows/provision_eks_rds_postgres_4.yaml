@@ -130,6 +130,7 @@ jobs:
           echo "RDS_SECURITY_GROUP_ID=$sg_ids" >> $GITHUB_ENV
 
           cat config/flyte/flyte-db.yaml | envsubst  > flyte-db.yaml
+          cat flyte-db.yaml
           kubectl apply -f flyte-db.yaml
       - name: Sleep for 10 mins
         uses: whatnick/wait-action@master
