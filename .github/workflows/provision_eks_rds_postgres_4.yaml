@@ -139,12 +139,12 @@ jobs:
       - name: health check
         id: health-check
         run: |
-          kubectl get dbinstance -n "flyte" "flyteadmin" -o jsonpath='{.status.dbInstanceStatus}'
+          kubectl get dbinstance -n flyte flyteadmin -o jsonpath='{.status.dbInstanceStatus}'
           
-          RDS_DB_INSTANCE_HOST=$(kubectl get dbinstance -n "${APP_NAMESPACE}" "${RDS_DB_INSTANCE_NAME}" \
+          RDS_DB_INSTANCE_HOST=$(kubectl get dbinstance -n flyte flyteadmin \
             -o jsonpath='{.status.endpoint.address}'
           )
-          RDS_DB_INSTANCE_PORT=$(kubectl get dbinstance -n "${APP_NAMESPACE}" "${RDS_DB_INSTANCE_NAME}" \
+          RDS_DB_INSTANCE_PORT=$(kubectl get dbinstance -n flyte flyteadmin \
             -o jsonpath='{.status.endpoint.port}'
           )
           
