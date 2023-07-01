@@ -139,7 +139,10 @@ jobs:
           }
           EOF
           echo "${TRUST_RELATIONSHIP}" > trust.json
-
+          
+          cat trust.json
+      - name: Create an IAM role and policy for your service account (step 2)
+        run: |
           ACK_CONTROLLER_IAM_ROLE="ack-${SERVICE}-controller"
           ACK_CONTROLLER_IAM_ROLE_DESCRIPTION="IRSA role for ACK ${SERVICE} controller deployment on EKS cluster using Helm charts"
           aws iam create-role --role-name "${ACK_CONTROLLER_IAM_ROLE}" --assume-role-policy-document file://trust.json --description "${ACK_CONTROLLER_IAM_ROLE_DESCRIPTION}"
