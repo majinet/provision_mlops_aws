@@ -180,21 +180,11 @@ jobs:
         id: deploy-s3
         run: |
           export AWS_ACCOUNT_ID=${{secrets.AWS_ACCOUNT_ID}}
-          export BUCKET_NAME=my-ack-s3-bucket-$AWS_ACCOUNT_ID
-
-          read -r -d '' BUCKET_MANIFEST <<EOF
-            apiVersion: s3.services.k8s.aws/v1alpha1
-            kind: Bucket
-            metadata:
-              name: $BUCKET_NAME
-              annotations:
-                services.k8s.aws/region: us-east-1
-            spec:
-              name: $BUCKET_NAME
-          EOF
-
-          echo "${BUCKET_MANIFEST}" > bucket.yaml
-
-          kubectl create -f bucket.yaml
+          export BUCKET_NAME=ack-s3-bucket-$AWS_ACCOUNT_ID-flyte
+          
+          cat config/ack/s3/bucket_flyte.yaml | envsubst > bucket_flyte.yaml
+          cat bucket_flyte.yaml
+          
+          kubectl create -f bucket_flyte.yaml
 
           kubectl describe bucket/$BUCKET_NAME
