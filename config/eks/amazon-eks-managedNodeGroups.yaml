@@ -24,3 +24,4 @@ managedNodeGroups:
         ebs: true
         fsx: true
         efs: true
+        awsLoadBalancerController: true

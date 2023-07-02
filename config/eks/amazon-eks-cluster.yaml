@@ -32,6 +32,13 @@ addons:
   - name: aws-ebs-csi-driver
     wellKnownPolicies:      # add IAM and service account
       ebsCSIController: true
+  - name: aws-efs-csi-driver
+    wellKnownPolicies: # add IAM and service account
+      efsCSIController: true
+  - name: aws-load-balancer
+    namespace: kube-system
+    wellKnownPolicies:
+      awsLoadBalancerController: true
 
 iam:
   serviceRoleARN: "arn:aws:iam::${AWS_ACCOUNT_ID}:role/eksClusterRole"
