@@ -84,7 +84,7 @@ jobs:
         run: |
           aws iam create-role \
             --role-name AmazonEKSNodeRole \
-            --assume-role-policy-document file://"node-role-trust-relationship.json"
+            --assume-role-policy-document file://"config/eks/node-role-trust-relationship.json"
 
           aws iam attach-role-policy \
             --policy-arn arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy \
