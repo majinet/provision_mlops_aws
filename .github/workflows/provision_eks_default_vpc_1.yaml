@@ -69,6 +69,39 @@ jobs:
           chmod +x ./kubectl
           mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$HOME/bin:$PATH
           kubectl version --short --client
+      - name: Check if role exists
+        id: check-cluster-role
+        run: |
+          aws iam get-role --role-name eksClusterRole > /dev/null 2>&1 || echo "::set-output name=exists::false"
+      - name: create cluster role
+        id: create-iam-cluster-role
+        if: steps.check-cluster-role.outputs.exists == 'false'
+        run: |
+          aws iam create-role \
+            --role-name eksClusterRole \
+            --assume-role-policy-document file://"config/eks/cluster-trust-policy.json"
+          
+          aws iam attach-role-policy \
+            --policy-arn arn:aws:iam::aws:policy/AmazonEKSClusterPolicy \
+            --role-name eksClusterRole
+      - name: Check if role exists
+        id: check-node-role
+        run: |
+          aws iam get-role --role-name eksClusterRole > /dev/null 2>&1 || echo "::set-output name=exists::false"
+      - name: create node role
+        id: create-iam-node-role
+        if: steps.check-node-role.outputs.exists == 'false'
+        run: |
+          aws iam create-role \
+            --role-name AmazonEKSNodeRole \
+            --assume-role-policy-document file://"node-role-trust-relationship.json"
+
+          aws iam attach-role-policy \
+            --policy-arn arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy \
+            --role-name AmazonEKSNodeRole
+          aws iam attach-role-policy \
+            --policy-arn arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly \
+            --role-name AmazonEKSNodeRole
       - name: create eks cluster
         id: create-eks-cluster
         run: | 
