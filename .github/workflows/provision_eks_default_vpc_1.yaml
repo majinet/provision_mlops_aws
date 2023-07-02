@@ -91,10 +91,3 @@ jobs:
           cat amazon-eks-cluster.yaml
           eksctl create cluster -f amazon-eks-cluster.yaml
           kubectl get svc
-      - name: Create OIDC provider
-        id: create-oidc-provider
-        run: |
-          eksctl utils associate-iam-oidc-provider \
-            --region ${{ env.AWS_REGION }} \
-            --cluster eks-cluster \
-            --approve
