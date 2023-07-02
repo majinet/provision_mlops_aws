@@ -20,13 +20,18 @@ privateCluster:
 
 availabilityZones: ["us-east-1d",  "us-east-1f"]
 
-#addons:
-#  - name: vpc-cni
-#    version: latest
-#  - name: coredns
-#    version: latest
-#  - name: kube-proxy
-#    version: latest
+addons:
+  - name: vpc-cni # no version is specified so it deploys the default version
+    version: latest
+    attachPolicyARNs:
+      - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+  - name: coredns
+    version: latest # auto discovers the latest available
+  - name: kube-proxy
+    version: latest
+  - name: aws-ebs-csi-driver
+    wellKnownPolicies:      # add IAM and service account
+      ebsCSIController: true
 
 iam:
   serviceRoleARN: "arn:aws:iam::${AWS_ACCOUNT_ID}:role/eksClusterRole"
