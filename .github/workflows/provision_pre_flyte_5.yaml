@@ -146,37 +146,6 @@ jobs:
           VPC_ID=$(aws cloudformation describe-stacks --stack-name eksctl-eks-cluster-cluster --query 'Stacks[0].Outputs[?OutputKey==`VPC`].OutputValue' --output text)
           echo "VPC ID: $VPC_ID"
           echo "VPC_ID=$VPC_ID" >> $GITHUB_ENV
-      - name: check aws elb policy if exists
-        id: check-aws-elb-policy
-        run: |
-          if aws iam get-policy --policy-name AWSLoadBalancerControllerIAMPolicy --quiet 2>/dev/null; then
-            echo "IAM policy exists"
-            echo "::set-output name=policy_exists::true"
-          else
-            echo "IAM policy does not exist"
-            echo "::set-output name=policy_exists::false"
-          fi
-      - name: skip if policy_exists is true, otherwise create aws elb policy
-        id: create-aw-elb-policy
-        if: steps.check-aws-elb-policy.outputs.policy_exists == 'true'
-        run: |
-          # Download the IAM policy for the AWS Load Balancer Controller
-          curl -o iam-policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.2.0/docs/install/iam_policy.json
-          
-          # Create an IAM policy called AWSLoadBalancerControllerIAMPolicy
-          aws iam create-policy \
-            --policy-name AWSLoadBalancerControllerIAMPolicy \
-            --policy-document file://iam-policy.json
-          
-          # Create an IAM role and ServiceAccount for the AWS Load Balancer controller
-                    eksctl create iamserviceaccount \
-                      --cluster=eks-cluster \
-                      --region=${{env.AWS_REGION}} \
-                      --namespace=kube-system \
-                      --name=aws-load-balancer-controller \
-                      --attach-policy-arn=arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:policy/AWSLoadBalancerControllerIAMPolicy \
-                      --override-existing-serviceaccounts \
-                      --approve
       - name: sign SSL Cert (https://docs.flyte.org/en/v1.0.0/deployment/aws/manual.html)
         id: sign-ssl-cert
         run: |
