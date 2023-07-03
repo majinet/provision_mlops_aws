@@ -124,8 +124,6 @@ jobs:
           
           echo "SUBNET_ID_2: $subnet_id_2"
           echo "SUBNET_ID_2=$subnet_id_2" >> $GITHUB_ENV
-      - name: Check if IAM policy and role exists
-        id: check-iamserviceaccount
       - name: Create an IAM policy and role
         id: create-iam-role
         if: steps.check-iamserviceaccount.outputs.role_exists == 'false'
