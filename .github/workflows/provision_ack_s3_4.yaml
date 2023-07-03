@@ -176,17 +176,17 @@ jobs:
         run: |
           kubectl get pods -n ${{env.ACK_K8S_NAMESPACE}}
           kubectl describe pod -n ${{env.ACK_K8S_NAMESPACE}} ${{env.ACK_K8S_SERVICE_ACCOUNT_NAME}} | grep "^\s*AWS_"
-      - name: Deploy s3 for flyte
-        id: deploy-s3-flyte
-        run: |          
-          cat config/ack/s3/bucket_flyte.yaml | envsubst > bucket_flyte.yaml
-          cat bucket_flyte.yaml
+      #- name: Deploy s3 for flyte
+      #  id: deploy-s3-flyte
+      #  run: |
+      #    cat config/ack/s3/bucket_flyte.yaml | envsubst > bucket_flyte.yaml
+      #    cat bucket_flyte.yaml
           
-          kubectl create -f bucket_flyte.yaml
-      - name: Deploy s3 for sagemaker
-        id: deploy-s3-sagemaker
-        run: |
-          cat config/ack/s3/bucket_sagemaker.yaml | envsubst > bucket_sagemaker.yaml
-          cat bucket_sagemaker.yaml
+      #    kubectl create -f bucket_flyte.yaml
+      #- name: Deploy s3 for sagemaker
+      #  id: deploy-s3-sagemaker
+      #  run: |
+      #    cat config/ack/s3/bucket_sagemaker.yaml | envsubst > bucket_sagemaker.yaml
+      #    cat bucket_sagemaker.yaml
           
-          kubectl create -f bucket_sagemaker.yaml
+      #    kubectl create -f bucket_sagemaker.yaml
