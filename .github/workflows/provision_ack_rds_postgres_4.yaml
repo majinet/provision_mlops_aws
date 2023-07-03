@@ -135,9 +135,6 @@ jobs:
           POLICY_ARN_URL=${BASE_URL}/config/iam/recommended-policy-arn
           POLICY_ARN_STRINGS="$(wget -qO- ${POLICY_ARN_URL})"
 
-          INLINE_POLICY_URL=${BASE_URL}/config/iam/recommended-inline-policy
-          INLINE_POLICY="$(wget -qO- ${INLINE_POLICY_URL})"
-
           while IFS= read -r POLICY_ARN; do
               echo -n "Attaching $POLICY_ARN ... "
               aws iam attach-role-policy \
@@ -146,15 +143,6 @@ jobs:
               echo "ok."
           done <<< "$POLICY_ARN_STRINGS"
 
-          if [ ! -z "$INLINE_POLICY" ]; then
-              echo -n "Putting inline policy ... "
-              aws iam put-role-policy \
-                  --role-name "${ACK_CONTROLLER_IAM_ROLE}" \
-                  --policy-name "ack-recommended-policy" \
-                  --policy-document "$INLINE_POLICY"
-              echo "ok."
-          fi
-          
           echo "ACK_CONTROLLER_IAM_ROLE_ARN: $ACK_CONTROLLER_IAM_ROLE_ARN"
           echo "ACK_CONTROLLER_IAM_ROLE_ARN=$ACK_CONTROLLER_IAM_ROLE_ARN" >> $GITHUB_ENV
       - name: Associate an IAM role to a service account
