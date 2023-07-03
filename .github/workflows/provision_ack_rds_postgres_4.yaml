@@ -98,13 +98,12 @@ jobs:
       - name: install ack
         id: install-ack
         run: |
-          SERVICE=rds
           RELEASE_VERSION=1.1.5       
-          ACK_SYSTEM_NAMESPACE=${{env.ACK_SYSTEM_NAMESPACE}}
 
           aws ecr-public get-login-password --region ${{env.AWS_REGION}} | helm registry login --username AWS --password-stdin public.ecr.aws
-          helm install --create-namespace -n $ACK_SYSTEM_NAMESPACE ack-$SERVICE-controller \
-            oci://public.ecr.aws/aws-controllers-k8s/$SERVICE-chart --version=$RELEASE_VERSION --set=aws.region=${{env.AWS_REGION}}
+          
+          helm install --create-namespace -n ${{env.ACK_SYSTEM_NAMESPACE}} ack-${{env.SERVICE}}-controller \
+            oci://public.ecr.aws/aws-controllers-k8s/${{env.SERVICE}}-chart --version=$RELEASE_VERSION --set=aws.region=${{env.AWS_REGION}}
       - name: set oidc provider
         id: set-oidc-provider
         run: |
