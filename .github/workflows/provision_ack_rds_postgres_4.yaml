@@ -16,6 +16,8 @@ env:
   AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
   CLUSTER_NAME: 'eks-cluster'
   ACK_K8S_NAMESPACE: "ack-system"
+  ACK_K8S_SERVICE_ACCOUNT_NAME: "ack-rds-controller"
+  SERVICE: "rds"
 
 # Permission can be added at job level or workflow level
 permissions:
@@ -103,41 +105,29 @@ jobs:
           aws ecr-public get-login-password --region ${{env.AWS_REGION}} | helm registry login --username AWS --password-stdin public.ecr.aws
           helm install --create-namespace -n $ACK_SYSTEM_NAMESPACE ack-$SERVICE-controller \
             oci://public.ecr.aws/aws-controllers-k8s/$SERVICE-chart --version=$RELEASE_VERSION --set=aws.region=${{env.AWS_REGION}}
+      - name: set oidc provider
+        id: set-oidc-provider
+        run: |
+          # Update the service name variables as needed
+          OIDC_PROVIDER=$(aws eks describe-cluster --name ${{env.CLUSTER_NAME}} --region ${{env.AWS_REGION}} --query "cluster.identity.oidc.issuer" --output text | sed -e "s/^https:\/\///")
+          echo "OIDC_PROVIDER: $OIDC_PROVIDER"
+          echo "OIDC_PROVIDER=$OIDC_PROVIDER" >> $GITHUB_ENV
       - name: Create an IAM role and policy for your service account
         id: create-iam-role
         run: |
           # Update the service name variables as needed
-          SERVICE="rds"
+          SERVICE=${{env.SERVICE}}
           AWS_ACCOUNT_ID=${{secrets.AWS_ACCOUNT_ID}}
-          OIDC_PROVIDER=$(aws eks describe-cluster --name ${{env.CLUSTER_NAME}} --region ${{env.AWS_REGION}} --query "cluster.identity.oidc.issuer" --output text | sed -e "s/^https:\/\///")
           ACK_K8S_NAMESPACE=${{env.ACK_K8S_NAMESPACE}}
 
           ACK_K8S_SERVICE_ACCOUNT_NAME=ack-$SERVICE-controller
-
-          read -r -d '' TRUST_RELATIONSHIP <<EOF
-          {
-            "Version": "2012-10-17",
-            "Statement": [
-              {
-                "Effect": "Allow",
-                "Principal": {
-                  "Federated": "arn:aws:iam::${AWS_ACCOUNT_ID}:oidc-provider/${OIDC_PROVIDER}"
-                },
-                "Action": "sts:AssumeRoleWithWebIdentity",
-                "Condition": {
-                  "StringEquals": {
-                    "${OIDC_PROVIDER}:sub": "system:serviceaccount:${ACK_K8S_NAMESPACE}:${ACK_K8S_SERVICE_ACCOUNT_NAME}"
-                  }
-                }
-              }
-            ]
-          }
-          EOF
-          echo "${TRUST_RELATIONSHIP}" > trust.json
+          
+          cat config/ack/ack_rds_trust.json | envsubst > ack_rds_trust.json
+          cat ack_rds_trust.json
 
           ACK_CONTROLLER_IAM_ROLE="ack-${SERVICE}-controller"
           ACK_CONTROLLER_IAM_ROLE_DESCRIPTION="IRSA role for ACK ${SERVICE} controller deployment on EKS cluster using Helm charts"
-          aws iam create-role --role-name "${ACK_CONTROLLER_IAM_ROLE}" --assume-role-policy-document file://trust.json --description "${ACK_CONTROLLER_IAM_ROLE_DESCRIPTION}"
+          aws iam create-role --role-name "${ACK_CONTROLLER_IAM_ROLE}" --assume-role-policy-document file://ack_rds_trust.json --description "${ACK_CONTROLLER_IAM_ROLE_DESCRIPTION}"
           ACK_CONTROLLER_IAM_ROLE_ARN=$(aws iam get-role --role-name=$ACK_CONTROLLER_IAM_ROLE --query Role.Arn --output text)
           
           # Download the recommended managed and inline policies and apply them to the
@@ -183,37 +173,9 @@ jobs:
         run: |
           # Note the deployment name for ACK service controller from following command
           kubectl get deployments -n ${{ACK_K8S_NAMESPACE}}
-          kubectl -n ${{ACK_K8S_NAMESPACE}} rollout restart deployment <ACK deployment name>
+          kubectl -n ${{ACK_K8S_NAMESPACE}} rollout restart deployment ack-${{env.SERVICE}}-controller-${{env.SERVICE}}-chart
       - name: verify
         id: verify
         run: |
           kubectl get pods -n ${{ACK_K8S_NAMESPACE}}
-          kubectl describe pod -n ${{ACK_K8S_NAMESPACE}} <NAME> | grep "^\s*AWS_"
-      - name: Deploy Database Instances
-        id: deploy-db
-        run: |
-          RDS_INSTANCE_NAME="flyteadmin"
-
-          kubectl create secret generic "${RDS_INSTANCE_NAME}-password" \
-            --from-literal=password="flyteadmin"
-          
-          cat <<EOF > rds-postgresql.yaml
-            apiVersion: rds.services.k8s.aws/v1alpha1
-            kind: DBInstance
-            metadata:
-              name: "${RDS_INSTANCE_NAME}"
-            spec:
-              allocatedStorage: 20
-              dbInstanceClass: db.t4g.medium
-              dbInstanceIdentifier: ${RDS_INSTANCE_NAME}
-              db_name: ${RDS_INSTANCE_NAME}
-              engine: postgres
-              engineVersion: "14"
-              masterUsername: "postgres"
-              masterUserPassword:
-              namespace: default
-              name: "${RDS_INSTANCE_NAME}-password"
-              key: password
-          EOF
-
-          kubectl apply -f rds-postgresql.yaml
+          kubectl describe pod -n ${{ACK_K8S_NAMESPACE}} ${{env.ACK_K8S_SERVICE_ACCOUNT_NAME}} | grep "^\s*AWS_"
