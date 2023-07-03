@@ -226,6 +226,7 @@ jobs:
         id: create-storage-class
         run: |
           cat config/csi/efs/storageclass.yaml | envsubst > storageclass.yaml
+          cat storageclass.yaml
           kubectl apply -f storageclass.yaml
       - name: setup PersistentVolumeClaim
         id: setup-pvc
