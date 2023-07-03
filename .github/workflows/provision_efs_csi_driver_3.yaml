@@ -148,8 +148,8 @@ jobs:
           helm repo update aws-efs-csi-driver
           
           # Install a release of the driver using the Helm chart. Replace the repository address with the cluster's container image address
-          helm upgrade -i aws-efs-csi-driver aws-efs-csi-driver/aws-efs-csi-driver
-              #--namespace kube-system \
+          helm upgrade -i aws-efs-csi-driver aws-efs-csi-driver/aws-efs-csi-driver \
+              --namespace kube-system
               #--set image.repository=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{env.AWS_REGION}}.amazonaws.com/eks/aws-efs-csi-driver \
               #--set controller.serviceAccount.create=false \
               #--set controller.serviceAccount.name=efs-csi-controller-sa
