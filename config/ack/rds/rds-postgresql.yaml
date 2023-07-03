@@ -6,7 +6,6 @@ spec:
   allocatedStorage: 20
   dbInstanceClass: db.t4g.medium
   dbInstanceIdentifier: ${RDS_INSTANCE_NAME}
-  db_name: ${RDS_INSTANCE_NAME}
   engine: postgres
   engineVersion: "14"
   masterUsername: ${RDS_INSTANCE_NAME}
