@@ -124,21 +124,20 @@ jobs:
           
           echo "SUBNET_ID_2: $subnet_id_2"
           echo "SUBNET_ID_2=$subnet_id_2" >> $GITHUB_ENV
-      - name: Create an IAM policy and role
-        id: create-iam-role
-        if: steps.check-iamserviceaccount.outputs.role_exists == 'false'
-        run: |
-          aws iam create-policy \
-              --policy-name AmazonEKS_EFS_CSI_Driver_Policy \
-              --policy-document file://config/csi/efs/efs-csi-policy.json
+      #- name: Create an IAM policy and role
+      #  id: create-iam-role
+      #  run: |
+      #    aws iam create-policy \
+      #        --policy-name AmazonEKS_EFS_CSI_Driver_Policy \
+      #        --policy-document file://config/csi/efs/efs-csi-policy.json
           
-          eksctl create iamserviceaccount \
-              --cluster ${{env.CLUSTER_NAME}} \
-              --namespace kube-system \
-              --name efs-csi-controller-sa \
-              --attach-policy-arn arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:policy/AmazonEKS_EFS_CSI_Driver_Policy \
-              --approve \
-              --region ${{env.AWS_REGION}}
+      #    eksctl create iamserviceaccount \
+      #        --cluster ${{env.CLUSTER_NAME}} \
+      #        --namespace kube-system \
+      #        --name efs-csi-controller-sa \
+      #        --attach-policy-arn arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:policy/AmazonEKS_EFS_CSI_Driver_Policy \
+      #        --approve \
+      #        --region ${{env.AWS_REGION}}
       - name: Install Amazon EFS driver
         id: install-aws-efs-driver
         run: |
@@ -149,11 +148,11 @@ jobs:
           helm repo update aws-efs-csi-driver
           
           # Install a release of the driver using the Helm chart. Replace the repository address with the cluster's container image address
-          helm upgrade -i aws-efs-csi-driver aws-efs-csi-driver/aws-efs-csi-driver \
-              --namespace kube-system \
-              --set image.repository=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{env.AWS_REGION}}.amazonaws.com/eks/aws-efs-csi-driver \
-              --set controller.serviceAccount.create=false \
-              --set controller.serviceAccount.name=efs-csi-controller-sa
+          helm upgrade -i aws-efs-csi-driver aws-efs-csi-driver/aws-efs-csi-driver
+              #--namespace kube-system \
+              #--set image.repository=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{env.AWS_REGION}}.amazonaws.com/eks/aws-efs-csi-driver \
+              #--set controller.serviceAccount.create=false \
+              #--set controller.serviceAccount.name=efs-csi-controller-sa
       - name: check security group if exists
         id: check-security-group
         run: |
