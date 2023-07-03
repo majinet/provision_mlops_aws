@@ -1,4 +1,4 @@
-name: Step 4 - Provisioning AWS ACK Controller for s3
+name: Step 4.5 - Provisioning s3
 
 on:
   workflow_dispatch:
@@ -26,8 +26,8 @@ permissions:
       contents: read    # This is required for actions/checkout
 
 jobs:
-  ack_aws:
-    name: Provisioning AWS ACK Controller for s3
+  s3_aws:
+    name: Provisioning s3
     runs-on: ubuntu-latest
     outputs:
       env-name: ${{ steps.env-name.outputs.environment }}
