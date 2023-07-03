@@ -108,19 +108,22 @@ jobs:
           
           helm install --create-namespace -n $ACK_SYSTEM_NAMESPACE ack-$SERVICE-controller \
             oci://public.ecr.aws/aws-controllers-k8s/$SERVICE-chart --version=$RELEASE_VERSION --set=aws.region=$AWS_REGION
+      - name: set oidc provider
+        id: set-oidc-provider
+        run: |
+          # Update the service name variables as needed
+          OIDC_PROVIDER=$(aws eks describe-cluster --name ${{env.CLUSTER_NAME}} --region ${{env.AWS_REGION}} --query "cluster.identity.oidc.issuer" --output text | sed -e "s/^https:\/\///")
+          echo "OIDC_PROVIDER: $OIDC_PROVIDER"
+          echo "OIDC_PROVIDER=$OIDC_PROVIDER" >> $GITHUB_ENV
       - name: Create an IAM role and policy for your service account
         id: create-iam-role
         run: |
-          # Update the service name variables as needed
           SERVICE=${{env.SERVICE}}
           AWS_ACCOUNT_ID=${{secrets.AWS_ACCOUNT_ID}}
-          OIDC_PROVIDER=$(aws eks describe-cluster --name ${{env.CLUSTER_NAME}} --region ${{env.AWS_REGION}} --query "cluster.identity.oidc.issuer" --output text | sed -e "s/^https:\/\///")
+          OIDC_PROVIDER=${{env.OIDC_PROVIDER}}
           ACK_K8S_NAMESPACE=${{env.ACK_K8S_NAMESPACE}}
 
           ACK_K8S_SERVICE_ACCOUNT_NAME=${{env.ACK_K8S_SERVICE_ACCOUNT_NAME}}
-          
-          echo "OIDC_PROVIDER: $OIDC_PROVIDER"
-          echo "OIDC_PROVIDER=$OIDC_PROVIDER" >> $GITHUB_ENV
           
           cat config/ack/ack_s3_trust.json | envsubst > ack_s3_trust.json
           cat ack_s3_trust.json
