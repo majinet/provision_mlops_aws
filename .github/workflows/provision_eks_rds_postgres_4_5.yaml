@@ -1,4 +1,4 @@
-name: Provisioning Aurora
+name: Step 4.5 Provisioning Aurora
 
 on:
   workflow_dispatch:
@@ -100,36 +100,38 @@ jobs:
           echo "Subnet IDs: $subnetIds"
           #IFS=", " read -r var1 var2 <<< "$subnetIds"
           echo "EKS_SUBNET_IDS=$subnetIds" >> $GITHUB_ENV
-      - name: create namespace
-        id: create-ns
-        run: |
-          kubectl create namespace flyte
-        continue-on-error: true
       - name: Set up the database networking
         id: setup-db-network
         run: |
-          cat config/flyte/db-subnet-groups.yaml | envsubst  > db-subnet-groups.yaml 
-          cat db-subnet-groups.yaml
-          kubectl apply -f db-subnet-groups.yaml
+          cat config/ack/rds/flyte-db-subnet-groups.yaml | envsubst  > flyte-db-subnet-groups.yaml
+          cat flyte-db-subnet-groups.yaml
+          kubectl apply -f flyte-db-subnet-groups.yaml
+      - name: Setup db security group
+        id: setup-db-sg
+        run: |
+          # get RDS_SECURITY_GROUP_ID
+          sg_ids=$(aws cloudformation describe-stacks --stack-name aws-db-vpc --query 'Stacks[0].Outputs[?OutputKey==`SecurityGroups`].OutputValue' --output text)
+          echo "SecurityGroup IDs: $sg_ids"
+          echo "RDS_SECURITY_GROUP_ID=$sg_ids" >> $GITHUB_ENV
+      - name: create namespace
+        id: create-ns
+        run: |
+          kubectl create ns flyte
+        continue-on-error: true
       - name: Provision an Amazon RDS for PostgreSQL database instance
         id: create-rds-postgres-db
         run: |
           RDS_DB_USERNAME="flyteadmin"
 
-          kubectl create secret generic -n "flyte" flyte-postgres-creds \
+          kubectl create secret generic -n flyte flyte-postgres-creds \
             --from-literal=username="${RDS_DB_USERNAME}" \
             --from-literal=password="${{secrets.FLYTEADMIN}}"
           
           RDS_DB_INSTANCE_NAME="flyteadmin"
           RDS_DB_INSTANCE_CLASS="db.t3.medium"
           RDS_DB_STORAGE_SIZE=20
-          
-          # get RDS_SECURITY_GROUP_ID
-          sg_ids=$(aws cloudformation describe-stacks --stack-name aws-db-vpc --query 'Stacks[0].Outputs[?OutputKey==`SecurityGroups`].OutputValue' --output text)
-          echo "SecurityGroup IDs: $sg_ids"
-          echo "RDS_SECURITY_GROUP_ID=$sg_ids" >> $GITHUB_ENV
 
-          cat config/flyte/flyte-db.yaml | envsubst  > flyte-db.yaml
+          cat config/ack/rds/flyte-db.yaml | envsubst  > flyte-db.yaml
           cat flyte-db.yaml
           kubectl apply -f flyte-db.yaml
       - name: Sleep for 10 mins
