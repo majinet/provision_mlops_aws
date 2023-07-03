@@ -129,11 +129,15 @@ jobs:
           aws iam create-role --role-name "${ACK_CONTROLLER_IAM_ROLE}" --assume-role-policy-document file://ack_rds_trust.json --description "${ACK_CONTROLLER_IAM_ROLE_DESCRIPTION}"
           ACK_CONTROLLER_IAM_ROLE_ARN=$(aws iam get-role --role-name=$ACK_CONTROLLER_IAM_ROLE --query Role.Arn --output text)
           
+           echo "ACK_CONTROLLER_IAM_ROLE_ARN: $ACK_CONTROLLER_IAM_ROLE_ARN"
+          
           # Download the recommended managed and inline policies and apply them to the
           # newly created IRSA role
           BASE_URL=https://raw.githubusercontent.com/aws-controllers-k8s/${SERVICE}-controller/main
           POLICY_ARN_URL=${BASE_URL}/config/iam/recommended-policy-arn
           POLICY_ARN_STRINGS="$(wget -qO- ${POLICY_ARN_URL})"
+          
+          echo "POLICY_ARN_STRINGS: $POLICY_ARN_STRINGS"
 
           while IFS= read -r POLICY_ARN; do
               echo -n "Attaching $POLICY_ARN ... "
@@ -142,8 +146,7 @@ jobs:
                   --policy-arn "${POLICY_ARN}"
               echo "ok."
           done <<< "$POLICY_ARN_STRINGS"
-
-          echo "ACK_CONTROLLER_IAM_ROLE_ARN: $ACK_CONTROLLER_IAM_ROLE_ARN"
+          
           echo "ACK_CONTROLLER_IAM_ROLE_ARN=$ACK_CONTROLLER_IAM_ROLE_ARN" >> $GITHUB_ENV
       - name: Associate an IAM role to a service account
         id: associate-iam-role
