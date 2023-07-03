@@ -167,15 +167,15 @@ jobs:
           
           # Annotate the service account with the ARN
           export IRSA_ROLE_ARN=eks.amazonaws.com/role-arn=$ACK_CONTROLLER_IAM_ROLE_ARN
-          kubectl annotate serviceaccount -n $ACK_K8S_NAMESPACE $ACK_K8S_SERVICE_ACCOUNT_NAME $IRSA_ROLE_ARN
+          kubectl annotate serviceaccount -n ${{env.ACK_K8S_NAMESPACE}} ${{env.ACK_K8S_SERVICE_ACCOUNT_NAME}} $IRSA_ROLE_ARN
       - name: restart deployment
         id: restart-deployment
         run: |
           # Note the deployment name for ACK service controller from following command
-          kubectl get deployments -n ${{ACK_K8S_NAMESPACE}}
-          kubectl -n ${{ACK_K8S_NAMESPACE}} rollout restart deployment ack-${{env.SERVICE}}-controller-${{env.SERVICE}}-chart
+          kubectl get deployments -n ${{env.ACK_K8S_NAMESPACE}}
+          kubectl -n ${{env.ACK_K8S_NAMESPACE}} rollout restart deployment ack-${{env.SERVICE}}-controller-${{env.SERVICE}}-chart
       - name: verify
         id: verify
         run: |
-          kubectl get pods -n ${{ACK_K8S_NAMESPACE}}
-          kubectl describe pod -n ${{ACK_K8S_NAMESPACE}} ${{env.ACK_K8S_SERVICE_ACCOUNT_NAME}} | grep "^\s*AWS_"
+          kubectl get pods -n ${{env.ACK_K8S_NAMESPACE}}
+          kubectl describe pod -n ${{env.ACK_K8S_NAMESPACE}} ${{env.ACK_K8S_SERVICE_ACCOUNT_NAME}} | grep "^\s*AWS_"
