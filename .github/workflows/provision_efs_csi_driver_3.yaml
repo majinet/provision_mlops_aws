@@ -206,3 +206,10 @@ jobs:
               --file-system-id ${{env.FILE_SYSTEM_ID}} \
               --subnet-id ${{env.SUBNET_ID_1}} \
               --security-groups ${{env.SECURITY_GROUP_ID}}
+        continue-on-error: true
+      - name: deploy storage class
+        id: create-sc
+        run: |
+          cat config/csi/efs/storageclass.yaml | envsubst > storageclass.yaml
+          cat storageclass.yaml
+          kubectl apply -f storageclass.yaml
