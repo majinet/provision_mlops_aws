@@ -36,7 +36,6 @@ addons:
     wellKnownPolicies: # add IAM and service account
       efsCSIController: true
   - name: aws-load-balancer
-    namespace: kube-system
     wellKnownPolicies:
       awsLoadBalancerController: true
 
