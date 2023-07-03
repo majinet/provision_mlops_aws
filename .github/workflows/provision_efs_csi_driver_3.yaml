@@ -126,17 +126,6 @@ jobs:
           echo "SUBNET_ID_2=$subnet_id_2" >> $GITHUB_ENV
       - name: Check if IAM policy and role exists
         id: check-iamserviceaccount
-        run: |
-
-          output=$(kubectl get serviceaccount efs-csi-controller-sa -n kube-system -o custom-columns=:metadata.name)
-          
-          if [[ -z "$output" ]]; then
-            echo "IAM Service Account does not exist."
-            echo "::set-output name=role_exists::false"
-          else
-            echo "IAM Service Account exists."
-            echo "::set-output name=role_exists::true"
-        continue-on-error: true
       - name: Create an IAM policy and role
         id: create-iam-role
         if: steps.check-iamserviceaccount.outputs.role_exists == 'false'
@@ -221,16 +210,3 @@ jobs:
               --file-system-id ${{env.FILE_SYSTEM_ID}} \
               --subnet-id ${{env.SUBNET_ID_1}} \
               --security-groups ${{env.SECURITY_GROUP_ID}}
-        continue-on-error: true
-      - name: Create storage class
-        id: create-storage-class
-        run: |
-          cat config/csi/efs/storageclass.yaml | envsubst > storageclass.yaml
-          cat storageclass.yaml
-          kubectl apply -f storageclass.yaml
-      - name: setup PersistentVolumeClaim
-        id: setup-pvc
-        run: |
-          kubectl apply -f config/csi/efs/pod.yaml
-          
-          kubectl get pods -n kube-system | grep efs-csi-controller

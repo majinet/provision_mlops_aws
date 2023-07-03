@@ -22,6 +22,5 @@ managedNodeGroups:
         imageBuilder: true
         autoScaler: true
         ebs: true
-        fsx: true
         efs: true
         awsLoadBalancerController: true
