@@ -100,6 +100,11 @@ jobs:
           echo "Subnet IDs: $subnetIds"
           #IFS=", " read -r var1 var2 <<< "$subnetIds"
           echo "EKS_SUBNET_IDS=$subnetIds" >> $GITHUB_ENV
+      - name: create namespace
+        id: create-ns
+        run: |
+          kubectl create ns flyte
+        continue-on-error: true
       - name: Set up the database networking
         id: setup-db-network
         run: |
@@ -113,11 +118,6 @@ jobs:
           sg_ids=$(aws cloudformation describe-stacks --stack-name aws-db-vpc --query 'Stacks[0].Outputs[?OutputKey==`SecurityGroups`].OutputValue' --output text)
           echo "SecurityGroup IDs: $sg_ids"
           echo "RDS_SECURITY_GROUP_ID=$sg_ids" >> $GITHUB_ENV
-      - name: create namespace
-        id: create-ns
-        run: |
-          kubectl create ns flyte
-        continue-on-error: true
       - name: Provision an Amazon RDS for PostgreSQL database instance
         id: create-rds-postgres-db
         run: |
