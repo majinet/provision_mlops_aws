@@ -1,0 +1,16 @@
+apiVersion: rds.services.k8s.aws/v1alpha1
+kind: DBInstance
+metadata:
+  name: ${RDS_INSTANCE_NAME}
+spec:
+  allocatedStorage: 20
+  dbInstanceClass: db.t4g.medium
+  dbInstanceIdentifier: ${RDS_INSTANCE_NAME}
+  db_name: ${RDS_INSTANCE_NAME}
+  engine: postgres
+  engineVersion: "14"
+  masterUsername: ${RDS_INSTANCE_NAME}
+  masterUserPassword:
+  namespace: default
+  name: ${RDS_INSTANCE_NAME}-password
+  key: password

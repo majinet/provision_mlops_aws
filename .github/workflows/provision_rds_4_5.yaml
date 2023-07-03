@@ -17,8 +17,9 @@ env:
   CLUSTER_NAME: 'eks-cluster'
   ACK_K8S_NAMESPACE: "ack-system"
   ACK_SYSTEM_NAMESPACE: "ack-system"
-  SERVICE: "s3"
-  ACK_K8S_SERVICE_ACCOUNT_NAME: "ack-s3-controller"
+  SERVICE: "rds"
+  ACK_K8S_SERVICE_ACCOUNT_NAME: "ack-rds-controller"
+  RDS_INSTANCE_NAME: "flyteadmin"
 
 # Permission can be added at job level or workflow level
 permissions:
@@ -99,28 +100,10 @@ jobs:
       - name: Deploy Database Instances
         id: deploy-db
         run: |
-          RDS_INSTANCE_NAME="flyteadmin"
-
-          kubectl create secret generic "${RDS_INSTANCE_NAME}-password" \
-            --from-literal=password="flyteadmin"
+          kubectl create secret generic "${{env.RDS_INSTANCE_NAME}}-password" \
+            --from-literal=password=${{env.RDS_INSTANCE_NAME}}
           
-          cat <<EOF > rds-postgresql.yaml
-            apiVersion: rds.services.k8s.aws/v1alpha1
-            kind: DBInstance
-            metadata:
-              name: "${RDS_INSTANCE_NAME}"
-            spec:
-              allocatedStorage: 20
-              dbInstanceClass: db.t4g.medium
-              dbInstanceIdentifier: ${RDS_INSTANCE_NAME}
-              db_name: ${RDS_INSTANCE_NAME}
-              engine: postgres
-              engineVersion: "14"
-              masterUsername: "postgres"
-              masterUserPassword:
-              namespace: default
-              name: "${RDS_INSTANCE_NAME}-password"
-              key: password
-          EOF
+          cat config/ack/rds/rds-postgresql.yaml | envsubst > rds-postgresql.yaml
+          cat rds-postgresql.yaml
 
           kubectl apply -f rds-postgresql.yaml
