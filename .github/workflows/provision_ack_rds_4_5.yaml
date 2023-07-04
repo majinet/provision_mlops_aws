@@ -86,7 +86,7 @@ jobs:
         if: steps.check-stack.outputs.stack-exists == 'false'
         run: |
           cat cloudformation/private-db-vpc-subnet-group.yaml | envsubst  > private-db-vpc-subnet-group.yaml
-          cat cloudformation/private-db-vpc-subnet-group.yaml
+          cat private-db-vpc-subnet-group.yaml
       - name: Deploy DB VPC Subnet
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
