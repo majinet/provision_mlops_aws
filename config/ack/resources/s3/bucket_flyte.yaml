@@ -2,6 +2,7 @@ apiVersion: s3.services.k8s.aws/v1alpha1
 kind: Bucket
 metadata:
     name: ack-flyte-bucket-${AWS_ACCOUNT_ID}
+    namespace: flyte
     annotations:
       services.k8s.aws/region: us-east-1
 spec:

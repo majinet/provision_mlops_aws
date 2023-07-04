@@ -96,17 +96,22 @@ jobs:
           
           # Ensure cluster has compute
           kubectl get nodes
+      - name: create namespace
+        id: create-ns
+        run: |
+          kubectl create ns flyte
+        continue-on-error: true
       - name: Deploy s3 for flyte
         id: deploy-s3-flyte
         run: |
-          cat config/ack/s3/bucket_flyte.yaml | envsubst > bucket_flyte.yaml
+          cat config/ack/resources/s3/bucket_flyte.yaml | envsubst > bucket_flyte.yaml
           cat bucket_flyte.yaml
 
           kubectl create -f bucket_flyte.yaml
       - name: Deploy s3 for sagemaker
         id: deploy-s3-sagemaker
         run: |
-          cat config/ack/s3/bucket_sagemaker.yaml | envsubst > bucket_sagemaker.yaml
+          cat config/ack/resources/s3/bucket_sagemaker.yaml | envsubst > bucket_sagemaker.yaml
           cat bucket_sagemaker.yaml
 
           kubectl create -f bucket_sagemaker.yaml

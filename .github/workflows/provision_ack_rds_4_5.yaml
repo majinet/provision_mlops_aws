@@ -108,7 +108,7 @@ jobs:
       - name: Set up the database networking
         id: setup-db-network
         run: |
-          cat config/ack/rds/flyte-db-subnet-groups.yaml | envsubst  > flyte-db-subnet-groups.yaml
+          cat config/ack/resources/rds/flyte-db-subnet-groups.yaml | envsubst  > flyte-db-subnet-groups.yaml
           cat flyte-db-subnet-groups.yaml
           kubectl apply -f flyte-db-subnet-groups.yaml
       - name: Setup db security group
@@ -131,7 +131,7 @@ jobs:
           RDS_DB_INSTANCE_CLASS="db.t3.medium"
           RDS_DB_STORAGE_SIZE=20
 
-          cat config/ack/rds/flyte-db.yaml | envsubst  > flyte-db.yaml
+          cat config/ack/resources/rds/flyte-db.yaml | envsubst  > flyte-db.yaml
           cat flyte-db.yaml
           kubectl apply -f flyte-db.yaml
       - name: Sleep for 10 mins

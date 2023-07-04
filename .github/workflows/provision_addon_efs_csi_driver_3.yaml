@@ -210,6 +210,6 @@ jobs:
       - name: deploy storage class
         id: create-sc
         run: |
-          cat config/csi/efs/storageclass.yaml | envsubst > storageclass.yaml
+          cat config/ack/csi/efs/storageclass.yaml | envsubst > storageclass.yaml
           cat storageclass.yaml
           kubectl apply -f storageclass.yaml

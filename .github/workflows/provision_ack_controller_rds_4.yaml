@@ -121,7 +121,7 @@ jobs:
 
           ACK_K8S_SERVICE_ACCOUNT_NAME=ack-$SERVICE-controller
           
-          cat config/ack/ack_rds_trust.json | envsubst > ack_rds_trust.json
+          cat config/ack/controller/ack_rds_trust.json | envsubst > ack_rds_trust.json
           cat ack_rds_trust.json
 
           ACK_CONTROLLER_IAM_ROLE="ack-${SERVICE}-controller"
