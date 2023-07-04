@@ -10,7 +10,7 @@ spec:
   dbInstanceClass: db.t3.medium
   dbInstanceIdentifier: flyteadmin
   dbName: flyteadmin
-  dbSubnetGroupName: flyte-db-subnet-group
+  #dbSubnetGroupName: flyte-db-subnet-group
   engine: postgres
   engineVersion: "14"
   masterUsername: flyteadmin
@@ -22,4 +22,4 @@ spec:
   publiclyAccessible: false
   storageEncrypted: true
   storageType: gp3
-  vpcSecurityGroupIDs: [${RDS_SECURITY_GROUP_ID}]
+  #vpcSecurityGroupIDs: [${RDS_SECURITY_GROUP_ID}]
