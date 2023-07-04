@@ -56,7 +56,7 @@ Resources:
       VpcId: ${VPC_ID}
       Tags:
         - Key: Name
-          Value: !Sub "${AWS::StackName}-PrivateDBSubnet01"
+          Value: !Sub "flyte-PrivateDBSubnet01"
         - Key: kubernetes.io/role/internal-elb
           Value: 1
 
@@ -75,7 +75,7 @@ Resources:
       VpcId: ${VPC_ID}
       Tags:
         - Key: Name
-          Value: !Sub "${AWS::StackName}-PrivateSubnet02"
+          Value: !Sub "flyte-PrivateDBSubnet02"
         - Key: kubernetes.io/role/internal-elb
           Value: 1
 
@@ -124,7 +124,7 @@ Resources:
       VpcId: ${VPC_ID}
       Tags:
         - Key: Name
-          Value: !Sub '${AWS::StackName}-AuroraClusterSecurityGroup'
+          Value: !Sub 'flyte-AuroraClusterSecurityGroup'
 
   ClusterSecurityGroupIngress:
     Type: 'AWS::EC2::SecurityGroupIngress'
