@@ -1,4 +1,4 @@
-name: Step 3 Provisioning AWS Load Balance
+name: Step 3 - Provisioning AWS Load Balance
 
 on:
   workflow_dispatch:
