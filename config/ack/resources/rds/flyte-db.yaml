@@ -22,4 +22,4 @@ spec:
   publiclyAccessible: false
   storageEncrypted: true
   storageType: gp3
-  #vpcSecurityGroupIDs: [${RDS_SECURITY_GROUP_ID}]
+  vpcSecurityGroupIDs: [${RDS_SECURITY_GROUP_ID}]
