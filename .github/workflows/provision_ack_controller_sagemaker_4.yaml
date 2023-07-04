@@ -113,7 +113,7 @@ jobs:
           OIDC_ROLE_NAME=ack-controller-role-${{env.CLUSTER_NAME}}
           echo "OIDC_ROLE_NAME: $OIDC_ROLE_NAME"
           
-          role_created = $(aws --region ${{env.AWS_REGION}} iam create-role --role-name $OIDC_ROLE_NAME --assume-role-policy-document file://ack_sagemaker_trust.json)
+          role_created=$(aws --region ${{env.AWS_REGION}} iam create-role --role-name $OIDC_ROLE_NAME --assume-role-policy-document file://ack_sagemaker_trust.json)
           echo "role_created: $role_created"
           
           # Attach the AmazonSageMakerFullAccess Policy to the IAM Role to ensure that your SageMaker service controller has access to the appropriate resources.
