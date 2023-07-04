@@ -120,7 +120,7 @@ jobs:
           attached_role_policy=$(aws --region ${{env.AWS_REGION}} iam attach-role-policy --role-name $OIDC_ROLE_NAME --policy-arn arn:aws:iam::aws:policy/AmazonSageMakerFullAccess)
           echo "attached_role_policy: $attached_role_policy"
           
-          IAM_ROLE_ARN_FOR_IRSA=$(aws --region $SERVICE_REGION iam get-role --role-name $OIDC_ROLE_NAME --output text --query 'Role.Arn')
+          IAM_ROLE_ARN_FOR_IRSA=$(aws --region ${{env.AWS_REGION}} iam get-role --role-name $OIDC_ROLE_NAME --output text --query 'Role.Arn')
           
           echo "IAM_ROLE_ARN_FOR_IRSA: $IAM_ROLE_ARN_FOR_IRSA"
           echo "IAM_ROLE_ARN_FOR_IRSA=$IAM_ROLE_ARN_FOR_IRSA" >> $GITHUB_ENV
