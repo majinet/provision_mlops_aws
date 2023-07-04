@@ -107,7 +107,7 @@ jobs:
       - name: Create ack role
         id: create-ack-role
         run: |
-          cat config/ack/addons/controller/ack_sagemaker_trust.json | envsubst  > ack_sagemaker_trust.json
+          cat config/ack/controller/ack_sagemaker_trust.json | envsubst  > ack_sagemaker_trust.json
           
           # Run the iam create-role command to create an IAM role with the trust relationship you just defined in trust.json. This IAM role enables the Amazon EKS cluster to get and refresh credentials from IAM.
           OIDC_ROLE_NAME=ack-controller-role-${{env.CLUSTER_NAME}}
