@@ -59,18 +59,47 @@ jobs:
           curl -sLO "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$PLATFORM.tar.gz"
           tar -xzf eksctl_$PLATFORM.tar.gz -C /tmp && rm eksctl_$PLATFORM.tar.gz
           sudo mv /tmp/eksctl /usr/local/bin
+      - name: Check if IAM Cluster role exists
+        id: check-cluster-role
+        run: |
+          aws iam get-role --role-name eksClusterRole > /dev/null 2>&1 || echo "::set-output name=role_exists::false"
+      - name: Create IAM role for Cluster
+        id: create-iam-role-for-cluster
+        if: steps.check-cluster-role.outputs.role_exists == 'false'
+        run: |
+          aws iam create-role \
+            --role-name eksClusterRole \
+            --assume-role-policy-document file://"config/eks/cluster-trust-policy.json"
+          
+          aws iam attach-role-policy \
+            --policy-arn arn:aws:iam::aws:policy/AmazonEKSClusterPolicy \
+            --role-name eksClusterRole
+      - name: Check if EKS Node IAM role exists
+        id: check-node-role
+        run: |
+          aws iam get-role --role-name AmazonEKSNodeRole > /dev/null 2>&1 || echo "::set-output name=role_exists::false"
+      - name: Create IAM role for Node
+        id: create-iam-role-for-node
+        if: steps.check-node-role.outputs.role_exists == 'false'
+        run: |
+          aws iam create-role \
+            --role-name AmazonEKSNodeRole \
+            --assume-role-policy-document file://"config/eks/node-role-trust-relationship.json"
+
+          aws iam attach-role-policy \
+            --policy-arn arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy \
+            --role-name AmazonEKSNodeRole
+          
+          aws iam attach-role-policy \
+            --policy-arn arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly \
+            --role-name AmazonEKSNodeRole
       - name: Get ARN of ODIC provider
         id: get-oidc-provider-arn
         run: |
-          OIDC_PROVIDER_NAME=$(aws iam list-open-id-connect-providers --query 'OpenIDConnectProviderList[?contains(Arn, `oidc.eks.us-east-1.amazonaws.com`)].Arn' --output text)
-          echo "OIDC_PROVIDER_NAME: $OIDC_PROVIDER_NAME"
-          
-          OIDC_PROVIDER_ARN=$(aws iam list-open-id-connect-providers --query 'OpenIDConnectProviderList[?Arn==`arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:oidc-provider/$OIDC_PROVIDER_NAME`].Arn' --output text)
+          OIDC_PROVIDER_ARN=$(aws iam list-open-id-connect-providers --query 'OpenIDConnectProviderList[?contains(Arn, `oidc.eks.us-east-1.amazonaws.com`)].Arn' --output text)
+
           echo "OIDC_PROVIDER_ARN: $OIDC_PROVIDER_ARN"
           echo "OIDC_PROVIDER_ARN=$OIDC_PROVIDER_ARN" >> $GITHUB_ENV
-      - name: Trust between ODIC and Flyte
-        id: trust-between-oidc-and-flyte
-        run: |
       - name: Check if Flyte system IAM role exists
         id: check-flyte-system-role
         run: |
