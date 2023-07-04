@@ -106,7 +106,6 @@ jobs:
           echo "OIDC_PROVIDER_URL=$OIDC_PROVIDER_URL" >> $GITHUB_ENV
       - name: Create ack role
         id: create-ack-role
-        if: steps.check-ack-role.outputs.role_exists == 'false'
         run: |
           cat config/ack/addons/controller/ack_sagemaker_trust.json | envsubst  > ack_sagemaker_trust.json
           
