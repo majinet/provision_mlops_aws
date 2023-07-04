@@ -116,11 +116,11 @@ jobs:
         id: create-ack-role
         if: steps.check-ack-role.outputs.role_exists == 'false'
         run: |
-          cat config/ack/trust.json | envsubst  > trust.json
+          cat config/ack/addons/controller/ack_sagemaker_trust.json | envsubst  > ack_sagemaker_trust.json
           
           # Run the iam create-role command to create an IAM role with the trust relationship you just defined in trust.json. This IAM role enables the Amazon EKS cluster to get and refresh credentials from IAM.
           OIDC_ROLE_NAME=ack-controller-role-${{env.CLUSTER_NAME}}
-          aws --region ${{env.AWS_REGION}} iam create-role --role-name $OIDC_ROLE_NAME --assume-role-policy-document file://trust.json
+          aws --region ${{env.AWS_REGION}} iam create-role --role-name $OIDC_ROLE_NAME --assume-role-policy-document file://ack_sagemaker_trust.json
           
           # Attach the AmazonSageMakerFullAccess Policy to the IAM Role to ensure that your SageMaker service controller has access to the appropriate resources.
           aws --region ${{env.AWS_REGION}} iam attach-role-policy --role-name $OIDC_ROLE_NAME --policy-arn arn:aws:iam::aws:policy/AmazonSageMakerFullAccess
@@ -131,7 +131,7 @@ jobs:
         id: create-inline-policy
         run: |
           # AmazonSageMakerFullAccess policy does not include permissions required to manage Domain, UserProfile or App resource. Create and attach the following Policy to the IAM Role to ensure that your SageMaker service controller has access to these resources.
-          aws --region ${{env.AWS_REGION}} iam put-role-policy --role-name ack-controller-role-${{env.CLUSTER_NAME}} --policy-name SagemakerStudioAccess --policy-document file://config/ack/sagemaker_studio_access.json
+          aws --region ${{env.AWS_REGION}} iam put-role-policy --role-name ack-controller-role-${{env.CLUSTER_NAME}} --policy-name SagemakerStudioAccess --policy-document file://config/ack/addons/controller/sagemaker_studio_access.json
       - name: Install the SageMaker ACK service controller
         id: install-ack
         run: |
