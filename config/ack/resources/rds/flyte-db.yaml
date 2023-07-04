@@ -18,8 +18,8 @@ spec:
     namespace: flyte
     name: flyte-postgres-creds
     key: password
-  multiAZ: true
+  multiAZ: false
   publiclyAccessible: false
   storageEncrypted: true
   storageType: gp3
-  vpcSecurityGroupIDs: [${RDS_SECURITY_GROUP_ID}]
+  vpcSecurityGroupIDs: [$ {RDS_SECURITY_GROUP_ID}]

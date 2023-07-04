@@ -60,12 +60,6 @@ jobs:
           curl -sLO "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$PLATFORM.tar.gz"
           tar -xzf eksctl_$PLATFORM.tar.gz -C /tmp && rm eksctl_$PLATFORM.tar.gz
           sudo mv /tmp/eksctl /usr/local/bin
-      - name: Set S3 Bucket
-        id: set-s3-bucket
-        run: |
-          BUCKET_NAME=$(aws cloudformation describe-stacks --stack-name <S3 Bucket Name> --query 'Stacks[0].Outputs[?OutputKey==`RawDataBucketName`].OutputValue' --output text)
-          echo "BUCKET_NAME: $BUCKET_NAME"
-          echo "BUCKET_NAME=$BUCKET_NAME" >> $GITHUB_ENV
       - name: install Flyte
         id: install-flyte
         run: |
