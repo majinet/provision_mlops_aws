@@ -4,7 +4,7 @@ metadata:
   name: flyteadmin
   namespace: flyte
 spec:
-  allocatedStorage: 20
+  allocatedStorage: 10
   autoMinorVersionUpgrade: true
   backupRetentionPeriod: 7
   dbInstanceClass: db.t3.medium
