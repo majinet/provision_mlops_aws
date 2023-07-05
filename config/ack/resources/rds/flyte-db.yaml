@@ -9,7 +9,7 @@ spec:
   backupRetentionPeriod: 7
   dbInstanceClass: db.t3.medium
   dbInstanceIdentifier: flyteadmin
-  dbName: flyteadmin
+  dbName: app
   dbSubnetGroupName: flyte-db-subnet-group
   engine: aurora-postgresql
   engineVersion: "14"
