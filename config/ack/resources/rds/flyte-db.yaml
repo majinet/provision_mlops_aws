@@ -11,7 +11,7 @@ spec:
   dbInstanceIdentifier: flyteadmin
   dbName: flyteadmin
   dbSubnetGroupName: flyte-db-subnet-group
-  engine: postgres
+  engine: aurora-postgresql
   engineVersion: "14"
   masterUsername: flyteadmin
   masterUserPassword:
