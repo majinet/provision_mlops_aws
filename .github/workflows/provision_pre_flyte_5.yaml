@@ -153,3 +153,4 @@ jobs:
         id: create-log-group
         run: |
           aws logs create-log-group --log-group-name flyteplatform
+        continue-on-error: true
