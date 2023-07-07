@@ -5,7 +5,7 @@
         "ImageId": {
             "Type": "String",
             "Description": "Canonical, Ubuntu, 22.04 LTS, amd64 jammy image build on 2023-05-16",
-            "Default": "ami-0a0c8eebcdd6dcbd0"
+            "Default": "ami-053b0d53c279acc90"
         },
         "VpcId": {
             "Type": "String",
