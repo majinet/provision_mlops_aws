@@ -18,7 +18,7 @@ privateCluster:
     # Cloudformation
 #    - "cloudformation"
 
-availabilityZones: ["us-east-1d",  "us-east-1f"]
+availabilityZones: ["us-east-1d",  "us-east-1c"]
 
 addons:
   - name: vpc-cni # no version is specified so it deploys the default version
