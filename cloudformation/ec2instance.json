@@ -15,7 +15,7 @@
         "SubnetId": {
             "Type": "String",
             "Description": "Subnet in which to launch an EC2",
-            "Default": "${SUBNET_IDS_1}"
+            "Default": "${SUBNET_IDS_2}"
         },
         "AvailabilityZone": {
             "Type": "String",
