@@ -1,4 +1,4 @@
-name: Step 4.5 Provisioning Aurora
+name: Step 5 Provisioning Aurora
 
 on:
   workflow_dispatch:
