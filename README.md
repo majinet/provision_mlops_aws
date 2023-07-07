@@ -30,7 +30,7 @@ With the utilization of the Cloud, we can effortlessly implement agile and TDD (
 - Virtual Private Cloud (VPC)
 - AWS Elastic Kubernetes Service (EKS)
 - AWS Elastic Container Registry (ECR)
-- Flyte Pipeline
+- Kubeflow
 - AWS SageMaker
 - AWS Apache Kafka (MSK)
 - S3 Bucket
@@ -38,3 +38,8 @@ With the utilization of the Cloud, we can effortlessly implement agile and TDD (
 ### VPC Network diagrams
 
 ![eks-arch.png](architecture/images/eks-arch.png)
+
+### Kubeflow on EKS
+
+![kubeflow_on_eks.png](architecture/images/kubeflow_on_eks.png)
+Diagram reference from blog "Enabling hybrid ML workflows on Amazon EKS and Amazon SageMaker with one-click Kubeflow on AWS deployment"

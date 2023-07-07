@@ -1,4 +1,4 @@
-name: Step 6 - Provisioning Flyte
+name: Provisioning Flyte
 
 on:
   workflow_dispatch:

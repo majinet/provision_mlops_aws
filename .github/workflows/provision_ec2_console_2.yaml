@@ -1,0 +1,79 @@
+name: Step 2 - Provisioning EC2 console
+
+on:
+  workflow_dispatch:
+    inputs:
+      region:
+        description: 'AWS Region'
+        required: true
+        default: 'us-east-1'
+      #keypair:
+      #  description: 'SSH Key Pair'
+      #  required: true
+
+env:
+  AWS_REGION : ${{ github.event.inputs.region}} #Change to reflect your Region
+  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+
+# Permission can be added at job level or workflow level
+permissions:
+      id-token: write   # This is required for requesting the JWT
+      contents: read    # This is required for actions/checkout
+
+jobs:
+  ec2_aws:
+    name: Provisioning EC2 console
+    runs-on: ubuntu-latest
+    outputs:
+      env-name: ${{ steps.env-name.outputs.environment }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Configure AWS credentials
+        id: creds
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.IAC_EKS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.IAC_EKS_SECRET_KEY }}
+          aws-region: ${{ github.event.inputs.region}}
+      - name: Configure environment name
+        id: env-name
+        env:
+          REPO: ${{ github.repository }}
+        run: |
+          ENVIRONMENT=`echo $REPO | tr "/" "-"`
+          echo "Environment name: $ENVIRONMENT"
+          echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
+      #- name: Allow passwordless sudo
+      #  run: echo '${{ secrets.SUDO_PASSWORD }}' | sudo -Sv
+      - name: install envsubst
+        id: install-envsubst
+        run: |
+          curl -L https://github.com/a8m/envsubst/releases/download/v1.2.0/envsubst-`uname -s`-`uname -m` -o envsubst
+          chmod +x envsubst
+          sudo mv envsubst /usr/local/bin
+      - name: Set VPC ID
+        id: set-vpc-id
+        run: |
+          VPC_ID=$(aws cloudformation describe-stacks --stack-name eksctl-eks-cluster-cluster --query 'Stacks[0].Outputs[?OutputKey==`VPC`].OutputValue' --output text)
+          echo "VPC ID: $VPC_ID"
+          echo "VPC_ID=$VPC_ID" >> $GITHUB_ENV
+      - name: Get Subnet IDs
+        id: get-subnet-ids
+        run: |
+          subnetIds=$(aws cloudformation describe-stacks --stack-name eksctl-eks-cluster-cluster --query 'Stacks[0].Outputs[?OutputKey==`SubnetIds`].OutputValue' --output text)
+          echo "Subnet IDs: $subnetIds"
+          IFS=", " read -r var1 var2  var3 <<< "$subnetIds"
+          echo "SUBNET_IDS_1=$var1" >> $GITHUB_ENV
+          echo "SUBNET_IDS_2=$var2" >> $GITHUB_ENV
+          echo "SUBNET_IDS_3=$var3" >> $GITHUB_ENV
+      - name: update cloudformation
+        id: update-cloudformation
+        run: |
+          cat cloudformation/ec2instance.json | envsubst  > ec2instance.json
+          cat ec2instance.json
+      - name: Deploy EC2 console
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        with:
+          name: aws-ec2-console
+          template: ec2instance.json

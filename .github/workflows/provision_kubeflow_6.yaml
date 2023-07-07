@@ -1,0 +1,103 @@
+name: Step 6 - Provisioning Kubeflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      region:
+        description: 'AWS Region'
+        required: true
+        default: 'us-east-1'
+      #keypair:
+      #  description: 'SSH Key Pair'
+      #  required: true
+
+env:
+  AWS_REGION : ${{ github.event.inputs.region}} #Change to reflect your Region
+  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+
+# Permission can be added at job level or workflow level
+permissions:
+      id-token: write   # This is required for requesting the JWT
+      contents: read    # This is required for actions/checkout
+
+jobs:
+  eks_aws:
+    name: Provisioning AWS EKS
+    runs-on: ubuntu-latest
+    outputs:
+      env-name: ${{ steps.env-name.outputs.environment }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Configure AWS credentials
+        id: creds
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.IAC_EKS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.IAC_EKS_SECRET_KEY }}
+          aws-region: ${{ github.event.inputs.region}}
+      - name: install envsubst
+        id: install-envsubst
+        run: |
+          curl -L https://github.com/a8m/envsubst/releases/download/v1.2.0/envsubst-`uname -s`-`uname -m` -o envsubst
+          chmod +x envsubst
+          sudo mv envsubst /usr/local/bin
+      - name: install helm
+        id: install-helm
+        run: |
+          curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
+          sudo apt-get install apt-transport-https --yes
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+          sudo apt-get update -y
+          sudo apt-get install helm -y
+      - name: install eksctl
+        id: install-eksctl
+        run: |
+          # for ARM systems, set ARCH to: `arm64`, `armv6` or `armv7`
+          ARCH=amd64
+          PLATFORM=$(uname -s)_$ARCH
+
+          curl -sLO "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$PLATFORM.tar.gz"
+          tar -xzf eksctl_$PLATFORM.tar.gz -C /tmp && rm eksctl_$PLATFORM.tar.gz
+          sudo mv /tmp/eksctl /usr/local/bin
+      - name: Get ARN of ODIC provider
+        id: get-oidc-provider-arn
+        run: |
+          OIDC_PROVIDER_ARN=$(aws iam list-open-id-connect-providers --query 'OpenIDConnectProviderList[?contains(Arn, `oidc.eks.us-east-1.amazonaws.com`)].Arn' --output text)
+
+          echo "OIDC_PROVIDER_ARN: $OIDC_PROVIDER_ARN"
+          echo "OIDC_PROVIDER_ARN=$OIDC_PROVIDER_ARN" >> $GITHUB_ENV
+      - name: Get EC2 instance private IP
+        id: get-ec2-private-ip
+        run: |
+          ec2_private_ip=$(aws cloudformation describe-stacks --stack-name aws-ec2-console --query 'Stacks[0].Outputs[?OutputKey==`PrivateIp`].OutputValue' --output text)
+          
+          echo "EC2_PRIVATE_IP: $EC2_PRIVATE_IP"
+          echo "EC2_PRIVATE_IP=$EC2_PRIVATE_IP" >> $GITHUB_ENV
+      - name: install Kubeflow
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ env.EC2_PRIVATE_IP }}
+          username: ${{ secrets.AWS_EC2_USERNAME }}
+          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+          script: |
+            # Clone repository
+            export KUBEFLOW_RELEASE_VERSION=v1.7.0
+            export AWS_RELEASE_VERSION=v1.7.0-aws-b1.0.2
+            git clone https://github.com/awslabs/kubeflow-manifests.git && cd kubeflow-manifests
+            git checkout ${AWS_RELEASE_VERSION}
+            git clone --branch ${KUBEFLOW_RELEASE_VERSION} https://github.com/kubeflow/manifests.git upstream
+            
+            # Install necessary tools
+            make install-tools
+            
+            alias python=python3.8
+            
+            aws configure set aws_access_key_id ${{ secrets.IAC_EKS_ACCESS_KEY }} --profile kubeflow
+            aws configure set aws_secret_access_key ${{ secrets.IAC_EKS_SECRET_KEY }} --profile kubeflow
+            aws configure set default.region us-east-1 --profile kubeflow
+            
+            export AWS_PROFILE=kubeflow
+            
+            make deploy-kubeflow INSTALLATION_OPTION=helm DEPLOYMENT_OPTION=vanilla
+
