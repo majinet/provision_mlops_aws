@@ -22,11 +22,6 @@ configuration:
       cache:
         max_size_mbs: 20
         target_gc_percent: 100
-    ingress:
-      create: true
-      commonAnnotations:
-        kubernetes.io/ingress.class: nginx
-      httpAnnotations:
 serviceAccount:
   create: true
   annotations:
