@@ -20,7 +20,7 @@
         "AvailabilityZone": {
             "Type": "String",
             "Description": "Availability Zone into which instance will launch",
-            "Default": "eu-west-1c"
+            "Default": "eu-west-1d"
         },
         "InstanceType": {
             "Type": "String",
@@ -90,12 +90,12 @@
                 "Ref": "DemoInstance"
             }
         },
-        "PrivateIp": {
-            "Description": "EC2 Instance Private Ip",
+        "PublicIp": {
+            "Description": "EC2 Instance Public Ip",
             "Value": {
                 "Fn::GetAtt": [
                     "DemoInstance",
-                    "PrivateIp"
+                    "PublicIp"
                 ]
             }
         }

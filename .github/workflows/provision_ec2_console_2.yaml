@@ -61,7 +61,7 @@ jobs:
       - name: Get Subnet IDs
         id: get-subnet-ids
         run: |
-          subnetIds=$(aws cloudformation describe-stacks --stack-name eksctl-eks-cluster-cluster --query 'Stacks[0].Outputs[?OutputKey==`SubnetIds`].OutputValue' --output text)
+          subnetIds=$(aws cloudformation describe-stacks --stack-name eksctl-eks-cluster-cluster --query 'Stacks[0].Outputs[?OutputKey==`SubnetsPublic`].OutputValue' --output text)
           echo "Subnet IDs: $subnetIds"
           IFS=", " read -r var1 var2  var3 <<< "$subnetIds"
           echo "SUBNET_IDS_1=$var1" >> $GITHUB_ENV
