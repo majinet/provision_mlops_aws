@@ -117,4 +117,5 @@ jobs:
         run: |
           cat config/flyte/eks-starter.yaml | envsubst > eks-starter.yaml
           cat eks-starter.yaml
+          helm repo add flyteorg https://flyteorg.github.io/flyte
           helm install flyte-backend flyteorg/flyte-binary --namespace flyte --values eks-starter.yaml
