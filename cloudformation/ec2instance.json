@@ -20,7 +20,7 @@
         "AvailabilityZone": {
             "Type": "String",
             "Description": "Availability Zone into which instance will launch",
-            "Default": "us-east-1d"
+            "Default": "us-east-1c"
         },
         "InstanceType": {
             "Type": "String",

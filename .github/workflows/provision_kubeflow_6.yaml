@@ -72,8 +72,8 @@ jobs:
         run: |
           ec2_private_ip=$(aws cloudformation describe-stacks --stack-name aws-ec2-console --query 'Stacks[0].Outputs[?OutputKey==`PrivateIp`].OutputValue' --output text)
           
-          echo "EC2_PRIVATE_IP: $EC2_PRIVATE_IP"
-          echo "EC2_PRIVATE_IP=$EC2_PRIVATE_IP" >> $GITHUB_ENV
+          echo "EC2_PRIVATE_IP: $ec2_private_ip"
+          echo "EC2_PRIVATE_IP=$ec2_private_ip" >> $GITHUB_ENV
       - name: install Kubeflow
         uses: appleboy/ssh-action@master
         with:
@@ -89,6 +89,12 @@ jobs:
             git clone --branch ${KUBEFLOW_RELEASE_VERSION} https://github.com/kubeflow/manifests.git upstream
             
             # Install necessary tools
+            sudo apt install make -q -y
+            sudo apt install unzip -q -y
+            
+            sudo add-apt-repository ppa:deadsnakes/ppa -q -y
+            sudo apt install -q python3.8-pip -y
+            
             make install-tools
             
             alias python=python3.8
