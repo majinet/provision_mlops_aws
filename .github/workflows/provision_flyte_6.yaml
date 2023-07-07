@@ -13,6 +13,7 @@ on:
 
 env:
   AWS_REGION : ${{ github.event.inputs.region}} #Change to reflect your Region
+  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
 
 # Permission can be added at job level or workflow level
 permissions:
@@ -114,4 +115,6 @@ jobs:
       - name: install flyte
         id: install-flyte
         run: |
+          cat config/flyte/eks-starter.yaml | envsubst > eks-starter.yaml
+          cat eks-starter.yaml
           helm install flyte-backend flyteorg/flyte-binary --namespace flyte --values eks-starter.yaml
