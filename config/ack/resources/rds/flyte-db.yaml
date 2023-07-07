@@ -11,7 +11,7 @@ spec:
   dbInstanceIdentifier: flyteadmin
   dbName: app
   dbSubnetGroupName: flyte-db-subnet-group
-  engine: aurora-postgresql
+  engine: postgresql #aurora-postgresql
   engineVersion: "14"
   masterUsername: flyteadmin
   masterUserPassword:
@@ -21,5 +21,5 @@ spec:
   multiAZ: false
   publiclyAccessible: false
   storageEncrypted: true
-  #storageType: gp3
+  storageType: gp3
   vpcSecurityGroupIDs: [${RDS_SECURITY_GROUP_ID}]
