@@ -15,12 +15,12 @@
         "SubnetId": {
             "Type": "String",
             "Description": "Subnet in which to launch an EC2",
-            "Default": "${SUBNET_IDS_2}"
+            "Default": "${SUBNET_IDS_1}"
         },
         "AvailabilityZone": {
             "Type": "String",
             "Description": "Availability Zone into which instance will launch",
-            "Default": "eu-west-1d"
+            "Default": "us-east-1d"
         },
         "InstanceType": {
             "Type": "String",
