@@ -10,6 +10,16 @@ on:
       #keypair:
       #  description: 'SSH Key Pair'
       #  required: true
+  workflow_run:
+    workflows: [ "Step 1 - Provisioning AWS EKS with default VPC" ]
+    branches: [ main ]
+    types:
+      - completed
+    inputs:
+      region:
+        description: 'AWS Region'
+        required: true
+        default: 'us-east-1'
 
 env:
   AWS_REGION : ${{ github.event.inputs.region}} #Change to reflect your Region
