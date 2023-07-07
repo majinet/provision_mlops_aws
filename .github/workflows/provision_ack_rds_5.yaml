@@ -126,10 +126,6 @@ jobs:
           kubectl create secret generic -n flyte flyte-postgres-creds \
             --from-literal=username="${RDS_DB_USERNAME}" \
             --from-literal=password="${{secrets.FLYTEADMIN}}"
-          
-          RDS_DB_INSTANCE_NAME="flyteadmin"
-          RDS_DB_INSTANCE_CLASS="db.t3.medium"
-          RDS_DB_STORAGE_SIZE=20
 
           cat config/ack/resources/rds/flyte-db.yaml | envsubst  > flyte-db.yaml
           cat flyte-db.yaml
