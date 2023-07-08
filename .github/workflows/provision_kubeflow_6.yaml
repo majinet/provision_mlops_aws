@@ -106,6 +106,8 @@ jobs:
             aws configure --profile kubeflow set default.region us-east-1 
             
             export AWS_PROFILE=kubeflow
+            export CLUSTER_NAME=eks-cluster
+            export CLUSTER_REGION=us-east-1
             
             make deploy-kubeflow INSTALLATION_OPTION=helm DEPLOYMENT_OPTION=vanilla
 

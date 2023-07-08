@@ -2,27 +2,14 @@ name: Step 2 - Provisioning AWS EKS Nodegroups
 
 on:
   workflow_dispatch:
-    inputs:
-      region:
-        description: 'AWS Region'
-        required: true
-        default: 'us-east-1'
-      #keypair:
-      #  description: 'SSH Key Pair'
-      #  required: true
   workflow_run:
-    inputs:
-      region:
-        description: 'AWS Region'
-        required: true
-        default: 'us-east-1'
     workflows: [ "Step 1 - Provisioning AWS EKS with default VPC" ]
     branches: [ main ]
     types:
       - completed
 
 env:
-  AWS_REGION : ${{ github.event.inputs.region}} #Change to reflect your Region
+  AWS_REGION : us-east-1 #Change to reflect your Region
   AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
 
 # Permission can be added at job level or workflow level
