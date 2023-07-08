@@ -13,7 +13,7 @@ managedNodeGroups:
     privateNetworking: true # if only 'Private' subnets are given, this must be enabled
     instanceTypes: ["t3.medium"]
     spot: true
-    volumeSize: 8
+    volumeSize: 20
     minSize: 0
     maxSize: 5
     ssh:
