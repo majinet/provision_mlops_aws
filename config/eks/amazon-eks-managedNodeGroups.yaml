@@ -19,7 +19,7 @@ managedNodeGroups:
     ssh:
       allow: true
       publicKeyName: eks_connect
-    enableSsm: true
+      enableSsm: true
 
     iam:
       #instanceRoleARN: "arn:aws:iam::${AWS_ACCOUNT_ID}:role/AmazonEKSNodeRole"
