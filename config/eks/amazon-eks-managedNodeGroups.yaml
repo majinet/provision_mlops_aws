@@ -11,7 +11,7 @@ managedNodeGroups:
     labels: { role: workers }
     desiredCapacity: 2
     privateNetworking: true # if only 'Private' subnets are given, this must be enabled
-    instanceTypes: ["t3.medium"]
+    instanceTypes: ["r5.large"]
     spot: true
     volumeSize: 20
     minSize: 0
