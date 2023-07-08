@@ -92,16 +92,18 @@ jobs:
             sudo apt install make -q -y
             sudo apt install unzip -q -y
             
-            sudo add-apt-repository ppa:deadsnakes/ppa -q -y
-            sudo apt install -q python3.8-pip -y
+            sudo add-apt-repository ppa:deadsnakes/ppa -y
+            #sudo apt install -q python3.8-pip -y
+            
+            sudo apt-get install python3.8-distutils -y
             
             make install-tools
             
             alias python=python3.8
             
-            aws configure set aws_access_key_id ${{ secrets.IAC_EKS_ACCESS_KEY }} --profile kubeflow
-            aws configure set aws_secret_access_key ${{ secrets.IAC_EKS_SECRET_KEY }} --profile kubeflow
-            aws configure set default.region us-east-1 --profile kubeflow
+            aws configure --profile kubeflow set aws_access_key_id ${{ secrets.IAC_EKS_ACCESS_KEY }} 
+            aws configure --profile kubeflow set aws_secret_access_key ${{ secrets.IAC_EKS_SECRET_KEY }} 
+            aws configure --profile kubeflow set default.region us-east-1 
             
             export AWS_PROFILE=kubeflow
             
