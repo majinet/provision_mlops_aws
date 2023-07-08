@@ -6,7 +6,7 @@ kind: ClusterConfig
 metadata:
   name: eks-cluster
   region: us-east-1
-  version: "1.27"
+  version: "1.25"
 
 privateCluster:
   enabled: false
