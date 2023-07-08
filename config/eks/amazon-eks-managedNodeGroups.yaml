@@ -17,7 +17,7 @@ managedNodeGroups:
     minSize: 0
     maxSize: 5
     ssh:
-      allow: true
+      allow: false
       publicKeyName: eks_connect
       enableSsm: true
 
