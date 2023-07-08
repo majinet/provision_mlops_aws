@@ -9,13 +9,13 @@ managedNodeGroups:
   - name: on-demand
     amiFamily: Ubuntu2004
     labels: { role: workers }
-    desiredCapacity: 2
+    desiredCapacity: 5
     privateNetworking: true # if only 'Private' subnets are given, this must be enabled
-    instanceTypes: ["r5.large"]
+    instanceTypes: ["m5.xlarge"]
     spot: true
     volumeSize: 20
     minSize: 0
-    maxSize: 5
+    maxSize: 10
     ssh:
       allow: false
       publicKeyName: eks_connect
