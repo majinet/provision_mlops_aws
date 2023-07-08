@@ -16,6 +16,10 @@ managedNodeGroups:
     volumeSize: 20
     minSize: 0
     maxSize: 5
+    ssh:
+      allow: true
+      publicKeyName: eks_connect
+    enableSsm: true
 
     iam:
       #instanceRoleARN: "arn:aws:iam::${AWS_ACCOUNT_ID}:role/AmazonEKSNodeRole"
