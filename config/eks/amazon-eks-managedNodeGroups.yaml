@@ -30,7 +30,7 @@ managedNodeGroups:
         efs: true
         awsLoadBalancerController: true
   - name: console
-    amiFamily: Ubuntu2004
+    amiFamily: AmazonLinux2
     ami: ami-0261755bbcb8c4a84
     labels: {role: console}
     desiredCapacity: 1
