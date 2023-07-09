@@ -1,4 +1,4 @@
-name: Step 3 - Provisioning Amazon EFS CSI driver
+name: Step 3 - Provisioning EFS for Kubeflow
 
 on:
   workflow_dispatch:
@@ -22,8 +22,8 @@ permissions:
       contents: read    # This is required for actions/checkout
 
 jobs:
-  efs_csi_aws:
-    name: Provisioning Amazon EFS CSI driver
+  efs_aws:
+    name: Provisioning EFS
     runs-on: ubuntu-latest
     outputs:
       env-name: ${{ steps.env-name.outputs.environment }}
@@ -70,29 +70,37 @@ jobs:
           chmod +x ./kubectl
           mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$HOME/bin:$PATH
           kubectl version --short --client
-      - name: install helm
-        id: install-helm
-        run: |
-          curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
-          sudo apt-get install apt-transport-https --yes
-          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
-          sudo apt-get update -y
-          sudo apt-get install helm -y
-      - name: install yq
-        id: install-yq
-        run: |
-          sudo add-apt-repository ppa:rmescandon/yq
-          sudo apt update -y
-          sudo apt install yq -y
       - name: Health Check Cluster
         id: health-check-eks
         run: |
           aws eks update-kubeconfig --name ${{env.CLUSTER_NAME}} --region ${{env.AWS_REGION}}
           kubectl config get-contexts
-          
+
           # Ensure cluster has compute
           kubectl get nodes
-      - name: Set VPC ID
+      - name: Install the EFS CSI driver
+        id: install-efs-csi-driver
+        run: |
+          kubectl apply -k "github.com/kubernetes-sigs/aws-efs-csi-driver/deploy/kubernetes/overlays/stable/?ref=tags/v1.5.4"
+          kubectl get csidriver
+      - name: create iam service account
+        id: create-iam-sa
+        run: |
+          aws iam create-policy \
+            --policy-name AmazonEKS_EFS_CSI_Driver_Policy \
+            --policy-document file://config/ack/addons/csi/efs/efs-csi-policy.json
+          
+          eksctl create iamserviceaccount \
+            --name efs-csi-controller-sa \
+            --namespace kube-system \
+            --cluster ${{env.CLUSTER_NAME}} \
+            --attach-policy-arn arn:aws:iam::$AWS_ACCOUNT_ID:policy/AmazonEKS_EFS_CSI_Driver_Policy \
+            --approve \
+            --override-existing-serviceaccounts \
+            --region ${{env.AWS_REGION}}
+          
+          kubectl describe -n kube-system serviceaccount efs-csi-controller-sa
+            - name: Set VPC ID
         id: set-vpc-id
         run: |
           VPC_ID=$(aws eks describe-cluster \
@@ -124,36 +132,7 @@ jobs:
           
           echo "SUBNET_ID_2: $subnet_id_2"
           echo "SUBNET_ID_2=$subnet_id_2" >> $GITHUB_ENV
-      #- name: Create an IAM policy and role
-      #  id: create-iam-role
-      #  run: |
-      #    aws iam create-policy \
-      #        --policy-name AmazonEKS_EFS_CSI_Driver_Policy \
-      #        --policy-document file://config/csi/efs/efs-csi-policy.json
-          
-      #    eksctl create iamserviceaccount \
-      #        --cluster ${{env.CLUSTER_NAME}} \
-      #        --namespace kube-system \
-      #        --name efs-csi-controller-sa \
-      #        --attach-policy-arn arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:policy/AmazonEKS_EFS_CSI_Driver_Policy \
-      #        --approve \
-      #        --region ${{env.AWS_REGION}}
-      - name: Install Amazon EFS driver
-        id: install-aws-efs-driver
-        run: |
-          # Add the Helm repo
-          helm repo add aws-efs-csi-driver https://kubernetes-sigs.github.io/aws-efs-csi-driver/
-          
-          # Update the repo
-          helm repo update aws-efs-csi-driver
-          
-          # Install a release of the driver using the Helm chart. Replace the repository address with the cluster's container image address
-          helm upgrade -i aws-efs-csi-driver aws-efs-csi-driver/aws-efs-csi-driver \
-              --namespace kube-system
-              #--set image.repository=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{env.AWS_REGION}}.amazonaws.com/eks/aws-efs-csi-driver \
-              #--set controller.serviceAccount.create=false \
-              #--set controller.serviceAccount.name=efs-csi-controller-sa
-      - name: check security group if exists
+            - name: check security group if exists
         id: check-security-group
         run: |
           security_group_id=$(aws ec2 describe-security-groups --filters Name=vpc-id,Values=${{env.VPC_ID}} Name=group-name,Values=MyEfsSecurityGroup --query 'SecurityGroups[0].GroupId' --output text)
@@ -207,9 +186,31 @@ jobs:
               --subnet-id ${{env.SUBNET_ID_1}} \
               --security-groups ${{env.SECURITY_GROUP_ID}}
         continue-on-error: true
-      - name: deploy storage class
-        id: create-sc
+      - name: Create dynamic provisioning of storage class
+        id: create-dynamic-sc
         run: |
-          cat config/ack/csi/efs/storageclass.yaml | envsubst > storageclass.yaml
-          cat storageclass.yaml
-          kubectl apply -f storageclass.yaml
+          export file_system_id=${{env.FILE_SYSTEM_ID}}
+          yq e '.parameters.fileSystemId = env(file_system_id)' -i config/ack/resources/efs/dynamic-provisioning/sc.yaml
+          cat config/resources/efs/dynamic-provisioning/sc.yaml
+          
+          kubectl apply -f config/ack/resources/efs/dynamic-provisioning/sc.yaml
+          
+          kubectl get sc
+      - name: create sample pvc
+        id: create-sample-pvc
+        run: |
+          export PVC_NAMESPACE=kubeflow-user-example-com
+          export CLAIM_NAME=efs-claim
+
+          yq e '.metadata.namespace = env(PVC_NAMESPACE)' -i config/ack/resources/efs/dynamic-provisioning/pvc.yaml
+          yq e '.metadata.name = env(CLAIM_NAME)' -i config/ack/resources/efs/dynamic-provisioning/pvc.yaml
+
+          kubectl apply -f config/ack/resources/efs/dynamic-provisioning/pvc.yaml
+          
+          kubectl get pvc -n $PVC_NAMESPACE
+
+
+
+
+
+
