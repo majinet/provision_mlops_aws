@@ -1,22 +1,20 @@
 apiVersion: rds.services.k8s.aws/v1alpha1
 kind: DBInstance
 metadata:
-  name: flyteadmin
-  namespace: flyte
+  name: kubeflow
 spec:
   allocatedStorage: 20 #min 20GB
   autoMinorVersionUpgrade: true
   backupRetentionPeriod: 7
   dbInstanceClass: db.t3.medium
-  dbInstanceIdentifier: flyteadmin
-  dbName: app
-  dbSubnetGroupName: flyte-db-subnet-group
-  engine: postgres #aurora-postgresql
-  engineVersion: "14"
-  masterUsername: flyteadmin
+  dbInstanceIdentifier: kubeflow
+  dbName: kubeflow
+  dbSubnetGroupName: kubeflow-db-subnet-group
+  engine: mysql #aurora-postgresql
+  engineVersion: "8.0.33"
+  masterUsername: admin
   masterUserPassword:
-    namespace: flyte
-    name: flyte-postgres-creds
+    name: kubeflow-postgres-creds
     key: password
   multiAZ: false
   publiclyAccessible: false

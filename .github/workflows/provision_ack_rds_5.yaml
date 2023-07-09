@@ -100,17 +100,12 @@ jobs:
           echo "Subnet IDs: $subnetIds"
           #IFS=", " read -r var1 var2 <<< "$subnetIds"
           echo "EKS_SUBNET_IDS=$subnetIds" >> $GITHUB_ENV
-      - name: create namespace
-        id: create-ns
-        run: |
-          kubectl create ns flyte
-        continue-on-error: true
       - name: Set up the database networking
         id: setup-db-network
         run: |
-          cat config/ack/resources/rds/flyte-db-subnet-groups.yaml | envsubst  > flyte-db-subnet-groups.yaml
-          cat flyte-db-subnet-groups.yaml
-          kubectl apply -f flyte-db-subnet-groups.yaml
+          cat config/ack/resources/rds/kubeflow-db-subnet-groups.yaml | envsubst  > kubeflow-db-subnet-groups.yaml
+          cat kubeflow-db-subnet-groups.yaml
+          kubectl apply -f kubeflow-db-subnet-groups.yaml
       - name: Setup db security group
         id: setup-db-sg
         run: |
@@ -118,18 +113,18 @@ jobs:
           sg_ids=$(aws cloudformation describe-stacks --stack-name aws-db-vpc --query 'Stacks[0].Outputs[?OutputKey==`SecurityGroups`].OutputValue' --output text)
           echo "SecurityGroup IDs: $sg_ids"
           echo "RDS_SECURITY_GROUP_ID=$sg_ids" >> $GITHUB_ENV
-      - name: Provision an Amazon RDS for PostgreSQL database instance
-        id: create-rds-postgres-db
+      - name: Provision an Amazon RDS for MySQL database instance
+        id: create-rds-mysql-db
         run: |
-          RDS_DB_USERNAME="flyteadmin"
+          #RDS_DB_USERNAME="admin"
 
-          kubectl create secret generic -n flyte flyte-postgres-creds \
-            --from-literal=username="${RDS_DB_USERNAME}" \
-            --from-literal=password="${{secrets.FLYTEADMIN}}"
+          #kubectl create secret generic kubeflow-postgres-creds \
+          #  --from-literal=username="${RDS_DB_USERNAME}" \
+          #  --from-literal=password="${{secrets.KUBEFLOW_ADMIN}}"
 
-          cat config/ack/resources/rds/flyte-db.yaml | envsubst  > flyte-db.yaml
-          cat flyte-db.yaml
-          kubectl apply -f flyte-db.yaml
+          cat config/ack/resources/rds/kubeflow-db.yaml | envsubst  > kubeflow-db.yaml
+          cat kubeflow-db.yaml
+          kubectl apply -f kubeflow-db.yaml
       - name: Sleep for 10 mins
         uses: whatnick/wait-action@master
         with:
@@ -137,13 +132,28 @@ jobs:
       - name: health check
         id: health-check
         run: |
-          kubectl get dbinstance -n flyte flyteadmin -o jsonpath='{.status.dbInstanceStatus}'
+          kubectl get dbinstance kubeflow -o jsonpath='{.status.dbInstanceStatus}'
           
-          RDS_DB_INSTANCE_HOST=$(kubectl get dbinstance -n flyte flyteadmin \
+          RDS_DB_INSTANCE_HOST=$(kubectl get dbinstance kubeflow \
             -o jsonpath='{.status.endpoint.address}'
           )
-          RDS_DB_INSTANCE_PORT=$(kubectl get dbinstance -n flyte flyteadmin \
+          RDS_DB_INSTANCE_PORT=$(kubectl get dbinstance kubeflow \
             -o jsonpath='{.status.endpoint.port}'
           )
           
-          echo "$RDS_DB_INSTANCE_HOST: $RDS_DB_INSTANCE_PORT"
+          echo "RDS_DB_INSTANCE_HOST: $RDS_DB_INSTANCE_HOST"
+          echo "RDS_DB_INSTANCE_HOST=$RDS_DB_INSTANCE_HOST" >> $GITHUB_ENV
+          
+          echo "RDS_DB_INSTANCE_PORT: $RDS_DB_INSTANCE_PORT"
+          echo "RDS_DB_INSTANCE_PORT=$RDS_DB_INSTANCE_PORT" >> $GITHUB_ENV
+      - name: Create Secrets in AWS Secrets Manager
+        id: create-secrets-asm
+        run: |
+          export RDS_SECRET=rds-secret
+          export RDS_DB_INSTANCE_HOST=${{env.RDS_DB_INSTANCE_HOST}}
+          export RDS_DB_INSTANCE_PORT=${{env.RDS_DB_INSTANCE_PORT}}
+          export RDS_DB_PWD=${{secrets.KUBEFLOW_ADMIN}}
+          
+          aws secretsmanager create-secret --name $RDS_SECRET --secret-string '{"username":"admin","password":"$RDS_DB_PWD","database":"kubeflow","host":"$RDS_DB_INSTANCE_HOST","port":"$RDS_DB_INSTANCE_PORT"}' --region ${{env.AWS_REGION}}
+          yq e -i '.spec.parameters.objects |= sub("rds-secret",env(RDS_SECRET))' config/ack/resources/rds/secret-provider.yaml
+            

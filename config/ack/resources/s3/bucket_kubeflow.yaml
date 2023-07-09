@@ -1,0 +1,8 @@
+apiVersion: s3.services.k8s.aws/v1alpha1
+kind: Bucket
+metadata:
+    name: ack-kubeflow-bucket-${AWS_ACCOUNT_ID}
+    annotations:
+      services.k8s.aws/region: us-east-1
+spec:
+  name: ack-kubeflow-bucket-${AWS_ACCOUNT_ID}

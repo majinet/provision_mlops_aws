@@ -14,6 +14,7 @@ on:
 env:
   AWS_REGION : ${{ github.event.inputs.region}} #Change to reflect your Region
   AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+  CLUSTER_NAME: eks-cluster
 
 # Permission can be added at job level or workflow level
 permissions:
@@ -63,6 +64,8 @@ jobs:
       - name: Get ARN of ODIC provider
         id: get-oidc-provider-arn
         run: |
+          aws eks update-kubeconfig --region us-east-1 --name eks-cluster
+          
           OIDC_PROVIDER_ARN=$(aws iam list-open-id-connect-providers --query 'OpenIDConnectProviderList[?contains(Arn, `oidc.eks.us-east-1.amazonaws.com`)].Arn' --output text)
 
           echo "OIDC_PROVIDER_ARN: $OIDC_PROVIDER_ARN"
@@ -74,40 +77,68 @@ jobs:
           
           echo "EC2_PRIVATE_IP: $ec2_private_ip"
           echo "EC2_PRIVATE_IP=$ec2_private_ip" >> $GITHUB_ENV
-      - name: install Kubeflow
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ env.EC2_PRIVATE_IP }}
-          username: ${{ secrets.AWS_EC2_USERNAME }}
-          key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-          script: |
-            # Clone repository. Support ubuntu 18.04 only
-            export KUBEFLOW_RELEASE_VERSION=v1.7.0
-            export AWS_RELEASE_VERSION=v1.7.0-aws-b1.0.2
-            git clone https://github.com/awslabs/kubeflow-manifests.git && cd kubeflow-manifests
-            git checkout ${AWS_RELEASE_VERSION}
-            git clone --branch ${KUBEFLOW_RELEASE_VERSION} https://github.com/kubeflow/manifests.git upstream
-            
-            # Install necessary tools
-            #sudo apt install make -q -y
-            #sudo apt install unzip -q -y
-            
-            #sudo add-apt-repository ppa:deadsnakes/ppa -y
-            #sudo apt install -q python3.8-pip -y
-            
-            #sudo apt-get install python3.8-distutils -y
-            
-            make install-tools
-            
-            #alias python=python3.8
-            
-            #aws configure --profile kubeflow set aws_access_key_id ${{ secrets.IAC_EKS_ACCESS_KEY }} 
-            #aws configure --profile kubeflow set aws_secret_access_key ${{ secrets.IAC_EKS_SECRET_KEY }} 
-            #aws configure --profile kubeflow set default.region us-east-1 
-            
-            #export AWS_PROFILE=kubeflow
-            #export CLUSTER_NAME=eks-cluster
-            #export CLUSTER_REGION=us-east-1
-            
-            #make deploy-kubeflow INSTALLATION_OPTION=kustomize DEPLOYMENT_OPTION=vanilla
+      - name: create iam service account
+        id: create-iam-service-account
+        run: |
+          eksctl create iamserviceaccount  --name kubeflow-secrets-manager-sa  --namespace kubeflow  --cluster ${{env.CLUSTER_NAME}} --attach-policy-arn  arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess --attach-policy-arn arn:aws:iam::aws:policy/SecretsManagerReadWrite --override-existing-serviceaccounts   --approve --region ${{env.AWS_REGION}}
+          
+          kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/secrets-store-csi-driver/v1.3.2/deploy/rbac-secretproviderclass.yaml
+          kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/secrets-store-csi-driver/v1.3.2/deploy/csidriver.yaml
+          kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/secrets-store-csi-driver/v1.3.2/deploy/secrets-store.csi.x-k8s.io_secretproviderclasses.yaml
+          kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/secrets-store-csi-driver/v1.3.2/deploy/secrets-store.csi.x-k8s.io_secretproviderclasspodstatuses.yaml
+          kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/secrets-store-csi-driver/v1.3.2/deploy/secrets-store-csi-driver.yaml
+          kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/secrets-store-csi-driver/v1.3.2/deploy/rbac-secretprovidersyncing.yaml
+          kubectl apply -f https://raw.githubusercontent.com/aws/secrets-store-csi-driver-provider-aws/main/deployment/aws-provider-installer.yaml
+
+      #- name: install Kubeflow
+      #  uses: appleboy/ssh-action@master
+      #  with:
+      #    host: ${{ env.EC2_PRIVATE_IP }}
+      #    username: ${{ secrets.AWS_EC2_USERNAME }}
+      #    key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+      #    script: |
+      #      # Clone repository. Support ubuntu 18.04 only
+      #      export KUBEFLOW_RELEASE_VERSION=v1.7.0
+      #      export AWS_RELEASE_VERSION=v1.7.0-aws-b1.0.2
+      #      git clone https://github.com/awslabs/kubeflow-manifests.git && cd kubeflow-manifests
+      #      git checkout ${AWS_RELEASE_VERSION}
+      #      git clone --branch ${KUBEFLOW_RELEASE_VERSION} https://github.com/kubeflow/manifests.git upstream
+      #
+      #      # Install necessary tools
+      #      #sudo apt install make -q -y
+      #      #sudo apt install unzip -q -y
+      #
+      #      #sudo add-apt-repository ppa:deadsnakes/ppa -y
+      #      #sudo apt install -q python3.8-pip -y
+      #
+      #      #sudo apt-get install python3.8-distutils -y
+      #
+      #      make install-tools
+      #
+      #      alias python=python3.8
+      #
+      #      aws configure --profile kubeflow set aws_access_key_id ${{ secrets.IAC_EKS_ACCESS_KEY }}
+      #      aws configure --profile kubeflow set aws_secret_access_key ${{ secrets.IAC_EKS_SECRET_KEY }}
+      #      aws configure --profile kubeflow set default.region us-east-1
+      #
+      #      export AWS_PROFILE=kubeflow
+      #      export CLUSTER_NAME=eks-cluster
+      #      export CLUSTER_REGION=us-east-1
+      #
+      #      export MLMD_DB=metadata_db
+      #     printf '
+      #     dbHost='$DB_HOST'
+      #     mlmdDb='$MLMD_DB'
+      #      ' > awsconfigs/apps/pipeline/rds/params.env
+      #
+      #      printf '
+      #      bucketName='$S3_BUCKET' #ack-kubeflow-bucket-${AWS_ACCOUNT_ID}
+      #      minioServiceHost='$MINIO_SERVICE_HOST' #s3.amazonaws.com
+      #      minioServiceRegion='$CLUSTER_REGION'
+      #      ' > awsconfigs/apps/pipeline/s3/params.env
+      #
+      #      export PIPELINE_S3_CREDENTIAL_OPTION=static
+      #
+      #      make deploy-kubeflow INSTALLATION_OPTION=kustomize DEPLOYMENT_OPTION=rds-s3 PIPELINE_S3_CREDENTIAL_OPTION=$PIPELINE_S3_CREDENTIAL_OPTION
+      #      # make deploy-kubeflow INSTALLATION_OPTION=kustomize DEPLOYMENT_OPTION=vanilla
 
