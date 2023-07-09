@@ -23,7 +23,7 @@ permissions:
 jobs:
   eks_aws:
     name: Provisioning AWS EKS
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04 #ubuntu-latest
     outputs:
       env-name: ${{ steps.env-name.outputs.environment }}
     steps:
@@ -81,7 +81,7 @@ jobs:
           username: ${{ secrets.AWS_EC2_USERNAME }}
           key: ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           script: |
-            # Clone repository
+            # Clone repository. Support ubuntu 18.04 only
             export KUBEFLOW_RELEASE_VERSION=v1.7.0
             export AWS_RELEASE_VERSION=v1.7.0-aws-b1.0.2
             git clone https://github.com/awslabs/kubeflow-manifests.git && cd kubeflow-manifests
@@ -89,25 +89,25 @@ jobs:
             git clone --branch ${KUBEFLOW_RELEASE_VERSION} https://github.com/kubeflow/manifests.git upstream
             
             # Install necessary tools
-            sudo apt install make -q -y
-            sudo apt install unzip -q -y
+            #sudo apt install make -q -y
+            #sudo apt install unzip -q -y
             
-            sudo add-apt-repository ppa:deadsnakes/ppa -y
+            #sudo add-apt-repository ppa:deadsnakes/ppa -y
             #sudo apt install -q python3.8-pip -y
             
             #sudo apt-get install python3.8-distutils -y
             
             make install-tools
             
-            alias python=python3.8
+            #alias python=python3.8
             
-            aws configure --profile kubeflow set aws_access_key_id ${{ secrets.IAC_EKS_ACCESS_KEY }} 
-            aws configure --profile kubeflow set aws_secret_access_key ${{ secrets.IAC_EKS_SECRET_KEY }} 
-            aws configure --profile kubeflow set default.region us-east-1 
+            #aws configure --profile kubeflow set aws_access_key_id ${{ secrets.IAC_EKS_ACCESS_KEY }} 
+            #aws configure --profile kubeflow set aws_secret_access_key ${{ secrets.IAC_EKS_SECRET_KEY }} 
+            #aws configure --profile kubeflow set default.region us-east-1 
             
-            export AWS_PROFILE=kubeflow
-            export CLUSTER_NAME=eks-cluster
-            export CLUSTER_REGION=us-east-1
+            #export AWS_PROFILE=kubeflow
+            #export CLUSTER_NAME=eks-cluster
+            #export CLUSTER_REGION=us-east-1
             
-            make deploy-kubeflow INSTALLATION_OPTION=helm DEPLOYMENT_OPTION=vanilla
+            #make deploy-kubeflow INSTALLATION_OPTION=kustomize DEPLOYMENT_OPTION=vanilla
 

@@ -9,9 +9,9 @@ managedNodeGroups:
   - name: on-demand
     amiFamily: Ubuntu2004
     labels: { role: workers }
-    desiredCapacity: 5
+    desiredCapacity: 3
     privateNetworking: true # if only 'Private' subnets are given, this must be enabled
-    instanceTypes: ["m5.xlarge"]
+    instanceTypes: ["t3.medium"]
     spot: true
     volumeSize: 20
     minSize: 0
