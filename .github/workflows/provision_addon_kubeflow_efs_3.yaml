@@ -185,6 +185,10 @@ jobs:
               --file-system-id ${{env.FILE_SYSTEM_ID}} \
               --subnet-id ${{env.SUBNET_ID_1}} \
               --security-groups ${{env.SECURITY_GROUP_ID}}
+          aws efs create-mount-target \
+              --file-system-id ${{env.FILE_SYSTEM_ID}} \
+              --subnet-id ${{env.SUBNET_ID_2}} \
+              --security-groups ${{env.SECURITY_GROUP_ID}}
         continue-on-error: true
       - name: Create dynamic provisioning of storage class
         id: create-dynamic-sc
