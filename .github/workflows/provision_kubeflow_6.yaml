@@ -70,13 +70,6 @@ jobs:
 
           echo "OIDC_PROVIDER_ARN: $OIDC_PROVIDER_ARN"
           echo "OIDC_PROVIDER_ARN=$OIDC_PROVIDER_ARN" >> $GITHUB_ENV
-      - name: Get EC2 instance private IP
-        id: get-ec2-private-ip
-        run: |
-          ec2_private_ip=$(aws cloudformation describe-stacks --stack-name aws-ec2-console --query 'Stacks[0].Outputs[?OutputKey==`PrivateIp`].OutputValue' --output text)
-          
-          echo "EC2_PRIVATE_IP: $ec2_private_ip"
-          echo "EC2_PRIVATE_IP=$ec2_private_ip" >> $GITHUB_ENV
       - name: create iam service account
         id: create-iam-service-account
         run: |
