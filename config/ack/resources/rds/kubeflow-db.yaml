@@ -11,10 +11,10 @@ spec:
   dbName: kubeflow
   dbSubnetGroupName: kubeflow-db-subnet-group
   engine: mysql #aurora-postgresql
-  engineVersion: "8.0.33"
+  engineVersion: "8.0"
   masterUsername: admin
   masterUserPassword:
-    name: kubeflow-postgres-creds
+    name: rds-secret
     key: password
   multiAZ: false
   publiclyAccessible: false
