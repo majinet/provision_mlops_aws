@@ -12,10 +12,10 @@ spec:
   dbSubnetGroupName: kubeflow-db-subnet-group
   engine: mysql #aurora-postgresql
   engineVersion: "8.0"
-  masterUsername: admin
-  masterUserPassword:
-    name: rds-secret
-    key: password
+  #masterUsername: admin
+  #masterUserPassword:
+  #  name: rds-secret
+  #  key: password
   multiAZ: false
   publiclyAccessible: false
   storageEncrypted: true
