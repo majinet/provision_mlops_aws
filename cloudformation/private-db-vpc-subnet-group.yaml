@@ -119,7 +119,8 @@ Resources:
         - IpProtocol: tcp
           FromPort: !Ref DBPort
           ToPort: !Ref DBPort
-          SourceSecurityGroupId: ${Eks_Cluster_SG}
+          #SourceSecurityGroupId: ${Eks_Cluster_SG}
+          CidrIp: "0.0.0.0/0"
           Description: 'Eks Cluster Security Group'
       VpcId: ${VPC_ID}
       Tags:
