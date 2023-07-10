@@ -83,24 +83,7 @@ jobs:
         run: |
           kubectl apply -k "github.com/kubernetes-sigs/aws-efs-csi-driver/deploy/kubernetes/overlays/stable/?ref=tags/v1.5.4"
           kubectl get csidriver
-      - name: create iam service account
-        id: create-iam-sa
-        run: |
-          aws iam create-policy \
-            --policy-name AmazonEKS_EFS_CSI_Driver_Policy \
-            --policy-document file://config/ack/addons/csi/efs/efs-csi-policy.json
-          
-          eksctl create iamserviceaccount \
-            --name efs-csi-controller-sa \
-            --namespace kube-system \
-            --cluster ${{env.CLUSTER_NAME}} \
-            --attach-policy-arn arn:aws:iam::$AWS_ACCOUNT_ID:policy/AmazonEKS_EFS_CSI_Driver_Policy \
-            --approve \
-            --override-existing-serviceaccounts \
-            --region ${{env.AWS_REGION}}
-          
-          kubectl describe -n kube-system serviceaccount efs-csi-controller-sa
-            - name: Set VPC ID
+      - name: Set VPC ID
         id: set-vpc-id
         run: |
           VPC_ID=$(aws eks describe-cluster \
