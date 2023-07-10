@@ -106,7 +106,7 @@ jobs:
       - name: Set Subnet ID for EFS
         id: set-subnet-id
         run: |
-          subnet_ids=$(aws eks describe-nodegroup --cluster-name ${{env.CLUSTER_NAME}} --nodegroup-name on-demand --query 'nodegroup.subnets' --output text)
+          subnet_ids=$(aws cloudformation describe-stacks --stack-name eksctl-eks-cluster-cluster --query 'Stacks[0].Outputs[?OutputKey==`SubnetsPrivate`].OutputValue' --output text)
           subnet_id_1=$(echo "$subnet_ids" | awk '{print $1}')
           subnet_id_2=$(echo "$subnet_ids" | awk '{print $2}')
           
