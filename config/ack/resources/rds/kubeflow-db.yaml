@@ -15,7 +15,7 @@ spec:
   engineVersion: "8.0"
   masterUsername: admin
   masterUserPassword:
-    name: kubeflow-postgres-creds
+    name: rds-secret
     namespace: kubeflow
     key: password
   multiAZ: false
