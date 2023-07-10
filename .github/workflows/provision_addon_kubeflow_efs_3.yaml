@@ -162,7 +162,7 @@ jobs:
       - name: Mount efs to node
         id: mount-efs
         run: |
-          # Add mount targets
+          # Add mount targets Notes: this will return failed and require execute command manually.
           aws efs create-mount-target \
               --file-system-id ${{env.FILE_SYSTEM_ID}} \
               --subnet-id ${{env.SUBNET_ID_1}} \
