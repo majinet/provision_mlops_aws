@@ -107,14 +107,13 @@ jobs:
         id: set-subnet-id
         run: |
           subnet_ids=$(aws cloudformation describe-stacks --stack-name eksctl-eks-cluster-cluster --query 'Stacks[0].Outputs[?OutputKey==`SubnetsPrivate`].OutputValue' --output text)
-          subnet_id_1=$(echo "$subnet_ids" | awk '{print $1}')
-          subnet_id_2=$(echo "$subnet_ids" | awk '{print $2}')
+          IFS=", " read -r var1 var2  var3 <<< "$subnet_ids"
           
-          echo "SUBNET_ID_1: $subnet_id_1"
-          echo "SUBNET_ID_1=$subnet_id_1" >> $GITHUB_ENV
+          echo "SUBNET_ID_1: $var1"
+          echo "SUBNET_ID_1=$var1" >> $GITHUB_ENV
           
-          echo "SUBNET_ID_2: $subnet_id_2"
-          echo "SUBNET_ID_2=$subnet_id_2" >> $GITHUB_ENV
+          echo "SUBNET_ID_2: $var2"
+          echo "SUBNET_ID_2=$var2" >> $GITHUB_ENV
       - name: check security group if exists
         id: check-security-group
         run: |
