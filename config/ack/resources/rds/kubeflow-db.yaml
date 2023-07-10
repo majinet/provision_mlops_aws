@@ -2,6 +2,7 @@ apiVersion: rds.services.k8s.aws/v1alpha1
 kind: DBInstance
 metadata:
   name: kubeflow
+  namespace: kubeflow
 spec:
   allocatedStorage: 20 #min 20GB
   autoMinorVersionUpgrade: true

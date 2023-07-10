@@ -70,6 +70,10 @@ jobs:
 
           echo "OIDC_PROVIDER_ARN: $OIDC_PROVIDER_ARN"
           echo "OIDC_PROVIDER_ARN=$OIDC_PROVIDER_ARN" >> $GITHUB_ENV
+      - name: create namespace
+        id: create-ns
+        run: |
+          kubectl create ns "kubeflow"
       - name: create iam service account
         id: create-iam-service-account
         run: |

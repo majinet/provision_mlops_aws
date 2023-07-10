@@ -118,7 +118,7 @@ jobs:
         run: |
           #RDS_DB_USERNAME="admin"
 
-          kubectl create secret generic kubeflow-postgres-creds \
+          kubectl create secret generic -n kubeflow kubeflow-postgres-creds \
             --from-literal=username="${RDS_DB_USERNAME}" \
             --from-literal=password="${{secrets.KUBEFLOW_ADMIN}}"
 
@@ -132,12 +132,12 @@ jobs:
       - name: health check
         id: health-check
         run: |
-          kubectl get dbinstance kubeflow -o jsonpath='{.status.dbInstanceStatus}'
+          kubectl get dbinstance -n kubeflow kubeflow -o jsonpath='{.status.dbInstanceStatus}'
           
-          RDS_DB_INSTANCE_HOST=$(kubectl get dbinstance kubeflow \
+          RDS_DB_INSTANCE_HOST=$(kubectl get dbinstance -n kubeflow kubeflow \
             -o jsonpath='{.status.endpoint.address}'
           )
-          RDS_DB_INSTANCE_PORT=$(kubectl get dbinstance kubeflow \
+          RDS_DB_INSTANCE_PORT=$(kubectl get dbinstance -n kubeflow kubeflow \
             -o jsonpath='{.status.endpoint.port}'
           )
           
