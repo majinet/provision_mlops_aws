@@ -73,7 +73,7 @@ jobs:
       - name: create namespace
         id: create-ns
         run: |
-          kubectl create ns "kubeflow"
+          kubectl create ns "kubeflow-aws"
       - name: create iam service account
         id: create-iam-service-account
         run: |
