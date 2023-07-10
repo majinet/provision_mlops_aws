@@ -16,6 +16,7 @@ spec:
   masterUsername: admin
   masterUserPassword:
     name: kubeflow-postgres-creds
+    namespace: kubeflow
     key: password
   multiAZ: false
   publiclyAccessible: false
