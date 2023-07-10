@@ -2,7 +2,7 @@ apiVersion: rds.services.k8s.aws/v1alpha1
 kind: DBSubnetGroup
 metadata:
   name: kubeflow-db-subnet-group
-  namespace: kubeflow
+  namespace: kubeflow-aws
 spec:
   name: kubeflow-db-subnet-group
   description: Kubeflow DB Subnet Group

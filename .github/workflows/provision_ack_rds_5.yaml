@@ -132,12 +132,12 @@ jobs:
       - name: health check
         id: health-check
         run: |
-          kubectl get dbinstance -n kubeflow kubeflow -o jsonpath='{.status.dbInstanceStatus}'
+          kubectl get dbinstance -n kubeflow-aws kubeflow -o jsonpath='{.status.dbInstanceStatus}'
           
-          RDS_DB_INSTANCE_HOST=$(kubectl get dbinstance -n kubeflow kubeflow \
+          RDS_DB_INSTANCE_HOST=$(kubectl get dbinstance -n kubeflow-aws kubeflow \
             -o jsonpath='{.status.endpoint.address}'
           )
-          RDS_DB_INSTANCE_PORT=$(kubectl get dbinstance -n kubeflow kubeflow \
+          RDS_DB_INSTANCE_PORT=$(kubectl get dbinstance -n kubeflow-aws kubeflow \
             -o jsonpath='{.status.endpoint.port}'
           )
           
@@ -150,10 +150,7 @@ jobs:
         id: create-secrets-asm
         run: |
           export RDS_SECRET=rds-secret
-          export RDS_DB_INSTANCE_HOST=${{env.RDS_DB_INSTANCE_HOST}}
-          export RDS_DB_INSTANCE_PORT=${{env.RDS_DB_INSTANCE_PORT}}
-          export RDS_DB_PWD=${{secrets.KUBEFLOW_ADMIN}}
           
-          aws secretsmanager create-secret --name $RDS_SECRET --secret-string '{"username":"admin","password":"$RDS_DB_PWD","database":"kubeflow","host":"$RDS_DB_INSTANCE_HOST","port":"$RDS_DB_INSTANCE_PORT"}' --region ${{env.AWS_REGION}}
+          aws secretsmanager create-secret --name $RDS_SECRET --secret-string '{"username":"admin","password":"${{secrets.KUBEFLOW_ADMIN}}","database":"kubeflow","host":"${{env.RDS_DB_INSTANCE_HOST}}","port":"${{env.RDS_DB_INSTANCE_PORT}}"}' --region ${{env.AWS_REGION}}
           yq e -i '.spec.parameters.objects |= sub("rds-secret",env(RDS_SECRET))' config/ack/resources/rds/secret-provider.yaml
             
