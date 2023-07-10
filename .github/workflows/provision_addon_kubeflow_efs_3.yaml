@@ -177,7 +177,7 @@ jobs:
         run: |
           export file_system_id=${{env.FILE_SYSTEM_ID}}
           yq e '.parameters.fileSystemId = env(file_system_id)' -i config/ack/resources/efs/dynamic-provisioning/sc.yaml
-          cat config/resources/efs/dynamic-provisioning/sc.yaml
+          cat config/ack/resources/efs/dynamic-provisioning/sc.yaml
           
           kubectl apply -f config/ack/resources/efs/dynamic-provisioning/sc.yaml
           
@@ -195,6 +195,8 @@ jobs:
 
           yq e '.metadata.namespace = env(PVC_NAMESPACE)' -i config/ack/resources/efs/dynamic-provisioning/pvc.yaml
           yq e '.metadata.name = env(CLAIM_NAME)' -i config/ack/resources/efs/dynamic-provisioning/pvc.yaml
+          
+          cat config/ack/resources/efs/dynamic-provisioning/pvc.yaml
 
           kubectl apply -f config/ack/resources/efs/dynamic-provisioning/pvc.yaml
           
