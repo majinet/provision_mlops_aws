@@ -39,10 +39,12 @@ With the utilization of the Cloud, we can effortlessly implement agile and TDD (
 
 ![eks-arch.png](architecture/images/eks-arch.png)
 
-### Kubeflow on EKS
+### Kubeflow on AWS EKS
 
 ![kubeflow_on_eks.png](architecture/images/kubeflow_on_eks.png)
 Diagram reference from blog "Enabling hybrid ML workflows on Amazon EKS and Amazon SageMaker with one-click Kubeflow on AWS deployment"
+
+Refer to Blog: [Enabling hybrid ML workflows on Amazon EKS and Amazon SageMaker with one-click Kubeflow on AWS deployment](https://aws.amazon.com/tw/blogs/machine-learning/enabling-hybrid-ml-workflows-on-amazon-eks-and-amazon-sagemaker-with-one-click-kubeflow-on-aws-deployment/).
 
 ### Kubeflow Homepage
 After installation completed, kubeflow homepage can be logged in.
