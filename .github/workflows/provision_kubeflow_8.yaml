@@ -1,4 +1,4 @@
-name: Step 6 - Provisioning Kubeflow
+name: Step 8 - Provisioning Kubeflow
 
 on:
   workflow_dispatch:
@@ -148,6 +148,6 @@ jobs:
       #
       #      export PIPELINE_S3_CREDENTIAL_OPTION=static
       #
-      #      make deploy-kubeflow INSTALLATION_OPTION=kustomize DEPLOYMENT_OPTION=rds-s3 PIPELINE_S3_CREDENTIAL_OPTION=$PIPELINE_S3_CREDENTIAL_OPTION
+      #      make deploy-kubeflow INSTALLATION_OPTION=kustomize DEPLOYMENT_OPTION=cognito-rds-s3 PIPELINE_S3_CREDENTIAL_OPTION=$PIPELINE_S3_CREDENTIAL_OPTION
       #      # make deploy-kubeflow INSTALLATION_OPTION=kustomize DEPLOYMENT_OPTION=vanilla
 
