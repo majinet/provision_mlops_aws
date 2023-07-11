@@ -1,4 +1,4 @@
-name: Step 5 Provisioning Aurora
+name: Step 5 Provisioning MySQL
 
 on:
   workflow_dispatch:
@@ -23,7 +23,7 @@ permissions:
 
 jobs:
   eks_aws:
-    name: Provisioning Aurora Postgres
+    name: Provisioning MySQL
     runs-on: ubuntu-latest
     outputs:
       env-name: ${{ steps.env-name.outputs.environment }}
