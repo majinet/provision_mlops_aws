@@ -65,16 +65,16 @@ jobs:
         id: get-oidc-provider-arn
         run: |
           aws eks update-kubeconfig --region us-east-1 --name eks-cluster
-          
-          OIDC_PROVIDER_ARN=$(aws iam list-open-id-connect-providers --query 'OpenIDConnectProviderList[?contains(Arn, `oidc.eks.us-east-1.amazonaws.com`)].Arn' --output text)
-
-          echo "OIDC_PROVIDER_ARN: $OIDC_PROVIDER_ARN"
-          echo "OIDC_PROVIDER_ARN=$OIDC_PROVIDER_ARN" >> $GITHUB_ENV
       - name: create namespace
         id: create-ns
         run: |
           kubectl create ns "kubeflow-aws"
+        continue-on-error: true
+      - name: create namespace
+        id: create-ns
+        run: |
           kubectl create ns "kubeflow"
+        continue-on-error: true
       - name: create iam service account
         id: create-iam-service-account
         run: |

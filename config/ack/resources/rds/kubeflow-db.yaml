@@ -16,7 +16,7 @@ spec:
   masterUsername: admin
   masterUserPassword:
     name: rds-secret
-    namespace: kubeflow
+    namespace: kubeflow-aws
     key: password
   multiAZ: false
   publiclyAccessible: false

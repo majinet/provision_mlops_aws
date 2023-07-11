@@ -15,8 +15,7 @@ env:
   AWS_REGION : ${{ github.event.inputs.region}} #Change to reflect your Region
   AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
   CLUSTER_NAME: 'eks-cluster'
-  ACK_K8S_NAMESPACE: "ack-system"
-  ACK_SYSTEM_NAMESPACE: "ack-system"
+  ACK_K8S_NAMESPACE: "ack-system-k8s"
   SERVICE: "s3"
   ACK_K8S_SERVICE_ACCOUNT_NAME: "ack-s3-controller"
 
@@ -101,12 +100,12 @@ jobs:
         run: |
           SERVICE=${{env.SERVICE}}
           RELEASE_VERSION=1.0.4      
-          ACK_SYSTEM_NAMESPACE=${{env.ACK_SYSTEM_NAMESPACE}}
+          ACK_K8S_NAMESPACE=${{env.ACK_K8S_NAMESPACE}}
           AWS_REGION=${{env.AWS_REGION}}
 
           aws ecr-public get-login-password --region $AWS_REGION | helm registry login --username AWS --password-stdin public.ecr.aws
           
-          helm install --create-namespace -n $ACK_SYSTEM_NAMESPACE ack-$SERVICE-controller \
+          helm install --create-namespace -n ACK_K8S_NAMESPACE ack-$SERVICE-controller \
             oci://public.ecr.aws/aws-controllers-k8s/$SERVICE-chart --version=$RELEASE_VERSION --set=aws.region=$AWS_REGION
       - name: set oidc provider
         id: set-oidc-provider
