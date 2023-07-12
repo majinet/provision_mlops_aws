@@ -1,4 +1,4 @@
-name: Step 4 - Provisioning AWS ACK Controller for Postgres
+name: Step 4 - Provisioning AWS ACK Controller
 
 on:
   workflow_dispatch:
@@ -26,7 +26,7 @@ permissions:
 
 jobs:
   ack_aws:
-    name: Provisioning AWS ACK Controller for Postgres
+    name: Provisioning AWS ACK Controller for MySQL
     runs-on: ubuntu-latest
     outputs:
       env-name: ${{ steps.env-name.outputs.environment }}
