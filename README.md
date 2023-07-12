@@ -47,6 +47,6 @@ Diagram reference from blog "Enabling hybrid ML workflows on Amazon EKS and Amaz
 Refer to Blog: [Enabling hybrid ML workflows on Amazon EKS and Amazon SageMaker with one-click Kubeflow on AWS deployment](https://aws.amazon.com/tw/blogs/machine-learning/enabling-hybrid-ml-workflows-on-amazon-eks-and-amazon-sagemaker-with-one-click-kubeflow-on-aws-deployment/).
 
 ### Kubeflow Homepage
-After installation completed, kubeflow homepage can be logged in.
+Follow [Cognito Manual Deployment Guide](https://awslabs.github.io/kubeflow-manifests/docs/deployment/cognito/manifest/guide/) to install domain and AWS Application Load Balancer (ALB). After installation completed, kubeflow homepage can be logged in.
 
 ![kubeflow_main.png](architecture/images/kubeflow_main.png)
