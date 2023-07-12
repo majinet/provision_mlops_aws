@@ -1,4 +1,4 @@
-name: Step 6 - Provisioning AWS Load Balance
+name: Step 7 - Provisioning AWS Load Balance
 
 on:
   workflow_dispatch:
@@ -93,6 +93,7 @@ jobs:
       #- name: install alb
       #  id: install-alb
       #  run: |
+      #    # run the following command after istio-system is installed
       #    # Install Load Balancer Controller
       #    kustomize build awsconfigs/common/aws-alb-ingress-controller/base | kubectl apply -f -
       #    kubectl wait --for condition=established crd/ingressclassparams.elbv2.k8s.aws
