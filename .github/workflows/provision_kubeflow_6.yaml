@@ -144,8 +144,17 @@ jobs:
       #      PYTHONPATH=.. python utils/cognito_bootstrap/cognito_pre_deployment.py
       #      cd -
       #
+      #      # alb installed by default using this installation option
       #      make deploy-kubeflow INSTALLATION_OPTION=kustomize DEPLOYMENT_OPTION=cognito-rds-s3 PIPELINE_S3_CREDENTIAL_OPTION=$PIPELINE_S3_CREDENTIAL_OPTION
       #      # make deploy-kubeflow INSTALLATION_OPTION=kustomize DEPLOYMENT_OPTION=vanilla
+      #
+      #      # kubectl get ingress -n istio-system
+      #      # Substitute the ALB address under kubeflow.alb.dns in tests/e2e/utils/cognito_bootstrap/config.yaml. The kubeflow section of the config file will look like:
+      #
+      #      # cd tests/e2e
+      #      # PYTHONPATH=.. python utils/cognito_bootstrap/cognito_post_deployment.py
+      #      # cd -
+      #
       - name: Create user profile in Kubeflow
         run: |
           kubectl apply -f config/kubeflow/profile.yaml
