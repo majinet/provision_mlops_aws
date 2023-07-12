@@ -84,12 +84,6 @@ jobs:
           VPC_ID=$(aws cloudformation describe-stacks --stack-name eksctl-eks-cluster-cluster --query 'Stacks[0].Outputs[?OutputKey==`VPC`].OutputValue' --output text)
           echo "VPC ID: $VPC_ID"
           echo "VPC_ID=$VPC_ID" >> $GITHUB_ENV
-      - name: create iam role
-        id: create-iam-role
-        run: |
-          export LBC_POLICY_NAME=alb_ingress_controller_${{env.AWS_REGION}}_${{env.CLUSTER_NAME}}
-          export LBC_POLICY_ARN=$(aws iam create-policy --policy-name $LBC_POLICY_NAME --policy-document file://config/ack/addons/alb/iam_policy.json --output text --query 'Policy.Arn')
-          eksctl create iamserviceaccount --name aws-load-balancer-controller --namespace kube-system --cluster ${{env.CLUSTER_NAME}} --region ${{env.AWS_REGION}} --attach-policy-arn ${LBC_POLICY_ARN} --override-existing-serviceaccounts --approve
       #- name: install alb
       #  id: install-alb
       #  run: |
