@@ -65,14 +65,6 @@ jobs:
         id: get-oidc-provider-arn
         run: |
           aws eks update-kubeconfig --region us-east-1 --name eks-cluster
-      - name: create namespace (kubeflow-aws)
-        run: |
-          kubectl create ns "kubeflow-aws"
-        continue-on-error: true
-      - name: create namespace (kubeflow)
-        run: |
-          kubectl create ns "kubeflow"
-        continue-on-error: true
       - name: create iam service account
         id: create-iam-service-account
         run: |

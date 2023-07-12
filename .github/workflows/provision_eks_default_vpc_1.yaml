@@ -91,3 +91,11 @@ jobs:
           cat amazon-eks-cluster.yaml
           eksctl create cluster -f amazon-eks-cluster.yaml
           kubectl get svc
+      - name: create namespace (kubeflow-aws)
+        run: |
+          kubectl create ns "kubeflow-aws"
+        continue-on-error: true
+      - name: create namespace (kubeflow)
+        run: |
+          kubectl create ns "kubeflow"
+        continue-on-error: true
