@@ -89,7 +89,9 @@ jobs:
             --no-duplicate-arns
           
           # in terminal,
+          # aws configure sso (do once)
+          # aws sso login --sso-session majinet
+          # aws sts assume-role --role-arn arn:aws:iam::<aws_account_id>:role/KubeAdmin --role-session-name KubeAdmin --profile AdministratorAccess-${{secrets.AWS_ACCOUNT_ID}}
           # aws configure --profile kubeadmin set aws_access_key_id 
           # aws configure --profile kubeadmin set aws_secret_access_key 
           # aws configure --profile kubeadmin set aws_session_token 
-          # aws sts assume-role --role-arn arn:aws:iam::<aws_account_id>:role/KubeAdmin --role-session-name KubeAdmin --profile AdministratorAccess-${{secrets.AWS_ACCOUNT_ID}}
