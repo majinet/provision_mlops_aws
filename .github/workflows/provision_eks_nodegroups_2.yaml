@@ -93,8 +93,14 @@ jobs:
         id: create-managed-node-group
         run: |
           aws eks update-kubeconfig --region us-east-1 --name eks-cluster
-          eksctl scale nodegroup --config-file=config/eks/amazon-eks-managedNodeGroups.yaml
-          kubectl get all -A
+          eksctl create nodegroup --config-file=config/eks/amazon-eks-managedNodeGroups.yaml
+      #- name: Sleep for 5 mins
+      #  uses: whatnick/wait-action@master
+      #  with:
+      #    time: '300s'
+      #- name: scale managed node group
+      #  run: |
+      #    eksctl scale nodegroup --name=on-demand --cluster=eks-cluster --nodes=1 --nodes-min=0 --nodes-max=5
       #- name: create fargate profile
       #  id: create-fargate-profile
       #  run: |
