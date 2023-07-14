@@ -33,7 +33,7 @@ jobs:
         id: creds
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/KubeAdmin
+          role-to-assume: arn:aws:iam::404886641986:role/KubeAdmin
           role-session-name: KubeAdmin
           aws-region: ${{ github.event.inputs.region}}
       - name: Configure environment name
