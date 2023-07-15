@@ -215,3 +215,21 @@ jobs:
                   --policy-arn "${POLICY_ARN}"
               echo "ok."
           done <<< "$POLICY_ARN_STRINGS"
+      - name: create iam service account
+        id: create-iam-service-account
+        run: |
+          eksctl create iamserviceaccount  --name kubeflow-secrets-manager-sa  --namespace kubeflow  --cluster ${{env.CLUSTER_NAME}} --attach-policy-arn  arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess --attach-policy-arn arn:aws:iam::aws:policy/SecretsManagerReadWrite --override-existing-serviceaccounts   --approve --region ${{env.AWS_REGION}}
+      - name: create sagemaker execution role
+        id: create-sagemaker-execution-role
+        run: |
+          export SAGEMAKER_EXECUTION_ROLE_NAME=ack-sagemaker-execution-role
+
+          TRUST="{ \"Version\": \"2012-10-17\", \"Statement\": [ { \"Effect\": \"Allow\", \"Principal\": { \"Service\": \"sagemaker.amazonaws.com\" }, \"Action\": \"sts:AssumeRole\" } ] }"
+          aws iam create-role --role-name ${SAGEMAKER_EXECUTION_ROLE_NAME} --assume-role-policy-document "$TRUST"
+          aws iam attach-role-policy --role-name ${SAGEMAKER_EXECUTION_ROLE_NAME} --policy-arn arn:aws:iam::aws:policy/AmazonSageMakerFullAccess
+          aws iam attach-role-policy --role-name ${SAGEMAKER_EXECUTION_ROLE_NAME} --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess
+
+          SAGEMAKER_EXECUTION_ROLE_ARN=$(aws iam get-role --role-name ${SAGEMAKER_EXECUTION_ROLE_NAME} --output text --query 'Role.Arn')
+
+          echo $SAGEMAKER_EXECUTION_ROLE_ARN
+
