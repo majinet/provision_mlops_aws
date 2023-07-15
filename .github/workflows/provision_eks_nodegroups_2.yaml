@@ -79,15 +79,3 @@ jobs:
       - name: setup auto-scaler auto discovery
         run: |
           kubectl apply -f config/eks/cluster-autoscaler-autodiscover.yaml
-      #- name: Sleep for 5 mins
-      #  uses: whatnick/wait-action@master
-      #  with:
-      #    time: '300s'
-      #- name: scale managed node group
-      #  run: |
-      #    eksctl scale nodegroup --name=on-demand --cluster=eks-cluster --nodes=1 --nodes-min=0 --nodes-max=5
-      #- name: create fargate profile
-      #  id: create-fargate-profile
-      #  run: |
-      #    cat config/fargate-eks-cluster.yaml | envsubst '${{ secrets.AWS_ACCOUNT_ID }}' > fargate-eks-cluster.yaml
-      #    eksctl create fargateprofile -f fargate-eks-cluster.yaml
