@@ -71,24 +71,6 @@ jobs:
       #  run: |
       #    kubectl patch deployment coredns -n kube-system --type json \
       #    -p='[{"op": "remove", "path": "/spec/template/metadata/annotations/eks.amazonaws.com~1compute-type"}]'
-      - name: Check if role exists
-        id: check-node-role
-        run: |
-          aws iam get-role --role-name AmazonEKSNodeRole > /dev/null 2>&1 || echo "::set-output name=exists::false"
-      - name: create node role
-        id: create-iam-node-role
-        if: steps.check-node-role.outputs.exists == 'false'
-        run: |
-          aws iam create-role \
-            --role-name AmazonEKSNodeRole \
-            --assume-role-policy-document file://"config/eks/node-role-trust-relationship.json"
-
-          aws iam attach-role-policy \
-            --policy-arn arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy \
-            --role-name AmazonEKSNodeRole
-          aws iam attach-role-policy \
-            --policy-arn arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly \
-            --role-name AmazonEKSNodeRole
       - name: create managed node group
         id: create-managed-node-group
         run: |
