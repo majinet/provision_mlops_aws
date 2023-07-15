@@ -96,7 +96,7 @@ jobs:
           
           aws iam attach-role-policy \
             --policy-arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:policy/EKSClusterFullAccess \
-            --role-name eksClusterRole
+            --role-name KubeAdmin
           
           eksctl create iamidentitymapping --cluster eks-cluster --region=${{env.AWS_REGION}} \
             --arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/KubeAdmin --username kubeadmin --group system:masters \

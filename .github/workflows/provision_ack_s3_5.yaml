@@ -110,14 +110,3 @@ jobs:
           cat bucket_sagemaker.yaml
 
           kubectl create -f bucket_sagemaker.yaml
-      - name: Configure using IAM User
-        id: configure-iam-user
-        run: |
-          export S3_SECRET=s3-secret
-          export MINIO_AWS_ACCESS_KEY_ID=${{ secrets.IAC_EKS_ACCESS_KEY }}
-          export MINIO_AWS_SECRET_ACCESS_KEY=${{ secrets.IAC_EKS_SECRET_KEY }}
-          
-          aws secretsmanager create-secret --name $S3_SECRET --secret-string '{"accesskey":"'$MINIO_AWS_ACCESS_KEY_ID'","secretkey":"'$MINIO_AWS_SECRET_ACCESS_KEY'"}' --region ${{env.AWS_REGION}}
-          yq e -i '.spec.parameters.objects |= sub("s3-secret",env(S3_SECRET))' config/ack/resources/s3/secret-provider.yaml
-            
-

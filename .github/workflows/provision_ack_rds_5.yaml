@@ -146,11 +146,3 @@ jobs:
           
           echo "RDS_DB_INSTANCE_PORT: $RDS_DB_INSTANCE_PORT"
           echo "RDS_DB_INSTANCE_PORT=$RDS_DB_INSTANCE_PORT" >> $GITHUB_ENV
-      - name: Create Secrets in AWS Secrets Manager
-        id: create-secrets-asm
-        run: |
-          export RDS_SECRET=rds-secret
-          
-          aws secretsmanager create-secret --name $RDS_SECRET --secret-string '{"username":"admin","password":"${{secrets.KUBEFLOW_ADMIN}}","database":"kubeflow","host":"${{env.RDS_DB_INSTANCE_HOST}}","port":"${{env.RDS_DB_INSTANCE_PORT}}"}' --region ${{env.AWS_REGION}}
-          yq e -i '.spec.parameters.objects |= sub("rds-secret",env(RDS_SECRET))' config/ack/resources/rds/secret-provider.yaml
-            
