@@ -89,7 +89,7 @@ jobs:
         run: | 
           cat config/eks/amazon-eks-cluster.yaml | envsubst  > amazon-eks-cluster.yaml
           cat amazon-eks-cluster.yaml
-          eksctl create cluster --asg-access -f amazon-eks-cluster.yaml
+          eksctl create cluster -f amazon-eks-cluster.yaml
           kubectl get svc
       - name: create namespace (kubeflow-aws)
         run: |
