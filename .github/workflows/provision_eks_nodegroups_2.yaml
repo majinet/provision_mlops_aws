@@ -94,6 +94,9 @@ jobs:
         run: |
           aws eks update-kubeconfig --region us-east-1 --name eks-cluster
           eksctl create nodegroup --config-file=config/eks/amazon-eks-managedNodeGroups.yaml
+      - name: setup auto-scaler auto discovery
+        run: |
+          kubectl apply -f config/eks/cluster-autoscaler-autodiscover.yaml
       #- name: Sleep for 5 mins
       #  uses: whatnick/wait-action@master
       #  with:
