@@ -1,0 +1,4 @@
+ack_sagemaker_oidc_role: arn:aws:iam::404886641986:role/kf-ack-sm-controller-role-eks-cluster
+cluster:
+  name: eks-cluster
+  region: us-east-1

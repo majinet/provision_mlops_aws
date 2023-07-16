@@ -1,4 +1,4 @@
-name: Step 2 - Provisioning AWS EKS Nodegroups
+name: Step 3 - Setup auto scaling
 
 on:
   workflow_dispatch:
@@ -18,8 +18,8 @@ permissions:
       contents: read    # This is required for actions/checkout
 
 jobs:
-  eks_aws:
-    name: Provisioning AWS EKS Nodegroups
+  autoscaler_aws:
+    name: Setup auto scaling
     runs-on: ubuntu-latest
     outputs:
       env-name: ${{ steps.env-name.outputs.environment }}
@@ -66,13 +66,11 @@ jobs:
           chmod +x ./kubectl
           mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$HOME/bin:$PATH
           kubectl version --short --client
-      #- name: delete coredns in worker nodes
-      #  id: delete-coredns
-      #  run: |
-      #    kubectl patch deployment coredns -n kube-system --type json \
-      #    -p='[{"op": "remove", "path": "/spec/template/metadata/annotations/eks.amazonaws.com~1compute-type"}]'
-      - name: create managed node group
-        id: create-managed-node-group
+      - name: setup auto-scaler auto discovery
         run: |
-          aws eks update-kubeconfig --region us-east-1 --name eks-cluster
-          eksctl create nodegroup --config-file=config/eks/amazon-eks-managedNodeGroups.yaml
+          kubectl apply -f config/eks/cluster-autoscaler-autodiscover.yaml
+      - name: setup vertical pod autoscaler
+        run: |
+          git clone https://github.com/kubernetes/autoscaler.git
+          cd vertical-pod-autoscaler
+          ./hack/vpa-up.sh

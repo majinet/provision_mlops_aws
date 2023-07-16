@@ -1,0 +1,26 @@
+cluster:
+  name: eks-cluster
+  region: us-east-1
+cognitoUserpool:
+  ARN: arn:aws:cognito-idp:us-east-1:404886641986:userpool/us-east-1_W2dfRzwxz
+  appClientId: 2na549bv5jf9atq8k0t6e40oo2
+  domain: auth.platform.whatautomatech.com
+  domainAliasTarget: d2t50zx5gfqjzv.cloudfront.net
+  name: kubeflow-users
+kubeflow:
+  alb:
+    scheme: internet-facing
+    dns: k8s-istiosys-istioing-28196b51df-67317010.us-east-1.elb.amazonaws.com
+    serviceAccount:
+      name: aws-load-balancer-controller
+      namespace: kube-system
+      policyArn: arn:aws:iam::404886641986:policy/alb_ingress_controller_eks-clusterp74aqefb0p
+route53:
+  rootDomain:
+    certARN: arn:aws:acm:us-east-1:404886641986:certificate/80b35239-4aef-4944-8704-ebb9cb5090f4
+    hostedZoneId: Z09606082XBJKAOA4J7V3
+    name: whatautomatech.com
+  subDomain:
+    hostedZoneId: Z09610532JQ87Q4YP7X9H
+    name: platform.whatautomatech.com
+    us-east-1-certARN: arn:aws:acm:us-east-1:404886641986:certificate/c5522102-77a1-4c68-873a-f7355a5edd75
