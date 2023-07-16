@@ -31,6 +31,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Checkout awslabs kubeflow-manifests
+        uses: actions/checkout@v3
+        with:
+          repository: awslabs/kubeflow-manifests
+          ref: v1.7.0-aws-b1.0.2
+          path: kubeflow-manifests
       - name: Configure AWS credentials
         id: creds
         uses: aws-actions/configure-aws-credentials@v2
@@ -219,8 +225,13 @@ jobs:
         id: create-iam-service-account
         run: |
           eksctl create iamserviceaccount  --name kubeflow-secrets-manager-sa  --namespace kubeflow  --cluster ${{env.CLUSTER_NAME}} --attach-policy-arn  arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess --attach-policy-arn arn:aws:iam::aws:policy/SecretsManagerReadWrite --override-existing-serviceaccounts   --approve --region ${{env.AWS_REGION}}
+      - name: Check if role exists (ack-sagemaker-execution-role)
+        id: check-role-sagemaker
+        run: |
+          aws iam get-role --role-name ack-s3-controller > /dev/null 2>&1 || echo "::set-output name=exists::false"
       - name: create sagemaker execution role
         id: create-sagemaker-execution-role
+        if: steps.check-role-sagemaker.outputs.exists == 'false'
         run: |
           export SAGEMAKER_EXECUTION_ROLE_NAME=ack-sagemaker-execution-role
 
@@ -232,4 +243,11 @@ jobs:
           SAGEMAKER_EXECUTION_ROLE_ARN=$(aws iam get-role --role-name ${SAGEMAKER_EXECUTION_ROLE_NAME} --output text --query 'Role.Arn')
 
           echo $SAGEMAKER_EXECUTION_ROLE_ARN
+      - name: create iam service account (AMP)
+        run: |
+          export AMP_POLICY_NAME=amp_policy
+          export AMP_POLICY_ARN=$(aws iam create-policy --policy-name $AMP_POLICY_NAME --policy-document file://kubeflow-manifests/deployments/add-ons/prometheus/AMPIngestPermissionPolicy.json --query 'Policy.Arn' | tr -d '"')
+          
+          eksctl create iamserviceaccount --name amp-iamproxy-ingest-service-account --namespace monitoring --cluster ${{env.CLUSTER_NAME}} --attach-policy-arn $AMP_POLICY_ARN --override-existing-serviceaccounts --approve --region ${{env.AWS_REGION}}
+
 
