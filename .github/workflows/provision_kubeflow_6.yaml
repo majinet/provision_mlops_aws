@@ -57,26 +57,7 @@ jobs:
           curl -L https://github.com/a8m/envsubst/releases/download/v1.2.0/envsubst-`uname -s`-`uname -m` -o envsubst
           chmod +x envsubst
           sudo mv envsubst /usr/local/bin
-      - name: install helm
-        id: install-helm
-        run: |
-          curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
-          sudo apt-get install apt-transport-https --yes
-          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
-          sudo apt-get update -y
-          sudo apt-get install helm -y
-      - name: install eksctl
-        id: install-eksctl
-        run: |
-          # for ARM systems, set ARCH to: `arm64`, `armv6` or `armv7`
-          ARCH=amd64
-          PLATFORM=$(uname -s)_$ARCH
-
-          curl -sLO "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$PLATFORM.tar.gz"
-          tar -xzf eksctl_$PLATFORM.tar.gz -C /tmp && rm eksctl_$PLATFORM.tar.gz
-          sudo mv /tmp/eksctl /usr/local/bin
-      - name: Get ARN of ODIC provider
-        id: get-oidc-provider-arn
+      - name: health check eks
         run: |
           aws eks update-kubeconfig --region us-east-1 --name eks-cluster
       - name: create crds
