@@ -39,8 +39,8 @@ jobs:
         id: creds
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/deployAdmin
-          role-session-name: deployadmin
+          role-to-assume: arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/deployKubeflow
+          role-session-name: deploykubeflow
           aws-region: ${{ env.AWS_REGION}}
       - name: Configure environment name
         id: env-name
