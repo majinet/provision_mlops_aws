@@ -35,6 +35,12 @@ jobs:
           repository: awslabs/kubeflow-manifests
           ref: v1.7.0-aws-b1.0.2
           path: kubeflow-manifests
+      - name: Checkout kubeflow
+        uses: actions/checkout@v3
+        with:
+          repository: kubeflow/manifests
+          ref: v1.7.0
+          path: upstream
       - name: Configure AWS credentials
         id: creds
         uses: aws-actions/configure-aws-credentials@v2
