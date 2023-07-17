@@ -103,6 +103,9 @@ jobs:
           cat main/config/kubeflow-manifests/tests/e2e/utils/ack_sm_controller_bootstrap/config.yaml | envsubst > kubeflow-manifests/tests/e2e/utils/ack_sm_controller_bootstrap/config.yaml
           cat main/config/kubeflow-manifests/tests/e2e/utils/cognito_bootstrap/config.yaml | envsubst > kubeflow-manifests/tests/e2e/utils/cognito_bootstrap/config.yaml
           cp main/config/kubeflow-manifests/upstream/common/dex/base/config-map.yaml kubeflow-manifests/upstream/common/dex/base/config-map.yaml
+          
+          cd kubeflow-manifests
+          
           #      export KUBEFLOW_RELEASE_VERSION=v1.7.0
           #      export AWS_RELEASE_VERSION=v1.7.0-aws-b1.0.2
           #      git clone https://github.com/awslabs/kubeflow-manifests.git && cd kubeflow-manifests
