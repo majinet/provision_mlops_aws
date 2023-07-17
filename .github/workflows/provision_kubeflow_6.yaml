@@ -24,7 +24,7 @@ permissions:
 jobs:
   eks_aws:
     name: Provisioning AWS EKS
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     outputs:
       env-name: ${{ steps.env-name.outputs.environment }}
     steps:
