@@ -145,7 +145,7 @@ jobs:
           #      minioServiceRegion='$CLUSTER_REGION'
           #      ' > awsconfigs/apps/pipeline/s3/params.env
           #
-          #      export PIPELINE_S3_CREDENTIAL_OPTION=static
+          export PIPELINE_S3_CREDENTIAL_OPTION=static
           #
           #      cd tests/e2e
           #      PYTHONPATH=.. python utils/cognito_bootstrap/cognito_pre_deployment.py
