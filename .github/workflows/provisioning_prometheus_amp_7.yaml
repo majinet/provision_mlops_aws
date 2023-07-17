@@ -80,7 +80,7 @@ jobs:
           cd kubeflow-manifests
           
           export AMP_WORKSPACE_ALIAS=test
-          export AMP_WORKSPACE_ARN=$(aws amp create-workspace --region ${{env.CLUSTER_REGION}} --alias $AMP_WORKSPACE_ALIAS --query arn | tr -d '"')
+          export AMP_WORKSPACE_ARN=$(aws amp create-workspace --region ${{env.AWS_REGION}} --alias $AMP_WORKSPACE_ALIAS --query arn | tr -d '"')
           export AMP_WORKSPACE_REGION=$(echo $AMP_WORKSPACE_ARN | cut -d':' -f4)
           export AMP_WORKSPACE_ID=$(echo $AMP_WORKSPACE_ARN | cut -d':' -f6 | cut -d'/' -f2)
 
