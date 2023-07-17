@@ -78,5 +78,6 @@ jobs:
       - name: setup vertical pod autoscaler
         run: |
           git clone https://github.com/kubernetes/autoscaler.git
+          cd autoscaler
           cd vertical-pod-autoscaler
           ./hack/vpa-up.sh
