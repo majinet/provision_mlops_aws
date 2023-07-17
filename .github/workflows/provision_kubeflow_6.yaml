@@ -93,16 +93,16 @@ jobs:
         run: |
           # Clone repository. Support ubuntu 18.04 only
           cp -fr upstream kubeflow-manifests/
-          cp config/kubeflow-manifests/awsconfigs/apps/pipeline/rds/params.env kubeflow-manifests/awsconfigs/apps/pipeline/rds/params.env
-          cat config/kubeflow-manifests/awsconfigs/apps/pipeline/s3/params.env | envsubst > kubeflow-manifests/awsconfigs/apps/pipeline/s3/params.env
-          cat config/kubeflow-manifests/awsconfigs/common/ack-sagemaker-controller/params.env | envsubst > kubeflow-manifests/awsconfigs/common/ack-sagemaker-controller/params.env
-          cp config/kubeflow-manifests/awsconfigs/common/aws-alb-ingress-controller/base/params.env kubeflow-manifests/awsconfigs/common/aws-alb-ingress-controller/base/params.env
-          cp config/kubeflow-manifests/awsconfigs/common/aws-authservice/base/params.env kubeflow-manifests/awsconfigs/common/aws-authservice/base/params.env
-          cp config/kubeflow-manifests/awsconfigs/common/istio-ingress/cognito/params.env kubeflow-manifests/awsconfigs/common/istio-ingress/cognito/params.env
-          cat config/kubeflow-manifests/awsconfigs/common/istio-ingress/https/params.env | envsubst > kubeflow-manifests/awsconfigs/common/istio-ingress/https/params.env
-          cat config/kubeflow-manifests/tests/e2e/utils/ack_sm_controller_bootstrap/config.yaml | envsubst > kubeflow-manifests/tests/e2e/utils/ack_sm_controller_bootstrap/config.yaml
-          cat config/kubeflow-manifests/tests/e2e/utils/congito_bootstrap/config.yaml | envsubst > kubeflow-manifests/tests/e2e/utils/congito_bootstrap/config.yaml
-          cp config/kubeflow-manifests/upstream/dex/base/config-map.yaml | envsubst > kubeflow-manifests/upstream/dex/base/config-map.yaml
+          cp main/config/kubeflow-manifests/awsconfigs/apps/pipeline/rds/params.env kubeflow-manifests/awsconfigs/apps/pipeline/rds/params.env
+          cat main/config/kubeflow-manifests/awsconfigs/apps/pipeline/s3/params.env | envsubst > kubeflow-manifests/awsconfigs/apps/pipeline/s3/params.env
+          cat main/config/kubeflow-manifests/awsconfigs/common/ack-sagemaker-controller/params.env | envsubst > kubeflow-manifests/awsconfigs/common/ack-sagemaker-controller/params.env
+          cp main/config/kubeflow-manifests/awsconfigs/common/aws-alb-ingress-controller/base/params.env kubeflow-manifests/awsconfigs/common/aws-alb-ingress-controller/base/params.env
+          cp main/config/kubeflow-manifests/awsconfigs/common/aws-authservice/base/params.env kubeflow-manifests/awsconfigs/common/aws-authservice/base/params.env
+          cp main/config/kubeflow-manifests/awsconfigs/common/istio-ingress/cognito/params.env kubeflow-manifests/awsconfigs/common/istio-ingress/cognito/params.env
+          cat main/config/kubeflow-manifests/awsconfigs/common/istio-ingress/https/params.env | envsubst > kubeflow-manifests/awsconfigs/common/istio-ingress/https/params.env
+          cat main/config/kubeflow-manifests/tests/e2e/utils/ack_sm_controller_bootstrap/config.yaml | envsubst > kubeflow-manifests/tests/e2e/utils/ack_sm_controller_bootstrap/config.yaml
+          cat main/config/kubeflow-manifests/tests/e2e/utils/congito_bootstrap/config.yaml | envsubst > kubeflow-manifests/tests/e2e/utils/congito_bootstrap/config.yaml
+          cp main/config/kubeflow-manifests/upstream/dex/base/config-map.yaml | envsubst > kubeflow-manifests/upstream/dex/base/config-map.yaml
           #      export KUBEFLOW_RELEASE_VERSION=v1.7.0
           #      export AWS_RELEASE_VERSION=v1.7.0-aws-b1.0.2
           #      git clone https://github.com/awslabs/kubeflow-manifests.git && cd kubeflow-manifests
@@ -160,5 +160,5 @@ jobs:
           #
       - name: Create user profile in Kubeflow
         run: |
-          kubectl apply -f config/kubeflow/profile.yaml
+          kubectl apply -f main/config/kubeflow/profile.yaml
 
