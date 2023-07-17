@@ -77,41 +77,6 @@ jobs:
           chmod +x ./kubectl
           mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$HOME/bin:$PATH
           kubectl version --short --client
-      - name: set oidc provider
-        id: set-oidc-provider
-        run: |
-          # Update the service name variables as needed
-          OIDC_PROVIDER=$(aws eks describe-cluster --name ${{env.CLUSTER_NAME}} --region ${{env.AWS_REGION}} --query "cluster.identity.oidc.issuer" --output text | sed -e "s/^https:\/\///")
-          echo "OIDC_PROVIDER: $OIDC_PROVIDER"
-          echo "OIDC_PROVIDER=$OIDC_PROVIDER" >> $GITHUB_ENV
-      - name: Check if role exists (KubeAdmin)
-        id: check-role-KubeAdmin
-        run: |
-          aws iam get-role --role-name KubeAdmin > /dev/null 2>&1 || echo "::set-output name=exists::false"
-      - name: create user to use KubeAdmin role
-        if: steps.check-role-KubeAdmin.outputs.exists == 'false'
-        run: |
-          cat config/iam/trust/account-trust-policy.json | envsubst  > account-trust-policy.json
-          
-          aws iam create-role \
-            --role-name KubeAdmin \
-            --assume-role-policy-document "file://account-trust-policy.json"
-          
-          aws iam attach-role-policy \
-            --policy-arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:policy/EKSClusterFullAccess \
-            --role-name KubeAdmin
-          
-          eksctl create iamidentitymapping --cluster eks-cluster --region=${{env.AWS_REGION}} \
-            --arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/KubeAdmin --username kubeadmin --group system:masters \
-            --no-duplicate-arns
-          
-          # in terminal,
-          # aws configure sso (do once)
-          # aws sso login --sso-session majinet
-          # aws sts assume-role --role-arn arn:aws:iam::<aws_account_id>:role/KubeAdmin --role-session-name KubeAdmin --profile AdministratorAccess-${{secrets.AWS_ACCOUNT_ID}}
-          # aws configure --profile kubeadmin set aws_access_key_id 
-          # aws configure --profile kubeadmin set aws_secret_access_key 
-          # aws configure --profile kubeadmin set aws_session_token
       - name: Check if role exists (eksClusterRole)
         id: check-cluster-role
         run: |
@@ -145,106 +110,19 @@ jobs:
           aws iam attach-role-policy \
             --policy-arn arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly \
             --role-name AmazonEKSNodeRole
-      - name: Check if role exists (ack-rds-controller)
-        id: check-role-rds
+      - name: Check if role exists (KubeAdmin)
+        id: check-role-KubeAdmin
         run: |
-          aws iam get-role --role-name ack-rds-controller > /dev/null 2>&1 || echo "::set-output name=exists::false"
-      - name: Create an IAM role and policy for service account (rds) - step 4
-        id: create-iam-role-rds
-        if: steps.check-role-rds.outputs.exists == 'false'
+          aws iam get-role --role-name KubeAdmin > /dev/null 2>&1 || echo "::set-output name=exists::false"
+      - name: create user to use KubeAdmin role
+        if: steps.check-role-KubeAdmin.outputs.exists == 'false'
         run: |
-          # Update the service name variables as needed
-          SERVICE=rds
-          AWS_ACCOUNT_ID=${{secrets.AWS_ACCOUNT_ID}}
-          ACK_K8S_NAMESPACE=${{env.ACK_K8S_NAMESPACE}}
-
-          ACK_K8S_SERVICE_ACCOUNT_NAME=ack-${SERVICE}-controller
+          cat config/iam/trust/account-trust-policy.json | envsubst  > account-trust-policy.json
           
-          cat config/ack/controller/ack_rds_trust.json | envsubst > ack_rds_trust.json
-          cat ack_rds_trust.json
-
-          ACK_CONTROLLER_IAM_ROLE="ack-${SERVICE}-controller"
-          ACK_CONTROLLER_IAM_ROLE_DESCRIPTION="IRSA role for ACK ${SERVICE} controller deployment on EKS cluster using Helm charts"
-          aws iam create-role --role-name "${ACK_CONTROLLER_IAM_ROLE}" --assume-role-policy-document file://ack_rds_trust.json --description "${ACK_CONTROLLER_IAM_ROLE_DESCRIPTION}"
+          aws iam create-role \
+            --role-name KubeAdmin \
+            --assume-role-policy-document "file://account-trust-policy.json"
           
-          # Download the recommended managed and inline policies and apply them to the
-          # newly created IRSA role
-          BASE_URL=https://raw.githubusercontent.com/aws-controllers-k8s/${SERVICE}-controller/main
-          POLICY_ARN_URL=${BASE_URL}/config/iam/recommended-policy-arn
-          POLICY_ARN_STRINGS="$(wget -qO- ${POLICY_ARN_URL})"
-          
-          echo "POLICY_ARN_STRINGS: $POLICY_ARN_STRINGS"
-
-          while IFS= read -r POLICY_ARN; do
-              echo -n "Attaching $POLICY_ARN ... "
-              aws iam attach-role-policy \
-                  --role-name "${ACK_CONTROLLER_IAM_ROLE}" \
-                  --policy-arn "${POLICY_ARN}"
-              echo "ok."
-          done <<< "$POLICY_ARN_STRINGS"
-      - name: Check if role exists (ack-s3-controller)
-        id: check-role-s3
-        run: |
-          aws iam get-role --role-name ack-s3-controller > /dev/null 2>&1 || echo "::set-output name=exists::false"
-      - name: Create an IAM role and policy for service account (s3) - step 4
-        id: create-iam-role-s3
-        if: steps.check-role-s3.outputs.exists == 'false'
-        run: |
-          SERVICE=s3
-          
-          cat config/ack/controller/ack_s3_trust.json | envsubst > ack_s3_trust.json
-          cat ack_s3_trust.json
-
-          ACK_CONTROLLER_IAM_ROLE="ack-${SERVICE}-controller"
-          ACK_CONTROLLER_IAM_ROLE_DESCRIPTION="IRSA role for ACK ${SERVICE} controller deployment on EKS cluster using Helm charts"
-          
-          echo "ACK_CONTROLLER_IAM_ROLE: $ACK_CONTROLLER_IAM_ROLE"
-          echo "ACK_CONTROLLER_IAM_ROLE_DESCRIPTION: $ACK_CONTROLLER_IAM_ROLE_DESCRIPTION"
-          
-          aws iam create-role --role-name "${ACK_CONTROLLER_IAM_ROLE}" --assume-role-policy-document file://ack_s3_trust.json --description "${ACK_CONTROLLER_IAM_ROLE_DESCRIPTION}"
-          
-          # Download the recommended managed and inline policies and apply them to the
-          # newly created IRSA role
-          BASE_URL=https://raw.githubusercontent.com/aws-controllers-k8s/${SERVICE}-controller/main
-          POLICY_ARN_URL=${BASE_URL}/config/iam/recommended-policy-arn
-          POLICY_ARN_STRINGS="$(wget -qO- ${POLICY_ARN_URL})"
-          
-          echo "POLICY_ARN_STRINGS: $POLICY_ARN_STRINGS"
-
-          while IFS= read -r POLICY_ARN; do
-              echo -n "Attaching $POLICY_ARN ... "
-              aws iam attach-role-policy \
-                  --role-name "${ACK_CONTROLLER_IAM_ROLE}" \
-                  --policy-arn "${POLICY_ARN}"
-              echo "ok."
-          done <<< "$POLICY_ARN_STRINGS"
-      - name: create iam service account
-        id: create-iam-service-account
-        run: |
-          eksctl create iamserviceaccount  --name kubeflow-secrets-manager-sa  --namespace kubeflow  --cluster ${{env.CLUSTER_NAME}} --attach-policy-arn  arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess --attach-policy-arn arn:aws:iam::aws:policy/SecretsManagerReadWrite --override-existing-serviceaccounts   --approve --region ${{env.AWS_REGION}}
-      - name: Check if role exists (ack-sagemaker-execution-role)
-        id: check-role-sagemaker
-        run: |
-          aws iam get-role --role-name ack-s3-controller > /dev/null 2>&1 || echo "::set-output name=exists::false"
-      - name: create sagemaker execution role
-        id: create-sagemaker-execution-role
-        if: steps.check-role-sagemaker.outputs.exists == 'false'
-        run: |
-          export SAGEMAKER_EXECUTION_ROLE_NAME=ack-sagemaker-execution-role
-
-          TRUST="{ \"Version\": \"2012-10-17\", \"Statement\": [ { \"Effect\": \"Allow\", \"Principal\": { \"Service\": \"sagemaker.amazonaws.com\" }, \"Action\": \"sts:AssumeRole\" } ] }"
-          aws iam create-role --role-name ${SAGEMAKER_EXECUTION_ROLE_NAME} --assume-role-policy-document "$TRUST"
-          aws iam attach-role-policy --role-name ${SAGEMAKER_EXECUTION_ROLE_NAME} --policy-arn arn:aws:iam::aws:policy/AmazonSageMakerFullAccess
-          aws iam attach-role-policy --role-name ${SAGEMAKER_EXECUTION_ROLE_NAME} --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess
-
-          SAGEMAKER_EXECUTION_ROLE_ARN=$(aws iam get-role --role-name ${SAGEMAKER_EXECUTION_ROLE_NAME} --output text --query 'Role.Arn')
-
-          echo $SAGEMAKER_EXECUTION_ROLE_ARN
-      - name: create iam service account (AMP)
-        run: |
-          export AMP_POLICY_NAME=amp_policy
-          export AMP_POLICY_ARN=$(aws iam create-policy --policy-name $AMP_POLICY_NAME --policy-document file://kubeflow-manifests/deployments/add-ons/prometheus/AMPIngestPermissionPolicy.json --query 'Policy.Arn' | tr -d '"')
-          
-          eksctl create iamserviceaccount --name amp-iamproxy-ingest-service-account --namespace monitoring --cluster ${{env.CLUSTER_NAME}} --attach-policy-arn $AMP_POLICY_ARN --override-existing-serviceaccounts --approve --region ${{env.AWS_REGION}}
-
-
+          aws iam attach-role-policy \
+            --policy-arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:policy/EKSClusterFullAccess \
+            --role-name KubeAdmin
