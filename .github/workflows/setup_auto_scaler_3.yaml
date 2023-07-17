@@ -1,4 +1,4 @@
-name: Step 3 - Setup auto scaling
+name: Step 3.5 - Setup auto scaling
 
 on:
   workflow_dispatch:
@@ -11,6 +11,7 @@ on:
 env:
   AWS_REGION : us-east-1 #Change to reflect your Region
   AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+  CLUSTER_NAME: eks-cluster
 
 # Permission can be added at job level or workflow level
 permissions:
@@ -66,6 +67,11 @@ jobs:
           chmod +x ./kubectl
           mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$HOME/bin:$PATH
           kubectl version --short --client
+      - name: Health Check Cluster
+        id: health-check-eks
+        run: |
+          aws eks update-kubeconfig --name ${{env.CLUSTER_NAME}} --region ${{env.AWS_REGION}}
+          kubectl config get-contexts
       - name: setup auto-scaler auto discovery
         run: |
           kubectl apply -f config/eks/cluster-autoscaler-autodiscover.yaml
