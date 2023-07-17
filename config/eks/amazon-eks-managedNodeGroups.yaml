@@ -9,7 +9,7 @@ managedNodeGroups:
   - name: on-demand
     amiFamily: Ubuntu2004
     labels: { role: workers }
-    desiredCapacity: 1
+    desiredCapacity: 3
     privateNetworking: true # if only 'Private' subnets are given, this must be enabled
     instanceName: kubeflow-cpu
     instanceTypes: ["r5.large"]
