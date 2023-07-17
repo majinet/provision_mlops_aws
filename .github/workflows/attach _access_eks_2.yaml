@@ -88,6 +88,10 @@ jobs:
             --arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/iamAdmin --username iamadmin --group system:masters \
             --no-duplicate-arns
           
+          eksctl create iamidentitymapping --cluster eks-cluster --region=${{env.AWS_REGION}} \
+            --arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/deployKubeflow --username deploykubeflow --group system:masters \
+            --no-duplicate-arns
+          
           # in terminal,
           # aws configure sso (do once)
           # aws sso login --sso-session majinet
