@@ -42,7 +42,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: kubeflow/manifests
-          ref: v1.7.0-aws-b1.0.2
+          ref: v1.7.0
           path: upstream
       - name: Configure AWS credentials
         id: creds
