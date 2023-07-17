@@ -125,7 +125,11 @@ jobs:
           
           aws iam attach-role-policy \
             --policy-arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:policy/EKSClusterFullAccess \
+            --policy-arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:policy/IAMFullAccess \
+            --policy-arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:policy/AmazonEC2ContainerRegistryReadOnly \
+            --policy-arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:policy/NetworkAdministrator \
+            --policy-arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:policy/AWSCloudFormationFullAccess \
             --role-name KubeAdmin
           
-          cat config/iam/inline_policy/iamPassRolePolicy.json | envsubst  > iamPassRolePolicy.json
-          aws iam put-role-policy --role-name KubeAdmin --policy-name my-inline-policy --policy-document file://iamPassRolePolicy.json
+          #cat config/iam/inline_policy/iamPassRolePolicy.json | envsubst  > iamPassRolePolicy.json
+          #aws iam put-role-policy --role-name KubeAdmin --policy-name my-inline-policy --policy-document file://iamPassRolePolicy.json
