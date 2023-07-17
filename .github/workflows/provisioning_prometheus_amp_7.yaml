@@ -83,6 +83,7 @@ jobs:
       - name: deploy AMP
         run: |
           cd kubeflow-manifests
+          cp -fr upstream kubeflow-manifests/
           
           export AMP_WORKSPACE_ALIAS=test
           export AMP_WORKSPACE_ARN=$(aws amp create-workspace --region ${{env.AWS_REGION}} --alias $AMP_WORKSPACE_ALIAS --query arn | tr -d '"')
