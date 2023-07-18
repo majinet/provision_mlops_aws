@@ -12,4 +12,4 @@ spec:
    plugins:
      - kind: AwsIamForServiceAccount
        spec:
-         awsIamRole: arn:aws:iam::123456789012:role/KubeDevRole
+         awsIamRole: arn:aws:iam::123456789012:role/testenv-eks-cluster-role
