@@ -156,8 +156,21 @@ jobs:
           
           echo "SECURITY_GROUP_ID: $security_group_id"
           echo "SECURITY_GROUP_ID=$security_group_id" >> $GITHUB_ENV
+      - name: check efs if exists
+        id: check-efs
+        run: |
+          file_system_id=$(aws efs describe-file-systems --query "FileSystems[0].FileSystemId" --output text)
+          
+          if [[ "$file_system_id" == fs* ]]; then
+            echo "EFS exists. Skipping next step..."
+            echo "::set-output name=exists::true"
+          else
+            echo "EFS does not exists."
+            echo "::set-output name=exists::false"
+          fi
       - name: Create an Amazon EFS file system
         id: create-aws-efs
+        if: steps.check-efs.outputs.exists == 'false'
         run: |        
           # Create a file system
           file_system_id=$(aws efs create-file-system \
@@ -170,6 +183,7 @@ jobs:
           echo "FILE_SYSTEM_ID=$file_system_id" >> $GITHUB_ENV
       - name: Mount efs to node
         id: mount-efs
+        if: steps.check-efs.outputs.exists == 'false'
         run: |
           # Add mount targets Notes: this will return failed and require execute command manually.
           aws efs create-mount-target \
@@ -212,6 +226,7 @@ jobs:
           export PVC_NAMESPACE=testenv
           export CLAIM_NAME=efs-test-claim
           
+          cd kubeflow-manifests
           yq e '.metadata.name = env(CLAIM_NAME)' -i $GITHUB_STORAGE_DIR/notebook-sample/set-permission-job.yaml
           yq e '.metadata.namespace = env(PVC_NAMESPACE)' -i $GITHUB_STORAGE_DIR/notebook-sample/set-permission-job.yaml
           yq e '.spec.template.spec.volumes[0].persistentVolumeClaim.claimName = env(CLAIM_NAME)' -i $GITHUB_STORAGE_DIR/notebook-sample/set-permission-job.yaml
