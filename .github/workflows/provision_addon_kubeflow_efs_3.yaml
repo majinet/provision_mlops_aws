@@ -30,6 +30,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Checkout awslabs kubeflow-manifests
+        uses: actions/checkout@v3
+        with:
+          repository: awslabs/kubeflow-manifests
+          ref: v1.7.0-aws-b1.0.2
+          path: kubeflow-manifests
       - name: Configure AWS credentials
         id: creds
         uses: aws-actions/configure-aws-credentials@v2
@@ -114,6 +120,9 @@ jobs:
           
           echo "SUBNET_ID_2: $var2"
           echo "SUBNET_ID_2=$var2" >> $GITHUB_ENV
+          
+          echo "SUBNET_ID_3: $var3"
+          echo "SUBNET_ID_3=$var3" >> $GITHUB_ENV
       - name: check security group if exists
         id: check-security-group
         run: |
@@ -171,42 +180,43 @@ jobs:
               --file-system-id ${{env.FILE_SYSTEM_ID}} \
               --subnet-id ${{env.SUBNET_ID_2}} \
               --security-groups ${{env.SECURITY_GROUP_ID}}
+          aws efs create-mount-target \
+              --file-system-id ${{env.FILE_SYSTEM_ID}} \
+              --subnet-id ${{env.SUBNET_ID_3}} \
+              --security-groups ${{env.SECURITY_GROUP_ID}}
         continue-on-error: true
       - name: Create dynamic provisioning of storage class
         id: create-dynamic-sc
         run: |
+          export GITHUB_STORAGE_DIR="deployments/add-ons/storage/"
+          export PVC_NAMESPACE=testenv
+          export CLAIM_NAME=efs-test-claim
+
+          cd kubeflow-manifests
           export file_system_id=${{env.FILE_SYSTEM_ID}}
-          yq e '.parameters.fileSystemId = env(file_system_id)' -i config/ack/resources/efs/dynamic-provisioning/sc.yaml
-          cat config/ack/resources/efs/dynamic-provisioning/sc.yaml
+          file_system_id=$file_system_id yq e '.parameters.fileSystemId = env(file_system_id)' -i $GITHUB_STORAGE_DIR/efs/dynamic-provisioning/sc.yaml
+          kubectl apply -f $GITHUB_STORAGE_DIR/efs/dynamic-provisioning/sc.yaml
           
-          kubectl apply -f config/ack/resources/efs/dynamic-provisioning/sc.yaml
-          
-          kubectl get sc
+          yq e '.metadata.namespace = env(PVC_NAMESPACE)' -i $GITHUB_STORAGE_DIR/efs/dynamic-provisioning/pvc.yaml
+          yq e '.metadata.name = env(CLAIM_NAME)' -i $GITHUB_STORAGE_DIR/efs/dynamic-provisioning/pvc.yaml
+          kubectl apply -f $GITHUB_STORAGE_DIR/efs/dynamic-provisioning/pvc.yaml
+
       - name: change efs storage class to default
         id: change-default-efs-sc
         run: |
           kubectl patch storageclass gp2 -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
           kubectl patch storageclass efs-sc -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
-      #- name: create sample pvc
-      #  id: create-sample-pvc
-      #  run: |
-      #    export PVC_NAMESPACE=kubeflow-user-example-com
-      #    export CLAIM_NAME=efs-claim
-
-      #    yq e '.metadata.namespace = env(PVC_NAMESPACE)' -i config/ack/resources/efs/dynamic-provisioning/pvc.yaml
-      #    yq e '.metadata.name = env(CLAIM_NAME)' -i config/ack/resources/efs/dynamic-provisioning/pvc.yaml
+      - name: set permission in notebook
+        run: |
+          export GITHUB_STORAGE_DIR="deployments/add-ons/storage/"
+          export PVC_NAMESPACE=testenv
+          export CLAIM_NAME=efs-test-claim
           
-      #    cat config/ack/resources/efs/dynamic-provisioning/pvc.yaml
+          yq e '.metadata.name = env(CLAIM_NAME)' -i $GITHUB_STORAGE_DIR/notebook-sample/set-permission-job.yaml
+          yq e '.metadata.namespace = env(PVC_NAMESPACE)' -i $GITHUB_STORAGE_DIR/notebook-sample/set-permission-job.yaml
+          yq e '.spec.template.spec.volumes[0].persistentVolumeClaim.claimName = env(CLAIM_NAME)' -i $GITHUB_STORAGE_DIR/notebook-sample/set-permission-job.yaml
 
-      #    kubectl apply -f config/ack/resources/efs/dynamic-provisioning/pvc.yaml
-          
-      #    kubectl get pvc -n $PVC_NAMESPACE
-          
-      #    yq e '.metadata.name = env(CLAIM_NAME)' -i config/ack/addons/csi/efs/set-permission-job.yaml
-      #    yq e '.metadata.namespace = env(PVC_NAMESPACE)' -i config/ack/addons/csi/efs/set-permission-job.yaml
-      #    yq e '.spec.template.spec.volumes[0].persistentVolumeClaim.claimName = env(CLAIM_NAME)' -i config/ack/addons/csi/efs/set-permission-job.yaml
-
-      #    kubectl apply -f $GITHUB_STORAGE_DIR/notebook-sample/set-permission-job.yaml
+          kubectl apply -f $GITHUB_STORAGE_DIR/notebook-sample/set-permission-job.yaml
 
 
 
