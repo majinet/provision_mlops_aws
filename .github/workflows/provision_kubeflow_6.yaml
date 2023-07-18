@@ -144,5 +144,6 @@ jobs:
           #
       - name: Create user profile in Kubeflow
         run: |
-          kubectl apply -f main/config/kubeflow/profile-testenv.yaml
+          cat main/config/kubeflow/profile-testenv.yaml | envsubst  > profile-testenv.yaml
+          kubectl apply -f profile-testenv.yaml
 
