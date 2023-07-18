@@ -9,7 +9,7 @@
     "Action": "sts:AssumeRoleWithWebIdentity",
     "Condition": {
         "StringEquals": {
-        "${OIDC_URL}:aud": "sts.amazonaws.com"
+        "${OIDC_PROVIDER}:aud": "sts.amazonaws.com"
         }
     }
     }
