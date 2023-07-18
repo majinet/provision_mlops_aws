@@ -168,6 +168,9 @@ jobs:
             echo "EFS does not exists."
             echo "::set-output name=exists::false"
           fi
+          
+          echo "FILE_SYSTEM_ID: $file_system_id"
+          echo "FILE_SYSTEM_ID=$file_system_id" >> $GITHUB_ENV
       - name: Create an Amazon EFS file system
         id: create-aws-efs
         if: steps.check-efs.outputs.exists == 'false'
