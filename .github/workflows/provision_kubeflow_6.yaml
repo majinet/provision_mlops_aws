@@ -146,4 +146,5 @@ jobs:
         run: |
           cat main/config/kubeflow/profile-testenv.yaml | envsubst  > profile-testenv.yaml
           kubectl apply -f profile-testenv.yaml
+          kubectl apply -f main/config/eks/rolebinding/kube-pipeline-edit.yaml
 

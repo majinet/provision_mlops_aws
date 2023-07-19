@@ -21,7 +21,7 @@ managedNodeGroups:
       allow: false
       publicKeyName: eks_connect
       enableSsm: true
-
+    maxPodsPerNode: 29
     iam:
       #instanceRoleARN: "arn:aws:iam::${AWS_ACCOUNT_ID}:role/AmazonEKSNodeRole"
       withAddonPolicies:
