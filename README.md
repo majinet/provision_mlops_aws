@@ -37,9 +37,18 @@ With the utilization of the Cloud, we can effortlessly implement agile and TDD (
 
 ### VPC Network diagrams
 
+There are two options for building a VPC for EKS. One common approach is to create both public and private subnets.
+![eks-arch.png](architecture/images/eks-vpc-example-private-subnets.png)
+
+The other option is to build a fully private VPC without facing internet. 
 ![eks-arch.png](architecture/images/eks-arch.png)
 
 ### Kubeflow on AWS EKS
+
+Kubeflow is an open-source platform built on top of Kubernetes, designed to simplify the deployment and management of machine learning workflows and AI pipelines. It provides a set of tools, components, and best practices for running scalable and portable machine learning workloads on Kubernetes clusters.
+
+Kubeflow allows data scientists and machine learning engineers to leverage Kubernetes' powerful orchestration capabilities for running distributed machine learning jobs, model training, and serving predictions. It integrates various open-source projects, such as TensorFlow, PyTorch, Jupyter, and Argo, to create an end-to-end platform for developing, deploying, and monitoring machine learning workflows.
+
 
 ![kubeflow_on_eks.png](architecture/images/kubeflow_on_eks.png)
 Diagram reference from blog "Enabling hybrid ML workflows on Amazon EKS and Amazon SageMaker with one-click Kubeflow on AWS deployment"
