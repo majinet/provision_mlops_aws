@@ -219,8 +219,8 @@ Resources:
       Tags:
       - Key: Name
         Value: !Sub "${AWS::StackName}-PrivateSubnet01"
-      - Key: kubernetes.io/role/internal-elb
-        Value: 1
+      #- Key: kubernetes.io/role/internal-elb
+      #  Value: 1
 
   PrivateSubnet02:
     Type: AWS::EC2::Subnet
@@ -239,8 +239,8 @@ Resources:
       Tags:
       - Key: Name
         Value: !Sub "${AWS::StackName}-PrivateSubnet02"
-      - Key: kubernetes.io/role/internal-elb
-        Value: 1
+      #- Key: kubernetes.io/role/internal-elb
+      #  Value: 1
 
   PublicSubnet01RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation

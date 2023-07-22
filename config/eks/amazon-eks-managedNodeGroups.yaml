@@ -30,3 +30,4 @@ managedNodeGroups:
         ebs: true
         efs: true
         awsLoadBalancerController: true
+        appMesh: true
