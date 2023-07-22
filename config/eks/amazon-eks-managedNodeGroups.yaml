@@ -12,7 +12,7 @@ managedNodeGroups:
     desiredCapacity: 2
     privateNetworking: true # if only 'Private' subnets are given, this must be enabled
     instanceName: kubeflow-cpu
-    instanceTypes: ["t2.micro"]
+    instanceTypes: ["r5.large"]
     spot: true
     volumeSize: 20
     minSize: 0
