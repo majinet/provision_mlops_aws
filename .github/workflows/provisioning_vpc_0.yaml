@@ -52,18 +52,16 @@ jobs:
           curl -L https://github.com/a8m/envsubst/releases/download/v1.2.0/envsubst-`uname -s`-`uname -m` -o envsubst
           chmod +x envsubst
           sudo mv envsubst /usr/local/bin
-      - name: create VPC
-        run: |
-          - name: Deploy to Amplify Console with CloudFormation
-            id: amplify-stack
-            uses: aws-actions/aws-cloudformation-github-deploy@v1
-            with:
-              name: eks-vpc
-              template: cloudformation/amazon-eks-vpc-private-subnets.yaml
-              no-fail-on-empty-changeset: "1"
-              parameter-overrides: >-
-              VpcBlock=192.168.0.0/16,
-              PublicSubnet01Block=192.168.0.0/18,
-              PublicSubnet02Block=192.168.64.0/18,
-              PrivateSubnet01Block=192.168.128.0/18,
-              PrivateSubnet02Block=192.168.192.0/18
+      - name: Create VPC
+        id: amplify-stack
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        with:
+          name: eks-vpc
+          template: cloudformation/amazon-eks-vpc-private-subnets.yaml
+          no-fail-on-empty-changeset: "1"
+          parameter-overrides: >-
+            VpcBlock=192.168.0.0/16,
+            PublicSubnet01Block=192.168.0.0/18,
+            PublicSubnet02Block=192.168.64.0/18,
+            PrivateSubnet01Block=192.168.128.0/18,
+            PrivateSubnet02Block=192.168.192.0/18
