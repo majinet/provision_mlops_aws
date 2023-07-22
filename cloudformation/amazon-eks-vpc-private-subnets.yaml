@@ -163,7 +163,7 @@ Resources:
   PublicSubnet01:
     Type: AWS::EC2::Subnet
     Metadata:
-      Comment: Subnet 01
+      Comment: Public Subnet 01
     Properties:
       MapPublicIpOnLaunch: true
       AvailabilityZone:
@@ -184,7 +184,7 @@ Resources:
   PublicSubnet02:
     Type: AWS::EC2::Subnet
     Metadata:
-      Comment: Subnet 02
+      Comment: Public Subnet 02
     Properties:
       MapPublicIpOnLaunch: true
       AvailabilityZone:
@@ -205,7 +205,7 @@ Resources:
   PrivateSubnet01:
     Type: AWS::EC2::Subnet
     Metadata:
-      Comment: Subnet 03
+      Comment: Private Subnet 01
     Properties:
       AvailabilityZone:
         Fn::Select:

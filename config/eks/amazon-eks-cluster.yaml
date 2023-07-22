@@ -18,7 +18,7 @@ privateCluster:
     # Cloudformation
 #    - "cloudformation"
 
-availabilityZones: ["us-east-1f",  "us-east-1d"]
+#availabilityZones: ["us-east-1f",  "us-east-1d"]
 
 addons:
   - name: vpc-cni # no version is specified so it deploys the default version
@@ -92,10 +92,15 @@ vpc:
   clusterEndpoints:
     publicAccess: true
     privateAccess: true
-  #subnets:
+  subnets:
     # must provide 'private' and/or 'public' subnets by availability zone as shown
-  #  private:
-  #    us-east-1d:
-  #      id: ${SUBNET_IDS_2}
-  #    us-east-1f:
-  #      id: ${SUBNET_IDS_3}
+    public:
+      us-east-1d:
+        id: ${EKS_PUBLIC_SUBNET_ID_1}
+      us-east-1f:
+        id: ${EKS_PUBLIC_SUBNET_ID_2}
+    private:
+      us-east-1d:
+        id: ${EKS_PRIVATE_SUBNET_ID_1}
+      us-east-1f:
+        id: ${EKS_PRIVATE_SUBNET_ID_2}

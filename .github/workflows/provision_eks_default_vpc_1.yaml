@@ -75,6 +75,18 @@ jobs:
           VPC_ID=$(aws cloudformation describe-stacks --stack-name eks-vpc --query 'Stacks[0].Outputs[?OutputKey==`VpcId`].OutputValue' --output text)
           echo "VPC ID: $VPC_ID"
           echo "VPC_ID=$VPC_ID" >> $GITHUB_ENV
+      - name: Get Public Subnet IDs
+        run: |
+          subnetIds=$(aws cloudformation describe-stacks --stack-name eks-vpc --query 'Stacks[0].Outputs[?OutputKey==`PublicSubnetIds`].OutputValue' --output text)
+          IFS=", " read -r var1 var2 <<< "$subnetIds"
+          echo "EKS_PUBLIC_SUBNET_ID_1=var1" >> $GITHUB_ENV
+          echo "EKS_PUBLIC_SUBNET_ID_2=var2" >> $GITHUB_ENV
+      - name: Get Private Subnet IDs
+        run: |
+          subnetIds=$(aws cloudformation describe-stacks --stack-name eks-vpc --query 'Stacks[0].Outputs[?OutputKey==`PrivateSubnetIds`].OutputValue' --output text)
+          IFS=", " read -r var1 var2 <<< "$subnetIds"
+          echo "EKS_PRIVATE_SUBNET_ID_1=var1" >> $GITHUB_ENV
+          echo "EKS_PRIVATE_SUBNET_ID_2=var2" >> $GITHUB_ENV
       - name: create eks cluster
         id: create-eks-cluster
         run: | 
