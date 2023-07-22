@@ -72,7 +72,7 @@ jobs:
       - name: Set VPC ID
         id: set-vpc-id
         run: |
-          VPC_ID=$(aws cloudformation describe-stacks --stack-name eksctl-eks-cluster-cluster --query 'Stacks[0].Outputs[?OutputKey==`VPC`].OutputValue' --output text)
+          VPC_ID=$(aws cloudformation describe-stacks --stack-name eks-vpc --query 'Stacks[0].Outputs[?OutputKey==`VpcId`].OutputValue' --output text)
           echo "VPC ID: $VPC_ID"
           echo "VPC_ID=$VPC_ID" >> $GITHUB_ENV
       - name: create eks cluster
