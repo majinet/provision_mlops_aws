@@ -202,22 +202,27 @@ jobs:
               --subnet-id ${{env.SUBNET_ID_3}} \
               --security-groups ${{env.SECURITY_GROUP_ID}}
         continue-on-error: true
-      - name: Create dynamic provisioning of storage class
-        id: create-dynamic-sc
-        run: |
-          export GITHUB_STORAGE_DIR="deployments/add-ons/storage/"
-          export PVC_NAMESPACE=kubeflow-user-example-com #testenv
-          export CLAIM_NAME=efs-claim #efs-test-claim
+      #- name: Create dynamic provisioning of storage class
+      #  id: create-dynamic-sc
+      #  run: |
+      #    export GITHUB_STORAGE_DIR="deployments/add-ons/storage/"
+      #    export PVC_NAMESPACE=kubeflow-user-example-com #testenv
+      #    export CLAIM_NAME=efs-claim #efs-test-claim
 
+      #    cd kubeflow-manifests
+      #    export file_system_id=${{env.FILE_SYSTEM_ID}}
+      #    file_system_id=$file_system_id yq e '.parameters.fileSystemId = env(file_system_id)' -i $GITHUB_STORAGE_DIR/efs/dynamic-provisioning/sc.yaml
+      #    kubectl apply -f $GITHUB_STORAGE_DIR/efs/dynamic-provisioning/sc.yaml
+          
+      #    yq e '.metadata.namespace = env(PVC_NAMESPACE)' -i $GITHUB_STORAGE_DIR/efs/dynamic-provisioning/pvc.yaml
+      #    yq e '.metadata.name = env(CLAIM_NAME)' -i $GITHUB_STORAGE_DIR/efs/dynamic-provisioning/pvc.yaml
+      #    kubectl apply -f $GITHUB_STORAGE_DIR/efs/dynamic-provisioning/pvc.yaml
+      - name: create storage class
+        run: |
           cd kubeflow-manifests
           export file_system_id=${{env.FILE_SYSTEM_ID}}
           file_system_id=$file_system_id yq e '.parameters.fileSystemId = env(file_system_id)' -i $GITHUB_STORAGE_DIR/efs/dynamic-provisioning/sc.yaml
           kubectl apply -f $GITHUB_STORAGE_DIR/efs/dynamic-provisioning/sc.yaml
-          
-          yq e '.metadata.namespace = env(PVC_NAMESPACE)' -i $GITHUB_STORAGE_DIR/efs/dynamic-provisioning/pvc.yaml
-          yq e '.metadata.name = env(CLAIM_NAME)' -i $GITHUB_STORAGE_DIR/efs/dynamic-provisioning/pvc.yaml
-          kubectl apply -f $GITHUB_STORAGE_DIR/efs/dynamic-provisioning/pvc.yaml
-
       - name: change efs storage class to default
         id: change-default-efs-sc
         run: |
