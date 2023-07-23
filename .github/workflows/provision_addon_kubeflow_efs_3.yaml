@@ -223,18 +223,18 @@ jobs:
         run: |
           kubectl patch storageclass gp2 -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
           kubectl patch storageclass efs-sc -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
-      - name: set permission in notebook
-        run: |
-          export GITHUB_STORAGE_DIR="deployments/add-ons/storage/"
-          export PVC_NAMESPACE=testenv
-          export CLAIM_NAME=efs-test-claim
+      #- name: set permission in notebook
+      #  run: |
+      #    export GITHUB_STORAGE_DIR="deployments/add-ons/storage/"
+      #    export PVC_NAMESPACE=testenv
+      #    export CLAIM_NAME=efs-test-claim
           
-          cd kubeflow-manifests
-          yq e '.metadata.name = env(CLAIM_NAME)' -i $GITHUB_STORAGE_DIR/notebook-sample/set-permission-job.yaml
-          yq e '.metadata.namespace = env(PVC_NAMESPACE)' -i $GITHUB_STORAGE_DIR/notebook-sample/set-permission-job.yaml
-          yq e '.spec.template.spec.volumes[0].persistentVolumeClaim.claimName = env(CLAIM_NAME)' -i $GITHUB_STORAGE_DIR/notebook-sample/set-permission-job.yaml
+      #    cd kubeflow-manifests
+      #    yq e '.metadata.name = env(CLAIM_NAME)' -i $GITHUB_STORAGE_DIR/notebook-sample/set-permission-job.yaml
+      #    yq e '.metadata.namespace = env(PVC_NAMESPACE)' -i $GITHUB_STORAGE_DIR/notebook-sample/set-permission-job.yaml
+      #    yq e '.spec.template.spec.volumes[0].persistentVolumeClaim.claimName = env(CLAIM_NAME)' -i $GITHUB_STORAGE_DIR/notebook-sample/set-permission-job.yaml
 
-          kubectl apply -f $GITHUB_STORAGE_DIR/notebook-sample/set-permission-job.yaml
+      #    kubectl apply -f $GITHUB_STORAGE_DIR/notebook-sample/set-permission-job.yaml
 
 
 
