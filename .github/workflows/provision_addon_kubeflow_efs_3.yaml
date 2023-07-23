@@ -221,7 +221,9 @@ jobs:
         run: |
           export GITHUB_STORAGE_DIR="kubeflow-manifests/deployments/add-ons/storage"
           export file_system_id=${{env.FILE_SYSTEM_ID}}
+          export PVC_NAMESPACE=kubeflow-user-example-com
           
+          yq e '.metadata.namespace = env(PVC_NAMESPACE)' -i $GITHUB_STORAGE_DIR/efs/dynamic-provisioning/pvc.yaml
           file_system_id=$file_system_id yq e '.parameters.fileSystemId = env(file_system_id)' -i $GITHUB_STORAGE_DIR/efs/dynamic-provisioning/sc.yaml
           kubectl apply -f $GITHUB_STORAGE_DIR/efs/dynamic-provisioning/sc.yaml
       - name: change efs storage class to default
