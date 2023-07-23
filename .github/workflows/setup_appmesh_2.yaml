@@ -1,0 +1,107 @@
+name: Step 2 - Setup App mesh
+
+on:
+  workflow_dispatch:
+    inputs:
+      region:
+        description: 'AWS Region'
+        required: true
+        default: 'us-east-1'
+      #keypair:
+      #  description: 'SSH Key Pair'
+      #  required: true
+
+env:
+  AWS_REGION : ${{ github.event.inputs.region}} #Change to reflect your Region
+  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+
+# Permission can be added at job level or workflow level
+permissions:
+      id-token: write   # This is required for requesting the JWT
+      contents: read    # This is required for actions/checkout
+
+jobs:
+  eks_aws:
+    name: Setup App mesh
+    runs-on: ubuntu-latest
+    outputs:
+      env-name: ${{ steps.env-name.outputs.environment }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Configure AWS credentials
+        id: creds
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/KubeAdmin
+          role-session-name: KubeAdmin
+          aws-region: ${{ github.event.inputs.region}}
+      - name: Configure environment name
+        id: env-name
+        env:
+          REPO: ${{ github.repository }}
+        run: |
+          ENVIRONMENT=`echo $REPO | tr "/" "-"`
+          echo "Environment name: $ENVIRONMENT"
+          echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
+      #- name: Allow passwordless sudo
+      #  run: echo '${{ secrets.SUDO_PASSWORD }}' | sudo -Sv
+      - name: install envsubst
+        id: install-envsubst
+        run: |
+          curl -L https://github.com/a8m/envsubst/releases/download/v1.2.0/envsubst-`uname -s`-`uname -m` -o envsubst
+          chmod +x envsubst
+          sudo mv envsubst /usr/local/bin
+      - name: install eksctl
+        id: install-eksctl
+        run: |
+          # for ARM systems, set ARCH to: `arm64`, `armv6` or `armv7`
+          ARCH=amd64
+          PLATFORM=$(uname -s)_$ARCH
+
+          curl -sLO "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$PLATFORM.tar.gz"
+          tar -xzf eksctl_$PLATFORM.tar.gz -C /tmp && rm eksctl_$PLATFORM.tar.gz
+          sudo mv /tmp/eksctl /usr/local/bin
+      - name: install kubectl
+        id: install-kubectl
+        run: |
+          curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.27.1/2023-04-19/bin/linux/amd64/kubectl
+          chmod +x ./kubectl
+          mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$HOME/bin:$PATH
+          kubectl version --short --client
+      - name: Health Check Cluster
+        id: health-check-eks
+        run: |
+          aws eks update-kubeconfig --name ${{env.CLUSTER_NAME}} --region ${{env.AWS_REGION}}
+          kubectl config get-contexts
+
+          # Ensure cluster has compute
+          kubectl get nodes
+      - name: Install the integration components
+        run: |
+          #  a script that checks to see whether a pre-release version is installed on your cluster
+          curl -o pre_upgrade_check.sh https://raw.githubusercontent.com/aws/eks-charts/master/stable/appmesh-controller/upgrade/pre_upgrade_check.sh
+          sh ./pre_upgrade_check.sh
+          
+          # Add the eks-charts repository to Helm
+          helm repo add eks https://aws.github.io/eks-charts
+          
+          # Install the App Mesh Kubernetes custom resource definitions (CRD)
+          kubectl apply -k "https://github.com/aws/eks-charts/stable/appmesh-controller/crds?ref=master"
+          
+          # Create a Kubernetes namespace for the controller
+          kubectl create ns appmesh-system
+          
+          # Create an IAM role in step 2
+          
+          # Deploy the App Mesh controller
+          helm upgrade -i appmesh-controller eks/appmesh-controller \
+              --namespace appmesh-system \
+              --set region=${{env.AWS_REGION}} \
+              --set serviceAccount.create=false \
+              --set serviceAccount.name=appmesh-controller
+          
+          # Confirm that the controller version
+          kubectl get deployment appmesh-controller \
+              -n appmesh-system \
+              -o json  | jq -r ".spec.template.spec.containers[].image" | cut -f2 -d ':'
