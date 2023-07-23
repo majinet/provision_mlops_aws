@@ -104,6 +104,9 @@ jobs:
         run: |
           kubectl create ns "kubeflow"
         continue-on-error: true
+      - name: create namespace (appmesh-system)
+        run: |
+          kubectl create ns "appmesh-system"
       - name: deploy metric server
         run: |
           kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
