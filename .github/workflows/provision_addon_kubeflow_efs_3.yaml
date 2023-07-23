@@ -28,8 +28,8 @@ jobs:
     outputs:
       env-name: ${{ steps.env-name.outputs.environment }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      #- name: Checkout
+      #  uses: actions/checkout@v3
       - name: Checkout awslabs kubeflow-manifests
         uses: actions/checkout@v3
         with:
@@ -219,13 +219,10 @@ jobs:
       #    kubectl apply -f $GITHUB_STORAGE_DIR/efs/dynamic-provisioning/pvc.yaml
       - name: create storage class
         run: |
-          export GITHUB_STORAGE_DIR="deployments/add-ons/storage"
+          export GITHUB_STORAGE_DIR="kubeflow-manifests/deployments/add-ons/storage"
           export file_system_id=${{env.FILE_SYSTEM_ID}}
           
-          cd kubeflow-manifests
-          ls -lrt $GITHUB_STORAGE_DIR/efs/dynamic-provisioning/sc.yaml
-          cat $GITHUB_STORAGE_DIR/efs/dynamic-provisioning/sc.yaml
-          yq e '.parameters.fileSystemId = env(file_system_id)' -i $GITHUB_STORAGE_DIR/efs/dynamic-provisioning/sc.yaml
+          file_system_id=$file_system_id yq e '.parameters.fileSystemId = env(file_system_id)' -i $GITHUB_STORAGE_DIR/efs/dynamic-provisioning/sc.yaml
           kubectl apply -f $GITHUB_STORAGE_DIR/efs/dynamic-provisioning/sc.yaml
       - name: change efs storage class to default
         id: change-default-efs-sc
