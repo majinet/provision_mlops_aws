@@ -104,13 +104,6 @@ jobs:
           
           helm install --create-namespace -n ${{env.ACK_K8S_NAMESPACE}} ack-${{env.SERVICE}}-controller \
             oci://public.ecr.aws/aws-controllers-k8s/${{env.SERVICE}}-chart --version=$RELEASE_VERSION --set=aws.region=${{env.AWS_REGION}}
-      - name: set oidc provider
-        id: set-oidc-provider
-        run: |
-          # Update the service name variables as needed
-          OIDC_PROVIDER=$(aws eks describe-cluster --name ${{env.CLUSTER_NAME}} --region ${{env.AWS_REGION}} --query "cluster.identity.oidc.issuer" --output text | sed -e "s/^https:\/\///")
-          echo "OIDC_PROVIDER: $OIDC_PROVIDER"
-          echo "OIDC_PROVIDER=$OIDC_PROVIDER" >> $GITHUB_ENV
       - name: Associate an IAM role to a service account
         id: associate-iam-role
         run: |
