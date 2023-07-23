@@ -36,7 +36,7 @@ addons:
 iam:
   serviceRoleARN: "arn:aws:iam::${AWS_ACCOUNT_ID}:role/eksClusterRole"
   #fargatePodExecutionRoleARN: "arn:aws:iam::${AWS_ACCOUNT_ID}:role/AmazonEKSFargatePodExecutionRole"
-  #withOIDC: true
+  withOIDC: true
   serviceAccounts:
     - metadata:
         name: aws-load-balancer-controller
