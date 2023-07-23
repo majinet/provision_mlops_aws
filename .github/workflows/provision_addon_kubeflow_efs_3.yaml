@@ -224,7 +224,7 @@ jobs:
           
           cd kubeflow-manifests
           ls -lrt $GITHUB_STORAGE_DIR/efs/dynamic-provisioning/sc.yaml
-          
+          cat $GITHUB_STORAGE_DIR/efs/dynamic-provisioning/sc.yaml
           yq e '.parameters.fileSystemId = env(file_system_id)' -i $GITHUB_STORAGE_DIR/efs/dynamic-provisioning/sc.yaml
           kubectl apply -f $GITHUB_STORAGE_DIR/efs/dynamic-provisioning/sc.yaml
       - name: change efs storage class to default
