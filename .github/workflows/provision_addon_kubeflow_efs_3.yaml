@@ -206,8 +206,8 @@ jobs:
         id: create-dynamic-sc
         run: |
           export GITHUB_STORAGE_DIR="deployments/add-ons/storage/"
-          export PVC_NAMESPACE=testenv
-          export CLAIM_NAME=efs-test-claim
+          export PVC_NAMESPACE=kubeflow-user-example-com #testenv
+          export CLAIM_NAME=efs-claim #efs-test-claim
 
           cd kubeflow-manifests
           export file_system_id=${{env.FILE_SYSTEM_ID}}
