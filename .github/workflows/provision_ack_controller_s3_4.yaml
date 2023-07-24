@@ -1,4 +1,4 @@
-name: Step 4 - Provisioning AWS ACK Controller for s3
+name: Step 4.0 - Provisioning AWS ACK Controller for s3
 
 on:
   workflow_dispatch:

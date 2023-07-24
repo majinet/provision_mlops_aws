@@ -1,4 +1,4 @@
-name: Step 6 - Provisioning Kubeflow
+name: Step 6.0 - Provisioning Kubeflow
 
 on:
   workflow_dispatch:

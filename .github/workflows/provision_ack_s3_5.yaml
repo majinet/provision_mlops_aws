@@ -1,4 +1,4 @@
-name: Step 5 - Provisioning s3
+name: Step 5.0 - Provisioning s3
 
 on:
   workflow_dispatch:

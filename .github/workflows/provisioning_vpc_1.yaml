@@ -1,4 +1,4 @@
-name: Step 0 - Provisioning VPC
+name: Step 1.5 - Provisioning VPC
 
 on:
   workflow_dispatch:
@@ -61,7 +61,7 @@ jobs:
           no-fail-on-empty-changeset: "1"
           parameter-overrides: >-
             VpcBlock=192.168.0.0/16,
-            PublicSubnet01Block=192.168.0.0/18,
-            PublicSubnet02Block=192.168.64.0/18,
-            PrivateSubnet01Block=192.168.128.0/18,
-            PrivateSubnet02Block=192.168.192.0/18
+            PublicSubnet01Block=192.168.0.0/20,
+            PublicSubnet02Block=192.168.16.0/20,
+            PrivateSubnet01Block=192.168.32.0/20,
+            PrivateSubnet02Block=192.168.48.0/20

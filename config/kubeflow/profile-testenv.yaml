@@ -2,8 +2,7 @@ apiVersion: kubeflow.org/v1beta1
 kind: Profile
 metadata:
    # replace with the name of profile you want, this will be user's namespace name
-   name: testenv
-   namespace: kubeflow
+   name: kubeflow-user-example-com
 spec:
    owner:
        kind: User

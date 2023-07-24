@@ -1,4 +1,4 @@
-name: Step 0 - Manage IAM roles
+name: Step 1.0 - Manage IAM roles
 
 on:
   workflow_dispatch:

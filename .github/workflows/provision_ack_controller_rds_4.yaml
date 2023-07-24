@@ -1,4 +1,4 @@
-name: Step 4 - Provisioning AWS ACK Controller
+name: Step 4.0 - Provisioning AWS ACK Controller
 
 on:
   workflow_dispatch:

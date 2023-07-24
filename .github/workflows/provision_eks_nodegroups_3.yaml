@@ -1,4 +1,4 @@
-name: Step 3 - Provisioning AWS EKS Nodegroups
+name: Step 3.0 - Provisioning AWS EKS Nodegroups
 
 on:
   workflow_dispatch:

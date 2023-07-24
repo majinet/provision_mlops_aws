@@ -1,4 +1,4 @@
-name: Step 3 - Provisioning EFS for Kubeflow
+name: Step 3.5 - Provisioning EFS for Kubeflow
 
 on:
   workflow_dispatch:

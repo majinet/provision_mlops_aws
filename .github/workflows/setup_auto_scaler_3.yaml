@@ -1,4 +1,4 @@
-name: Step 3.5 - Setup auto scaling
+name: Step 3.3 - Setup auto scaling
 
 on:
   workflow_dispatch:

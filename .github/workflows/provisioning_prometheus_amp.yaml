@@ -1,4 +1,4 @@
-name: Step 7 - Provisioning Prometheus (AMP)
+name: Provisioning Prometheus (AMP)
 
 on:
   workflow_dispatch:

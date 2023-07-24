@@ -1,4 +1,4 @@
-name: Step 1 - Provisioning AWS EKS with default VPC
+name: Step 2.0 - Provisioning AWS EKS with default VPC
 
 on:
   workflow_dispatch:

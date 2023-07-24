@@ -1,4 +1,4 @@
-name: Step 5 - Provisioning MySQL
+name: Step 5.0 - Provisioning MySQL
 
 on:
   workflow_dispatch:
