@@ -200,4 +200,17 @@ jobs:
           aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AWSCloudFormationFullAccess --role-name EFSAdmin
           aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonElasticFileSystemFullAccess --role-name EFSAdmin
           aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAccess --role-name EFSAdmin
+      - name: Check if role exists (DeployKubeflow)
+        id: check-role-DeployKubeflow
+        run: |
+          aws iam get-role --role-name DeployKubeflow > /dev/null 2>&1 || echo "::set-output name=exists::false"
+      - name: create user to use DeployKubeflow role
+        if: steps.check-role-DeployKubeflow.outputs.exists == 'false'
+        run: |
+          cat config/iam/trust/account-trust-policy.json | envsubst  > account-trust-policy.json
+          
+          aws iam create-role --role-name DeployKubeflow --assume-role-policy-document "file://account-trust-policy.json"
+          aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonElasticContainerRegistryPublicReadOnly --role-name DeployKubeflow
+          aws iam attach-role-policy --policy-arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:policy/EKSClusterFullAccess --role-name DeployKubeflow
+          aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AWSCloudFormationFullAccess --role-name DeployKubeflow
           
