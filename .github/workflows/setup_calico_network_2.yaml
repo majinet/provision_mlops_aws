@@ -78,7 +78,7 @@ jobs:
       - name: install Calico Operator
         run: |
           # namespace tigera-operator is created in step 2
-          kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.25.1/manifests/tigera-operator.yaml --namespace tigera-operator
+          kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.25.1/manifests/tigera-operator.yaml --namespace tigera-operator
       - name: configure installation
         run: |
           kubectl apply -f config/operator/calico.yaml
