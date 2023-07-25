@@ -149,8 +149,11 @@ jobs:
           kubectl apply -f config/eks/clusterrolebinding/s3admin-cluster-role-binding.yaml
           
           eksctl create iamidentitymapping --cluster eks-cluster --region=${{env.AWS_REGION}} \
-            --arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/EFSAdmin --username efsadmin --group system:masters \
+            --arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/EFSAdmin --username efsadmin \
             --no-duplicate-arns
+          
+          kubectl apply -f config/eks/clusterrole/efsadmin-cluster-role.yaml
+          kubectl apply -f config/eks/clusterrolebinding/efsadmin-cluster-role-binding.yaml
           
           # in terminal,
           # aws configure sso (do once)
