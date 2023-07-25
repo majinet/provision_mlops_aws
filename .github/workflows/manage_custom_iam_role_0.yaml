@@ -124,10 +124,8 @@ jobs:
           aws iam attach-role-policy --policy-arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:policy/EKSClusterFullAccess --role-name KubeAdmin
           aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/IAMFullAccess --role-name KubeAdmin
           aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly --role-name KubeAdmin
-          #aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonVPCFullAccess --role-name KubeAdmin
           aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AWSCloudFormationFullAccess --role-name KubeAdmin
           aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAccess --role-name KubeAdmin
-          aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonElasticFileSystemFullAccess --role-name KubeAdmin
           aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonElasticContainerRegistryPublicReadOnly --role-name KubeAdmin
           
           #cat config/iam/inline_policy/iamPassRolePolicy.json | envsubst  > iamPassRolePolicy.json
@@ -144,3 +142,61 @@ jobs:
           aws iam create-role --role-name NetworkAdmin --assume-role-policy-document "file://account-trust-policy.json"
           aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AWSCloudFormationFullAccess --role-name NetworkAdmin
           aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonVPCFullAccess --role-name NetworkAdmin
+      - name: Check if role exists (AckAdmin)
+        id: check-role-AckAdmin
+        run: |
+          aws iam get-role --role-name AckAdmin > /dev/null 2>&1 || echo "::set-output name=exists::false"
+      - name: create user to use AckAdmin role
+        if: steps.check-role-AckAdmin.outputs.exists == 'false'
+        run: |
+          cat config/iam/trust/account-trust-policy.json | envsubst  > account-trust-policy.json
+          
+          aws iam create-role --role-name AckAdmin --assume-role-policy-document "file://account-trust-policy.json"
+          aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonElasticContainerRegistryPublicReadOnly --role-name AckAdmin
+          aws iam attach-role-policy --policy-arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:policy/EKSClusterFullAccess --role-name AckAdmin
+          aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AWSCloudFormationFullAccess --role-name AckAdmin
+      - name: Check if role exists (RdsAdmin)
+        id: check-role-RdsAdmin
+        run: |
+          aws iam get-role --role-name RdsAdmin > /dev/null 2>&1 || echo "::set-output name=exists::false"
+      - name: create user to use RdsAdmin role
+        if: steps.check-role-RdsAdmin.outputs.exists == 'false'
+        run: |
+          cat config/iam/trust/account-trust-policy.json | envsubst  > account-trust-policy.json
+          
+          aws iam create-role --role-name RdsAdmin --assume-role-policy-document "file://account-trust-policy.json"
+          aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonElasticContainerRegistryPublicReadOnly --role-name RdsAdmin
+          aws iam attach-role-policy --policy-arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:policy/EKSClusterFullAccess --role-name RdsAdmin
+          aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAccess --role-name RdsAdmin
+          aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AWSCloudFormationFullAccess --role-name RdsAdmin
+          aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonRDSFullAccess --role-name RdsAdmin
+      - name: Check if role exists (S3Admin)
+        id: check-role-S3Admin
+        run: |
+          aws iam get-role --role-name S3Admin > /dev/null 2>&1 || echo "::set-output name=exists::false"
+      - name: create user to use S3Admin role
+        if: steps.check-role-S3Admin.outputs.exists == 'false'
+        run: |
+          cat config/iam/trust/account-trust-policy.json | envsubst  > account-trust-policy.json
+          
+          aws iam create-role --role-name S3Admin --assume-role-policy-document "file://account-trust-policy.json"
+          aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonElasticContainerRegistryPublicReadOnly --role-name S3Admin
+          aws iam attach-role-policy --policy-arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:policy/EKSClusterFullAccess --role-name S3Admin
+          aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AWSCloudFormationFullAccess --role-name S3Admin
+          aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess --role-name S3Admin
+      - name: Check if role exists (EFSAdmin)
+        id: check-role-EFSAdmin
+        run: |
+          aws iam get-role --role-name EFSAdmin > /dev/null 2>&1 || echo "::set-output name=exists::false"
+      - name: create user to use EFSAdmin role
+        if: steps.check-role-EFSAdmin.outputs.exists == 'false'
+        run: |
+          cat config/iam/trust/account-trust-policy.json | envsubst  > account-trust-policy.json
+          
+          aws iam create-role --role-name EFSAdmin --assume-role-policy-document "file://account-trust-policy.json"
+          aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonElasticContainerRegistryPublicReadOnly --role-name EFSAdmin
+          aws iam attach-role-policy --policy-arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:policy/EKSClusterFullAccess --role-name EFSAdmin
+          aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AWSCloudFormationFullAccess --role-name EFSAdmin
+          aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonElasticFileSystemFullAccess --role-name EFSAdmin
+          aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAccess --role-name EFSAdmin
+          

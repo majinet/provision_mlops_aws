@@ -40,8 +40,8 @@ jobs:
         id: creds
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/KubeAdmin
-          role-session-name: KubeAdmin
+          role-to-assume: arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/EFSAdmin
+          role-session-name: EFSAdmin
           aws-region: ${{ github.event.inputs.region}}
       - name: Configure environment name
         id: env-name
@@ -193,6 +193,7 @@ jobs:
               --file-system-id ${{env.FILE_SYSTEM_ID}} \
               --subnet-id ${{env.SUBNET_ID_1}} \
               --security-groups ${{env.SECURITY_GROUP_ID}}
+          
           aws efs create-mount-target \
               --file-system-id ${{env.FILE_SYSTEM_ID}} \
               --subnet-id ${{env.SUBNET_ID_2}} \
