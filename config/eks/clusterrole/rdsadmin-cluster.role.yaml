@@ -7,3 +7,6 @@ rules:
 - apiGroups: ["*.rds.services.k8s.aws", "rds.services.k8s.aws"]
   resources: ["*"]
   verbs: ["*"]
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["*"]

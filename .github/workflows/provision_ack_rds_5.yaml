@@ -102,10 +102,6 @@ jobs:
           cat config/ack/resources/rds/kubeflow-db.yaml | envsubst  > kubeflow-db.yaml
           cat kubeflow-db.yaml
           kubectl apply -f kubeflow-db.yaml
-      - name: Sleep for 10 mins
-        uses: whatnick/wait-action@master
-        with:
-          time: '600s'
       - name: health check
         id: health-check
         run: |
