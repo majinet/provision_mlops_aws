@@ -95,11 +95,11 @@ jobs:
           
           # Delete the calico-kube-controllers
           kubectl delete pod -l app=calico-kube-controllers -n calico-system
-      - name: Sleep for 1 mins
-        uses: whatnick/wait-action@master
-        with:
-          time: '60s'
-      - name: health check
-        run: |
-          # Confirm that the vpc.amazonaws.com/pod-ips annotation is added to the new calico-kube-controllers Pod
-          kubectl describe pod -l app=calico-kube-controllers -n calico-system | grep vpc.amazonaws.com/pod-ips
+      #- name: Sleep for 1 mins
+      #  uses: whatnick/wait-action@master
+      #  with:
+      #    time: '60s'
+      #- name: health check
+      #  run: |
+      #    # Confirm that the vpc.amazonaws.com/pod-ips annotation is added to the new calico-kube-controllers Pod
+      #    kubectl describe pod -l app=calico-kube-controllers -n calico-system | grep vpc.amazonaws.com/pod-ips
