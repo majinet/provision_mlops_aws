@@ -127,7 +127,7 @@ jobs:
             --no-duplicate-arns
           
           eksctl create iamidentitymapping --cluster eks-cluster --region=${{env.AWS_REGION}} \
-            --arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/AckAdmin --username ackadmin --group system:authenticated \
+            --arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/AckAdmin --username ackadmin \
             --no-duplicate-arns
           
           kubectl apply -f config/eks/clusterrole/ackadmin-cluster-role.yaml
@@ -139,7 +139,7 @@ jobs:
             --no-duplicate-arns
           
           eksctl create iamidentitymapping --cluster eks-cluster --region=${{env.AWS_REGION}} \
-            --arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/S3Admin --username s3admin --group system:masters \
+            --arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/S3Admin --username s3admin \
             --no-duplicate-arns
           
           eksctl create iamidentitymapping --cluster eks-cluster --region=${{env.AWS_REGION}} \
