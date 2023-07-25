@@ -77,10 +77,8 @@ jobs:
       #    kubectl delete daemonset -n kube-system aws-node
       - name: install Calico Operator
         run: |
-          helm repo add projectcalico https://docs.tigera.io/calico/charts
-          helm repo update
-          helm install calico projectcalico/tigera-operator --version v3.26.1
-          # kubectl patch installation default --type='json' -p='[{"op": "replace", "path": "/spec/cni/type", "value": "Calico"}]'
+          # namespace tigera-operator is created in step 2
+          helm install calico projectcalico/tigera-operator --version v3.25.1 --namespace tigera-operator
       - name: Sleep for 5 mins
         uses: whatnick/wait-action@master
         with:
