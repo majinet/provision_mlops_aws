@@ -73,6 +73,12 @@ jobs:
             PublicSubnet02Block=192.168.16.0/20,
             PrivateSubnet01Block=192.168.32.0/20,
             PrivateSubnet02Block=192.168.48.0/20
+      - name: Set VPC ID
+        id: set-vpc-id
+        run: |
+          VPC_ID=$(aws cloudformation describe-stacks --stack-name eks-vpc --query 'Stacks[0].Outputs[?OutputKey==`VpcId`].OutputValue' --output text)
+          echo "VPC ID: $VPC_ID"
+          echo "VPC_ID=$VPC_ID" >> $GITHUB_ENV
       - name: Check CloudFormation stack existence (aws-db-vpc)
         id: check-stack
         run: |
