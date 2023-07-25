@@ -80,7 +80,7 @@ jobs:
           helm repo add projectcalico https://docs.tigera.io/calico/charts
           helm repo update
           helm install calico projectcalico/tigera-operator --version v3.26.1
-          kubectl patch installation default --type='json' -p='[{"op": "replace", "path": "/spec/cni/type", "value": "Calico"}]'
+          # kubectl patch installation default --type='json' -p='[{"op": "replace", "path": "/spec/cni/type", "value": "Calico"}]'
       - name: Sleep for 5 mins
         uses: whatnick/wait-action@master
         with:
