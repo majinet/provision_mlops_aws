@@ -124,7 +124,7 @@ jobs:
           aws iam attach-role-policy --policy-arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:policy/EKSClusterFullAccess --role-name KubeAdmin
           aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/IAMFullAccess --role-name KubeAdmin
           aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly --role-name KubeAdmin
-          aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/NetworkAdministrator --role-name KubeAdmin
+          aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonVPCFullAccess --role-name KubeAdmin
           aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AWSCloudFormationFullAccess --role-name KubeAdmin
           aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAccess --role-name KubeAdmin
           aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonElasticFileSystemFullAccess --role-name KubeAdmin
