@@ -132,3 +132,15 @@ jobs:
           
           #cat config/iam/inline_policy/iamPassRolePolicy.json | envsubst  > iamPassRolePolicy.json
           #aws iam put-role-policy --role-name KubeAdmin --policy-name my-inline-policy --policy-document file://iamPassRolePolicy.json
+      - name: Check if role exists (NetworkAdmin)
+        id: check-role-NetworkAdmin
+        run: |
+          aws iam get-role --role-name NetworkAdmin > /dev/null 2>&1 || echo "::set-output name=exists::false"
+      - name: create user to use NetworkAdmin role
+        if: steps.check-role-NetworkAdmin.outputs.exists == 'false'
+        run: |
+          cat config/iam/trust/account-trust-policy.json | envsubst  > account-trust-policy.json
+          
+          aws iam create-role --role-name NetworkAdmin --assume-role-policy-document "file://account-trust-policy.json"
+          aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AWSCloudFormationFullAccess --role-name NetworkAdmin
+          aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonVPCFullAccess --role-name NetworkAdmin
