@@ -4,6 +4,6 @@ metadata:
   # "namespace" omitted since ClusterRoles are not namespaced
   name: s3admin-cluster-role
 rules:
-- apiGroups: ["*.s3.services.k8s.aws"]
+- apiGroups: ["*.s3.services.k8s.aws", "s3.services.k8s.aws"]
   resources: ["*"]
   verbs: ["*"]
