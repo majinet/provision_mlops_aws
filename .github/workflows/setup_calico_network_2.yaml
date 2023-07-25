@@ -79,10 +79,10 @@ jobs:
         run: |
           # namespace tigera-operator is created in step 2
           helm install calico projectcalico/tigera-operator --version v3.25.1 --namespace tigera-operator
-      - name: Sleep for 5 mins
+      - name: Sleep for 1 mins
         uses: whatnick/wait-action@master
         with:
-          time: '300s'
+          time: '60s'
       - name: Configure Calico for eks
         run: |
           # Apply the updated permissions to your cluster
@@ -93,7 +93,7 @@ jobs:
           
           # Delete the calico-kube-controllers
           kubectl delete pod -l app=calico-kube-controllers -n calico-system
-      - name: Sleep for 5 mins
+      - name: Sleep for 1 mins
         uses: whatnick/wait-action@master
         with:
           time: '60s'
