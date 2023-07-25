@@ -1,0 +1,15 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  # "namespace" omitted since ClusterRoles are not namespaced
+  name: ackadmin-cluster-role
+rules:
+- apiGroups: ["*"]
+  resources: ["customresourcedefinitions"]
+  verbs: ["create", "delete", "deletecollection", "patch", "update", "get", "watch", "list"]
+- apiGroups: ["rbac.authorization.k8s.io"]
+  resources: ["clusterroles", "clusterrolebindings", "roles", "rolebindings"]
+  verbs: ["escalate", "bind", "create", "delete", "deletecollection", "patch", "update", "get", "watch", "list"]
+- apiGroups: [""]
+  resources: ["namespaces", "namespaces/status"]
+  verbs: ["create", "delete", "deletecollection", "patch", "update", "get", "watch", "list"]
