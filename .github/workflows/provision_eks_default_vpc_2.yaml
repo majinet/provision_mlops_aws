@@ -116,15 +116,17 @@ jobs:
       - name: create idp mapping in eks
         run: |
           eksctl create iamidentitymapping --cluster eks-cluster --region=${{env.AWS_REGION}} \
+            --arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/deployKubeflow --group system:masters \
+            --no-duplicate-arns
+          
+          kubectl apply -f config/eks/clusterrolebinding/deploykubeflow-cluster-role-binding.yaml
+          
+          eksctl create iamidentitymapping --cluster eks-cluster --region=${{env.AWS_REGION}} \
             --arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/iamAdmin --username iamadmin \
             --no-duplicate-arns
           
           kubectl apply -f config/eks/clusterrole/iamadmin-cluster-role.yaml
           kubectl apply -f config/eks/clusterrolebinding/iamadmin-cluster-role-binding.yaml
-          
-          eksctl create iamidentitymapping --cluster eks-cluster --region=${{env.AWS_REGION}} \
-            --arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/deployKubeflow --username deploykubeflow --group system:masters \
-            --no-duplicate-arns
           
           eksctl create iamidentitymapping --cluster eks-cluster --region=${{env.AWS_REGION}} \
             --arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/AckAdmin --username ackadmin \
@@ -154,6 +156,7 @@ jobs:
           
           kubectl apply -f config/eks/clusterrole/efsadmin-cluster-role.yaml
           kubectl apply -f config/eks/clusterrolebinding/efsadmin-cluster-role-binding.yaml
+          kubectl apply -f config/eks/clusterrolebinding/efsadmin-cluster-role-binding-edit.yaml
           
           # in terminal,
           # aws configure sso (do once)
