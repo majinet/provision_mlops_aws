@@ -52,8 +52,16 @@ jobs:
           curl -L https://github.com/a8m/envsubst/releases/download/v1.2.0/envsubst-`uname -s`-`uname -m` -o envsubst
           chmod +x envsubst
           sudo mv envsubst /usr/local/bin
+      - name: Check CloudFormation stack existence (eks-vpc)
+        id: check-stack-eks-vpc
+        run: |
+          if aws cloudformation describe-stacks --stack-name eks-vpc >/dev/null 2>&1; then
+            echo "::set-output name=exists::true"
+          else
+            echo "::set-output name=exists::false"
+          fi
       - name: Create VPC
-        id: amplify-stack
+        if: steps.check-stack-eks-vpc.outputs.exists == 'false'
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
           name: eks-vpc
@@ -65,3 +73,22 @@ jobs:
             PublicSubnet02Block=192.168.16.0/20,
             PrivateSubnet01Block=192.168.32.0/20,
             PrivateSubnet02Block=192.168.48.0/20
+      - name: Check CloudFormation stack existence (aws-db-vpc)
+        id: check-stack
+        run: |
+          if aws cloudformation describe-stacks --stack-name aws-db-vpc >/dev/null 2>&1; then
+            echo "::set-output name=exists::true"
+          else
+            echo "::set-output name=exists::false"
+          fi
+      - name: update cloudformation
+        if: steps.check-stack.outputs.exists == 'false'
+        run: |
+          cat cloudformation/private-db-vpc-subnet-group.yaml | envsubst  > private-db-vpc-subnet-group.yaml
+          cat private-db-vpc-subnet-group.yaml
+      - name: Deploy DB VPC Subnet
+        if: steps.check-stack.outputs.exists == 'false'
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        with:
+          name: aws-db-vpc
+          template: private-db-vpc-subnet-group.yaml

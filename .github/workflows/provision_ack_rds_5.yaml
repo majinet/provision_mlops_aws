@@ -73,26 +73,6 @@ jobs:
           Eks_Cluster_SG=$(aws cloudformation describe-stacks --stack-name eksctl-eks-cluster-cluster --query 'Stacks[0].Outputs[?OutputKey==`SecurityGroup`].OutputValue' --output text)
           echo "Eks_Cluster_SG: $Eks_Cluster_SG"
           echo "Eks_Cluster_SG=$Eks_Cluster_SG" >> $GITHUB_ENV
-      - name: Check CloudFormation stack existence
-        id: check-stack
-        run: |
-          if aws cloudformation describe-stacks --stack-name aws-db-vpc >/dev/null 2>&1; then
-            echo "::set-output name=stack-exists::true"
-          else
-            echo "::set-output name=stack-exists::false"
-          fi
-      - name: update cloudformation
-        id: update-cloudformation
-        if: steps.check-stack.outputs.stack-exists == 'false'
-        run: |
-          cat cloudformation/private-db-vpc-subnet-group.yaml | envsubst  > private-db-vpc-subnet-group.yaml
-          cat private-db-vpc-subnet-group.yaml
-      - name: Deploy DB VPC Subnet
-        uses: aws-actions/aws-cloudformation-github-deploy@v1
-        with:
-          name: aws-db-vpc
-          template: private-db-vpc-subnet-group.yaml
-        if: steps.check-stack.outputs.stack-exists == 'false'
       - name: Get Subnet IDs
         id: get-subnet-ids
         run: |
