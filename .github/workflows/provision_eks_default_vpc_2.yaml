@@ -107,10 +107,6 @@ jobs:
       - name: create namespace (appmesh-system)
         run: |
           kubectl create ns "appmesh-system"
-      - name: create namespace (tigera-operator)
-        run: |
-          kubectl create ns "tigera-operator"
-        continue-on-error: true
       - name: deploy metric server
         run: |
           kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
