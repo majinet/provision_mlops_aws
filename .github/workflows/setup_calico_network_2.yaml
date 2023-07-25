@@ -66,3 +66,32 @@ jobs:
           chmod +x ./kubectl
           mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$HOME/bin:$PATH
           kubectl version --short --client
+      #- name: disable AWS VPC networking for pods.
+      #  run: |
+      #    kubectl delete daemonset -n kube-system aws-node
+      - name: install Calico Operator
+        run: |
+          kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/tigera-operator.yaml
+          kubectl apply -f config/operator/calico.yaml
+      - name: Sleep for 5 mins
+        uses: whatnick/wait-action@master
+        with:
+          time: '300s'
+      - name: Configure Calico for eks
+        run: |
+          # Apply the updated permissions to your cluster
+          kubectl apply -f <(cat <(kubectl get clusterrole aws-node -o yaml) config/eks/append-clusterrole-aws-node.yaml)
+          
+          # Set the environment variable for the plugin
+          kubectl set env daemonset aws-node -n kube-system ANNOTATE_POD_IP=true
+          
+          # Delete the calico-kube-controllers
+          kubectl delete pod -l app=calico-kube-controllers -n calico-system
+      - name: Sleep for 5 mins
+        uses: whatnick/wait-action@master
+        with:
+          time: '60s'
+      - name: health check
+        run: |
+          # Confirm that the vpc.amazonaws.com/pod-ips annotation is added to the new calico-kube-controllers Pod
+          kubectl describe pod -l app=calico-kube-controllers -n calico-system | grep vpc.amazonaws.com/pod-ips
