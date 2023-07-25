@@ -125,13 +125,13 @@ jobs:
           
           aws iam attach-role-policy \
             --policy-arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:policy/EKSClusterFullAccess \
-            --policy-arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:policy/IAMFullAccess \
-            --policy-arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:policy/AmazonEC2ContainerRegistryReadOnly \
-            --policy-arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:policy/NetworkAdministrator \
-            --policy-arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:policy/AWSCloudFormationFullAccess \
-            --policy-arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:policy/AmazonEC2FullAccess \
-            --policy-arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:policy/AmazonElasticFileSystemFullAccess \
-            --policy-arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:policy/AmazonElasticContainerRegistryPublicReadOnly \
+            --policy-arn arn:aws:iam::aws:policy/IAMFullAccess \
+            --policy-arn arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly \
+            --policy-arn arn:aws:iam::aws:policy/NetworkAdministrator \
+            --policy-arn arn:aws:iam::aws:policy/AWSCloudFormationFullAccess \
+            --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAccess \
+            --policy-arn arn:aws:iam::aws:policy/AmazonElasticFileSystemFullAccess \
+            --policy-arn arn:aws:iam::aws:policy/AmazonElasticContainerRegistryPublicReadOnly \
             --role-name KubeAdmin
           
           #cat config/iam/inline_policy/iamPassRolePolicy.json | envsubst  > iamPassRolePolicy.json
