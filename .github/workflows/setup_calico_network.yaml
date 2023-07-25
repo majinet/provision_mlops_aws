@@ -1,4 +1,4 @@
-name: Step 2.5 - Setup Calico network
+name: Setup Calico network
 
 on:
   workflow_dispatch:
