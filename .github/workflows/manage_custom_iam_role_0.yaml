@@ -129,6 +129,9 @@ jobs:
             --policy-arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:policy/AmazonEC2ContainerRegistryReadOnly \
             --policy-arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:policy/NetworkAdministrator \
             --policy-arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:policy/AWSCloudFormationFullAccess \
+            --policy-arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:policy/AmazonEC2FullAccess \
+            --policy-arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:policy/AmazonElasticFileSystemFullAccess \
+            --policy-arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:policy/AmazonElasticContainerRegistryPublicReadOnly \
             --role-name KubeAdmin
           
           #cat config/iam/inline_policy/iamPassRolePolicy.json | envsubst  > iamPassRolePolicy.json
