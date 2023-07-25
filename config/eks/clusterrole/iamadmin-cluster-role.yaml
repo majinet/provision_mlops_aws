@@ -1,0 +1,12 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  # "namespace" omitted since ClusterRoles are not namespaced
+  name: iamadmin-cluster-role
+rules:
+- apiGroups: [""]
+  resources: ["serviceaccounts"]
+  verbs: ["impersonate", "create", "delete", "deletecollection", "patch", "update", "get", "watch", "list"]
+- apiGroups: [""]
+  resources: ["namespaces", "namespaces/status"]
+  verbs: ["get", "watch", "list"]

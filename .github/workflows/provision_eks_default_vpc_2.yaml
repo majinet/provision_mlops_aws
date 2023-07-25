@@ -116,8 +116,11 @@ jobs:
       - name: create idp mapping in eks
         run: |
           eksctl create iamidentitymapping --cluster eks-cluster --region=${{env.AWS_REGION}} \
-            --arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/iamAdmin --username iamadmin --group system:masters \
+            --arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/iamAdmin --username iamadmin \
             --no-duplicate-arns
+          
+          kubectl apply -f config/eks/clusterrole/iamadmin-cluster-role.yaml
+          kubectl apply -f config/eks/clusterrolebinding/iamadmin-cluster-role-binding.yaml
           
           eksctl create iamidentitymapping --cluster eks-cluster --region=${{env.AWS_REGION}} \
             --arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/deployKubeflow --username deploykubeflow --group system:masters \

@@ -155,6 +155,7 @@ jobs:
           aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonElasticContainerRegistryPublicReadOnly --role-name AckAdmin
           aws iam attach-role-policy --policy-arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:policy/EKSClusterFullAccess --role-name AckAdmin
           aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AWSCloudFormationFullAccess --role-name AckAdmin
+          aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/IAMReadOnlyAccess --role-name AckAdmin
       - name: Check if role exists (RdsAdmin)
         id: check-role-RdsAdmin
         run: |
