@@ -78,7 +78,9 @@ jobs:
       - name: install Calico Operator
         run: |
           # namespace tigera-operator is created in step 2
-          helm install calico projectcalico/tigera-operator --version v3.25.1 --namespace tigera-operator
+          helm repo add projectcalico https://docs.tigera.io/calico/charts
+          echo '{ installation: {kubernetesProvider: EKS }}' > values.yaml
+          helm install calico projectcalico/tigera-operator --version v3.25.1 -f values.yaml --namespace tigera-operator
       - name: Sleep for 1 mins
         uses: whatnick/wait-action@master
         with:
