@@ -11,6 +11,7 @@ on:
 env:
   AWS_REGION : us-east-1 #Change to reflect your Region
   AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+  CLUSTER_NAME: eks-cluster
 
 # Permission can be added at job level or workflow level
 permissions:
