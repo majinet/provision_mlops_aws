@@ -119,20 +119,16 @@ jobs:
         run: |
           cat config/iam/trust/account-trust-policy.json | envsubst  > account-trust-policy.json
           
-          aws iam create-role \
-            --role-name KubeAdmin \
-            --assume-role-policy-document "file://account-trust-policy.json"
+          aws iam create-role --role-name KubeAdmin --assume-role-policy-document "file://account-trust-policy.json"
           
-          aws iam attach-role-policy \
-            --policy-arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:policy/EKSClusterFullAccess \
-            --policy-arn arn:aws:iam::aws:policy/IAMFullAccess \
-            --policy-arn arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly \
-            --policy-arn arn:aws:iam::aws:policy/NetworkAdministrator \
-            --policy-arn arn:aws:iam::aws:policy/AWSCloudFormationFullAccess \
-            --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAccess \
-            --policy-arn arn:aws:iam::aws:policy/AmazonElasticFileSystemFullAccess \
-            --policy-arn arn:aws:iam::aws:policy/AmazonElasticContainerRegistryPublicReadOnly \
-            --role-name KubeAdmin
+          aws iam attach-role-policy --policy-arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:policy/EKSClusterFullAccess --role-name KubeAdmin
+          aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/IAMFullAccess --role-name KubeAdmin
+          aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly --role-name KubeAdmin
+          aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/NetworkAdministrator --role-name KubeAdmin
+          aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AWSCloudFormationFullAccess --role-name KubeAdmin
+          aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAccess --role-name KubeAdmin
+          aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonElasticFileSystemFullAccess --role-name KubeAdmin
+          aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonElasticContainerRegistryPublicReadOnly --role-name KubeAdmin
           
           #cat config/iam/inline_policy/iamPassRolePolicy.json | envsubst  > iamPassRolePolicy.json
           #aws iam put-role-policy --role-name KubeAdmin --policy-name my-inline-policy --policy-document file://iamPassRolePolicy.json
