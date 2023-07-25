@@ -81,9 +81,6 @@ jobs:
         run: |
           aws eks update-kubeconfig --name ${{env.CLUSTER_NAME}} --region ${{env.AWS_REGION}}
           kubectl config get-contexts
-
-          # Ensure cluster has compute
-          kubectl get nodes
       - name: Install the EFS CSI driver
         id: install-efs-csi-driver
         run: |
