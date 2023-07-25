@@ -58,9 +58,6 @@ jobs:
         run: |
           aws eks update-kubeconfig --name ${{env.CLUSTER_NAME}} --region ${{env.AWS_REGION}}
           kubectl config get-contexts
-
-          # Ensure cluster has compute
-          kubectl get nodes
       - name: Set VPC ID
         id: set-vpc-id
         run: |

@@ -1,0 +1,9 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  # "namespace" omitted since ClusterRoles are not namespaced
+  name: rdsadmin-cluster-role
+rules:
+- apiGroups: ["*.rds.services.k8s.aws", "rds.services.k8s.aws"]
+  resources: ["*"]
+  verbs: ["*"]
