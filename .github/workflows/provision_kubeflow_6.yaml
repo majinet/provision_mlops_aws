@@ -147,4 +147,10 @@ jobs:
           cat main/config/kubeflow/profile-testenv.yaml | envsubst  > profile-testenv.yaml
           kubectl apply -f profile-testenv.yaml
           kubectl apply -f main/config/eks/clusterrolebinding/user-example-com-cluster-role-binding-pipeline.yaml
-
+      - name: setup alb for istio-ingress-api (KServe)
+        run: |
+          cp config/kubeflow-manifests/awsconfigs/common/istio-ingress/overlays/api/params.env kubeflow-manifests/awsconfigs/common/istio-ingress/overlays/api/params.env
+          cd kubeflow-manifests
+          kustomize build awsconfigs/common/istio-ingress/overlays/api | kubectl apply -f -
+          kubectl apply -f config/istio/AuthorizationPolicy/allow-predictor.yaml
+          kubectl apply -f config/istio/AuthorizationPolicy/allow-transformer.yaml
