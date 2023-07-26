@@ -89,8 +89,17 @@ jobs:
           IFS=", " read -r var1 var2 <<< "$subnetIds"
           echo "EKS_PRIVATE_SUBNET_ID_1=$var1" >> $GITHUB_ENV
           echo "EKS_PRIVATE_SUBNET_ID_2=$var2" >> $GITHUB_ENV
+      - name: Check CloudFormation stack existence (eks-cluster)
+        id: check-stack-eks-cluster
+        run: |
+          if aws cloudformation describe-stacks --stack-name "eksctl-eks-cluster-cluster" >/dev/null 2>&1; then
+            echo "::set-output name=exists::true"
+          else
+            echo "::set-output name=exists::false"
+          fi
       - name: create eks cluster
         id: create-eks-cluster
+        if: steps.check-stack-eks-cluster.exists == 'false'
         run: | 
           cat config/eks/amazon-eks-cluster.yaml | envsubst  > amazon-eks-cluster.yaml
           cat amazon-eks-cluster.yaml
