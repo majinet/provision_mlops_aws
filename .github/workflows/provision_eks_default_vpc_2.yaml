@@ -105,6 +105,11 @@ jobs:
           cat amazon-eks-cluster.yaml
           eksctl create cluster -f amazon-eks-cluster.yaml
           kubectl get svc
+      - name: Health Check Cluster
+        id: health-check-eks
+        run: |
+          aws eks update-kubeconfig --name ${{env.CLUSTER_NAME}} --region ${{env.AWS_REGION}}
+          kubectl config get-contexts
       - name: create namespace (kubeflow-aws)
         run: |
           kubectl create ns "kubeflow-aws"
