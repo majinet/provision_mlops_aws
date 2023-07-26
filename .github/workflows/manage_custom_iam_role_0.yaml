@@ -213,4 +213,5 @@ jobs:
           aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonElasticContainerRegistryPublicReadOnly --role-name DeployKubeflow
           aws iam attach-role-policy --policy-arn arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:policy/EKSClusterFullAccess --role-name DeployKubeflow
           aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AWSCloudFormationFullAccess --role-name DeployKubeflow
+          aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/IAMFullAccess --role-name DeployKubeflow
           
