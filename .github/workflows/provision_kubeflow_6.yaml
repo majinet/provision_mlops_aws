@@ -154,3 +154,6 @@ jobs:
           kustomize build awsconfigs/common/istio-ingress/overlays/api | kubectl apply -f -
           kubectl apply -f config/istio/AuthorizationPolicy/allow-predictor.yaml
           kubectl apply -f config/istio/AuthorizationPolicy/allow-transformer.yaml
+          
+          # replace _example by "platform.whatautomatech.com"
+          # kubectl edit configmap config-domain -n knative-serving
