@@ -28,6 +28,9 @@ jobs:
     outputs:
       env-name: ${{ steps.env-name.outputs.environment }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        path: main
       - name: Checkout awslabs kubeflow-manifests
         uses: actions/checkout@v3
         with:
@@ -70,6 +73,10 @@ jobs:
           sudo add-apt-repository ppa:rmescandon/yq
           sudo apt update -y
           sudo apt install yq -y
+      - name: create namespace (kafka-operator)
+        run: |
+          kubectl create ns "kafka"
+        continue-on-error: true
       - name: Designating Strimzi administrators
         run: |
           cd strimzi
@@ -77,12 +84,21 @@ jobs:
       - name: Deploying the Cluster Operator to watch a single namespace
         run: |
           sed -i 's/namespace: .*/namespace: kafka-operator/' install/cluster-operator/*RoleBinding*.yaml
-          kubectl create -f install/cluster-operator -n kafka-operator
+          kubectl create -f install/cluster-operator -n kafka
       - name: Deploying the Kafka cluster
         run: |
-          yq -i '.spec.kafka.storage.volumes[0].size = 20Gi' examples/kafka/kafka-persistent-single.yaml
-          yq -i '.spec.zookeeper.storage.size = 20Gi' examples/kafka/kafka-persistent-single.yaml
-          kubectl apply -f examples/kafka/kafka-persistent-single.yaml
-      - name: Deploying Kafka Connect to your Kubernetes cluster
+          yq -i '.spec.kafka.storage.volumes[0].size = "20Gi"' examples/kafka/kafka-persistent-single.yaml
+          yq -i '.spec.zookeeper.storage.size = "20Gi"' examples/kafka/kafka-persistent-single.yaml
+          kubectl apply -f examples/kafka/kafka-persistent-single.yaml -n kafka
+      - name: Building Kafka Connect
         run: |
-          kubectl apply -f examples/connect/kafka-connect.yaml
+          kubectl create secret docker-registry ecr-secret \
+            --docker-server=${AWS_ACCOUNT}.dkr.ecr.${AWS_REGION}.amazonaws.com \
+            --docker-username=AWS \
+            --docker-password=$(aws ecr get-login-password) \
+            --namespace=default
+          
+          cat main/deployments/connector/camel-aws-sqs-kakfa-connect.yaml | envsubst  > camel-aws-sqs-kakfa-connect.yaml
+          
+          kubectl apply -f camel-aws-sqs-kakfa-connect.yaml
+          kubectl apply -f main/deployments/connector/camel-aws-sqs-source-kakfa-connector.yaml

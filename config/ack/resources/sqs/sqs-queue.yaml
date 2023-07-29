@@ -1,0 +1,20 @@
+apiVersion: sqs.services.k8s.aws/v1alpha1
+kind: Queue
+metadata:
+  name: s3-sqs-kafka
+  annotations:
+    services.k8s.aws/region: ${AWS_REGION}
+spec:
+  queueName: s3-sqs-kafka
+  policy: |
+    {
+      "Statement": [{
+        "Sid": "__owner_statement",
+        "Effect": "Allow",
+        "Principal": {
+          "AWS": "${AWS_ACCOUNT_ID}"
+        },
+        "Action": "sqs:SendMessage",
+        "Resource": "arn:aws:sqs:${AWS_REGION}:${AWS_ACCOUNT_ID}:s3-sqs-kafka"
+      }]
+    }

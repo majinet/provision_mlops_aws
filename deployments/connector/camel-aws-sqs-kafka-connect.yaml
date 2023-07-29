@@ -1,0 +1,50 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnect
+metadata:
+  name: my-connect-cluster
+#  annotations:
+#  # use-connector-resources configures this KafkaConnect
+#  # to use KafkaConnector resources to avoid
+#  # needing to call the Connect REST API directly
+#    strimzi.io/use-connector-resources: "true"
+spec:
+  version: 3.5.0
+  replicas: 1
+  bootstrapServers: my-cluster-kafka-bootstrap:9093
+  tls:
+    trustedCertificates:
+      - secretName: my-cluster-cluster-ca-cert
+        certificate: ca.crt
+  config:
+    group.id: connect-cluster
+    offset.storage.topic: connect-cluster-offsets
+    config.storage.topic: connect-cluster-configs
+    status.storage.topic: connect-cluster-status
+    # -1 means it will use the default replication factor configured in the broker
+    config.storage.replication.factor: -1
+    offset.storage.replication.factor: -1
+    status.storage.replication.factor: -1
+  build:
+    output:
+      type: docker
+      # This image will last only for 24 hours and might be overwritten by other users
+      # Strimzi will use this tag to push the image. But it will use the digest to pull
+      # the container image to make sure it pulls exactly the image we just built. So
+      # it should not happen that you pull someone else's container image. However, we
+      # recommend changing this to your own container registry or using a different
+      # image name for any other than demo purposes.
+      image: https://${AWS_ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/my-connect-cluster:latest
+      pushSecret: ecr-secret
+    plugins:
+      - name: camel-aws-sqs-kafka-connector
+        artifacts:
+          - type: tgz
+            url: https://repo.maven.apache.org/maven2/org/apache/camel/kafkaconnector/camel-aws2-sqs-kafka-connector/0.6.1/camel-aws2-sqs-kafka-connector-0.6.1-package.tar.gz
+            #sha512sum: c4ddc97846de561755dc0b021a62aba656098829c70eb3ade3b817ce06d852ca12ae50c0281cc791a5a131cb7fc21fb15f4b8ee76c6cae5dd07f9c11cb7c6e79
+  template:
+    pod:
+      tolerations:
+        - key: "dedicated"
+          operator: "Equal"
+          value: "kafka"
+          effect: "NoSchedule"
