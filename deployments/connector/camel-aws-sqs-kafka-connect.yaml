@@ -2,14 +2,20 @@ apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaConnect
 metadata:
   name: my-connect-cluster
-#  annotations:
-#  # use-connector-resources configures this KafkaConnect
-#  # to use KafkaConnector resources to avoid
-#  # needing to call the Connect REST API directly
-#    strimzi.io/use-connector-resources: "true"
+  annotations:
+  # use-connector-resources configures this KafkaConnect
+  # to use KafkaConnector resources to avoid
+  # needing to call the Connect REST API directly
+    strimzi.io/use-connector-resources: "true"
 spec:
   version: 3.5.0
   replicas: 1
+  authentication:
+    type: scram-sha-512
+    username: my-connect-user #${secretsmanager:MSKAuroraDBCredentials:username}
+    passwordSecret:
+      secretName: my-connect-user
+      password: password
   bootstrapServers: my-cluster-kafka-bootstrap:9093
   tls:
     trustedCertificates:
@@ -24,6 +30,20 @@ spec:
     config.storage.replication.factor: -1
     offset.storage.replication.factor: -1
     status.storage.replication.factor: -1
+
+    # define names of config providers:
+    #config.providers: secretsmanager,ssm,s3import
+
+    # provide implementation classes for each provider:
+
+    #config.providers.secretsmanager.class: com.amazonaws.kafka.config.providers.SecretsManagerConfigProvider
+    #config.providers.ssm.class: com.amazonaws.kafka.config.providers.SsmParamStoreConfigProvider
+    #config.providers.s3import.class: com.amazonaws.kafka.config.providers.S3ImportConfigProvider
+
+    # configure a config provider (if it needs additional initialization), for example you can provide a region where the secrets or parameters are located:
+    #config.providers.secretsmanager.param.region: us-east-1
+    #config.providers.ssm.param.region: us-east-1
+
   build:
     output:
       type: docker
