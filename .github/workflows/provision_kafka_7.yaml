@@ -87,9 +87,9 @@ jobs:
           kubectl create -f install/cluster-operator -n kafka
       - name: Deploying the Kafka cluster
         run: |
-          yq -i '.spec.kafka.storage.volumes[0].size = "20Gi"' examples/kafka/kafka-persistent-single.yaml
-          yq -i '.spec.zookeeper.storage.size = "20Gi"' examples/kafka/kafka-persistent-single.yaml
-          kubectl apply -f examples/kafka/kafka-persistent-single.yaml -n kafka
+          #yq -i '.spec.kafka.storage.volumes[0].size = "20Gi"' examples/kafka/kafka-persistent-single.yaml
+          #yq -i '.spec.zookeeper.storage.size = "20Gi"' examples/kafka/kafka-persistent-single.yaml
+          kubectl apply -f main/config/kafka/kafka.yaml -n kafka
       - name: Building Kafka Connect
         run: |
           kubectl create secret docker-registry ecr-secret \
