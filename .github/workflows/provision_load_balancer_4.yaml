@@ -1,0 +1,96 @@
+name: Step 4.0 - Provisioning Load Balancer
+
+on:
+  workflow_dispatch:
+    inputs:
+      region:
+        description: 'AWS Region'
+        required: true
+        default: 'us-east-1'
+      #keypair:
+      #  description: 'SSH Key Pair'
+      #  required: true
+
+env:
+  AWS_REGION : ${{ github.event.inputs.region}} #Change to reflect your Region
+  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+  CLUSTER_NAME: eks-cluster
+
+# Permission can be added at job level or workflow level
+permissions:
+      id-token: write   # This is required for requesting the JWT
+      contents: read    # This is required for actions/checkout
+
+jobs:
+  eks_aws:
+    name: Provisioning Load Balancer
+    runs-on: ubuntu-20.04
+    outputs:
+      env-name: ${{ steps.env-name.outputs.environment }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          path: main
+      - name: Checkout awslabs kubeflow-manifests
+        uses: actions/checkout@v3
+        with:
+          repository: awslabs/kubeflow-manifests
+          ref: v1.7.0-aws-b1.0.2
+          path: kubeflow-manifests
+      - name: Configure AWS credentials
+        id: creds
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/KubeAdmin
+          role-session-name: kubeadmin
+          aws-region: ${{ github.event.inputs.region}}
+      - name: install envsubst
+        id: install-envsubst
+        run: |
+          curl -L https://github.com/a8m/envsubst/releases/download/v1.2.0/envsubst-`uname -s`-`uname -m` -o envsubst
+          chmod +x envsubst
+          sudo mv envsubst /usr/local/bin
+      - name: health check eks
+        run: |
+          aws eks update-kubeconfig --region us-east-1 --name eks-cluster
+      - name: configure Ingress
+        run: |
+          export CognitoUserPoolArn="arn:aws:cognito-idp:us-east-1:${AWS_ACCOUNT_ID}:userpool/us-east-1_W2dfRzwxz"
+          export CognitoAppClientId="2na549bv5jf9atq8k0t6e40oo2"
+          export CognitoUserPoolDomain="auth.platform.whatautomatech.com"
+          export certArn="arn:aws:acm:us-east-1:404886641986:certificate/c5522102-77a1-4c68-873a-f7355a5edd75"
+          export signOutURL="https://auth.platform.whatautomatech.com/logout?client_id=$CognitoAppClientId&logout_uri=https://kubeflow.platform.whatautomatech.com"
+          export CognitoLogoutURL="https://$CognitoUserPoolDomain/logout?client_id=$CognitoAppClientId&logout_uri=$signOutURL"
+          export loadBalancerScheme=internet-facing
+          
+          printf '
+          CognitoUserPoolArn='$CognitoUserPoolArn'
+          CognitoAppClientId='$CognitoAppClientId'
+          CognitoUserPoolDomain='$CognitoUserPoolDomain'
+          certArn='$certArn'
+          ' > kubeflow-manifests/awsconfigs/common/istio-ingress/overlays/cognito/params.env
+          
+          printf 'certArn='$certArn'' > kubeflow-manifests/awsconfigs/common/istio-ingress/overlays/https/params.env
+
+          printf '
+          loadBalancerScheme='$loadBalancerScheme'
+          ' > kubeflow-manifests/awsconfigs/common/istio-ingress/base/params.env
+          
+          printf '
+            LOGOUT_URL='$CognitoLogoutURL'
+          ' > kubeflow-manifests/awsconfigs/common/aws-authservice/base/params.env
+      - name: Install Load Balancer Controller
+        run: |
+          printf 'clusterName='${{env.CLUSTER_NAME}}'' > kubeflow-manifests/awsconfigs/common/aws-alb-ingress-controller/base/params.env
+          
+          kustomize build kubeflow-manifests/awsconfigs/common/aws-alb-ingress-controller/base | kubectl apply -f -
+          kubectl wait --for condition=established crd/ingressclassparams.elbv2.k8s.aws
+          kustomize build kubeflow-manifests/awsconfigs/common/aws-alb-ingress-controller/base | kubectl apply -f -
+      - name: Create Ingress
+        run: |
+          kustomize build kubeflow-manifests/awsconfigs/common/istio-ingress/overlays/https | kubectl apply -f -
+
+
+
+    
