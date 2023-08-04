@@ -73,6 +73,11 @@ jobs:
           sudo add-apt-repository ppa:rmescandon/yq
           sudo apt update -y
           sudo apt install yq -y
+      - name: Health Check Cluster
+        id: health-check-eks
+        run: |
+          aws eks update-kubeconfig --name ${{env.CLUSTER_NAME}} --region ${{env.AWS_REGION}}
+          kubectl config get-contexts
       - name: create namespace (kafka-operator)
         run: |
           kubectl create ns "kafka"
