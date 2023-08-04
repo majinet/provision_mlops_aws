@@ -1,4 +1,0 @@
-ack_sagemaker_oidc_role: arn:aws:iam::${AWS_ACCOUNT_ID}:role/kf-ack-sm-controller-role-eks-cluster
-cluster:
-  name: eks-cluster
-  region: us-east-1

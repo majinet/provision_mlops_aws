@@ -78,8 +78,6 @@ jobs:
           cp main/config/kubeflow-manifests/awsconfigs/apps/pipeline/rds/params.env kubeflow-manifests/awsconfigs/apps/pipeline/rds/params.env
           cat main/config/kubeflow-manifests/awsconfigs/apps/pipeline/s3/params.env | envsubst > kubeflow-manifests/awsconfigs/apps/pipeline/s3/params.env
           cat main/config/kubeflow-manifests/awsconfigs/common/ack-sagemaker-controller/params.env | envsubst > kubeflow-manifests/awsconfigs/common/ack-sagemaker-controller/params.env
-          cat main/config/kubeflow-manifests/tests/e2e/utils/ack_sm_controller_bootstrap/config.yaml | envsubst > kubeflow-manifests/tests/e2e/utils/ack_sm_controller_bootstrap/config.yaml
-          cat main/config/kubeflow-manifests/tests/e2e/utils/cognito_bootstrap/config.yaml | envsubst > kubeflow-manifests/tests/e2e/utils/cognito_bootstrap/config.yaml
           cp main/config/kubeflow-manifests/upstream/common/dex/base/config-map.yaml kubeflow-manifests/upstream/common/dex/base/config-map.yaml
           
           cd kubeflow-manifests
