@@ -83,13 +83,14 @@ jobs:
       - name: Install Load Balancer Controller
         run: |
           printf 'clusterName='${{env.CLUSTER_NAME}}'' > kubeflow-manifests/awsconfigs/common/aws-alb-ingress-controller/base/params.env
+          kustomize build kubeflow-manifests/awsconfigs/common/aws-alb-ingress-controller/base | kubectl apply -f -
           
-          kustomize build kubeflow-manifests/awsconfigs/common/aws-alb-ingress-controller/base | kubectl apply -f -
           kubectl wait --for condition=established crd/ingressclassparams.elbv2.k8s.aws
-          kustomize build kubeflow-manifests/awsconfigs/common/aws-alb-ingress-controller/base | kubectl apply -f -
       - name: Create Ingress
         run: |
-          kustomize build kubeflow-manifests/awsconfigs/common/istio-ingress/overlays/https | kubectl apply -f -
+          kustomize build kubeflow-manifests/awsconfigs/common/aws-authservice/base | kubectl apply -f -
+          kustomize build kubeflow-manifests/awsconfigs/common/istio-ingress/overlays/cognito | kubectl apply -f -
+          
 
 
 

@@ -1,0 +1,74 @@
+name: Step 4.0 - Provisioning Kubeflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      region:
+        description: 'AWS Region'
+        required: true
+        default: 'us-east-1'
+      #keypair:
+      #  description: 'SSH Key Pair'
+      #  required: true
+
+env:
+  AWS_REGION : ${{ github.event.inputs.region}} #Change to reflect your Region
+  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+  CLUSTER_NAME: eks-cluster
+
+# Permission can be added at job level or workflow level
+permissions:
+      id-token: write   # This is required for requesting the JWT
+      contents: read    # This is required for actions/checkout
+
+jobs:
+  eks_aws:
+    name: Provisioning AWS EKS
+    runs-on: ubuntu-20.04
+    outputs:
+      env-name: ${{ steps.env-name.outputs.environment }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          path: main
+      - name: Checkout awslabs kubeflow-manifests
+        uses: actions/checkout@v3
+        with:
+          repository: awslabs/kubeflow-manifests
+          ref: v1.7.0-aws-b1.0.2
+          path: kubeflow-manifests
+      - name: Checkout kubeflow
+        uses: actions/checkout@v3
+        with:
+          repository: kubeflow/manifests
+          ref: v1.7.0
+          path: upstream
+      - name: Configure AWS credentials
+        id: creds
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/KubeAdmin
+          role-session-name: deploykubeflow
+          aws-region: ${{ github.event.inputs.region}}
+      - name: install envsubst
+        id: install-envsubst
+        run: |
+          curl -L https://github.com/a8m/envsubst/releases/download/v1.2.0/envsubst-`uname -s`-`uname -m` -o envsubst
+          chmod +x envsubst
+          sudo mv envsubst /usr/local/bin
+      - name: health check eks
+        run: |
+          aws eks update-kubeconfig --region us-east-1 --name eks-cluster
+      - name: install cert-manager
+        run: |
+          kustomize build upstream/common/cert-manager/cert-manager/base | kubectl apply -f -
+      - name: install istio
+        run: |
+          kustomize build upstream/common/istio-1-17/istio-crds/base | kubectl apply -f -
+          kustomize build upstream/common/istio-1-17/istio-namespace/base | kubectl apply -f -
+          kustomize build upstream/common/istio-1-17/istio-install/base | kubectl apply -f -
+      - name: deploy Admission Webhook (cert-manager)
+        run: |
+          kustomize build upstream/apps/admission-webhook/upstream/overlays/cert-manager | kubectl apply -f -
+          

@@ -30,6 +30,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Checkout kubeflow
+        uses: actions/checkout@v3
+        with:
+          repository: kubeflow/manifests
+          ref: v1.7.0
+          path: upstream
       - name: Configure AWS credentials
         id: creds
         uses: aws-actions/configure-aws-credentials@v2
@@ -117,8 +123,7 @@ jobs:
         continue-on-error: true
       - name: create namespace (kubeflow)
         run: |
-          kubectl create ns "kubeflow"
-        continue-on-error: true
+          kustomize build upstream/common/kubeflow-namespace/base | kubectl apply -f -
       - name: create namespace (appmesh-system)
         run: |
           kubectl create ns "appmesh-system"
