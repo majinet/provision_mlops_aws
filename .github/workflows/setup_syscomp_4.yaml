@@ -1,4 +1,4 @@
-name: Step 4.0 - Provisioning Kubeflow
+name: Step 4.0 - Provisioning system components
 
 on:
   workflow_dispatch:
@@ -23,7 +23,7 @@ permissions:
 
 jobs:
   eks_aws:
-    name: Provisioning AWS EKS
+    name: Provisioning system components
     runs-on: ubuntu-20.04
     outputs:
       env-name: ${{ steps.env-name.outputs.environment }}
@@ -44,6 +44,12 @@ jobs:
           repository: kubeflow/manifests
           ref: v1.7.0
           path: upstream
+      - name: Checkout ForgeRock
+        uses: actions/checkout@v3
+        with:
+          repository: ForgeRock/forgeops
+          ref: 7.3-20230706
+          path: forgeops
       - name: Configure AWS credentials
         id: creds
         uses: aws-actions/configure-aws-credentials@v2
@@ -71,4 +77,7 @@ jobs:
       - name: deploy Admission Webhook (cert-manager)
         run: |
           kustomize build upstream/apps/admission-webhook/upstream/overlays/cert-manager | kubectl apply -f -
+      - name: deploy NGINX ingress controller
+        run: |
+          forgeops/bin/ingress-controller-deploy.sh --eks
           

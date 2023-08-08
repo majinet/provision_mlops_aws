@@ -1,4 +1,4 @@
-name: Provisioning Prometheus (AMP)
+name: Step 5.3 Provisioning Prometheus
 
 on:
   workflow_dispatch:
@@ -20,7 +20,7 @@ permissions:
 
 jobs:
   amp_aws:
-    name: Provisioning Prometheus (AMP)
+    name: Provisioning Prometheus
     runs-on: ubuntu-latest
     outputs:
       env-name: ${{ steps.env-name.outputs.environment }}
@@ -45,8 +45,8 @@ jobs:
         id: creds
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/deployKubeflow
-          role-session-name: deploykubeflow
+          role-to-assume: arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/KubeAdmin
+          role-session-name: kubedmin
           aws-region: ${{ env.AWS_REGION}}
       - name: Configure environment name
         id: env-name
@@ -86,19 +86,21 @@ jobs:
         run: |
           aws eks update-kubeconfig --name ${{env.CLUSTER_NAME}} --region ${{env.AWS_REGION}}
           kubectl config get-contexts
-      - name: deploy AMP
+      - name: Check CloudFormation stack existence (eks-prometheus)
+        id: check-stack-eks-prometheus
         run: |
-          cp -fr upstream kubeflow-manifests/
-          cd kubeflow-manifests
-          
-          export AMP_WORKSPACE_ALIAS=test
-          export AMP_WORKSPACE_ARN=$(aws amp create-workspace --region ${{env.AWS_REGION}} --alias $AMP_WORKSPACE_ALIAS --query arn | tr -d '"')
-          export AMP_WORKSPACE_REGION=$(echo $AMP_WORKSPACE_ARN | cut -d':' -f4)
-          export AMP_WORKSPACE_ID=$(echo $AMP_WORKSPACE_ARN | cut -d':' -f6 | cut -d'/' -f2)
-
-          cat > deployments/add-ons/prometheus/params.env <<EOF
-          workspaceRegion=$AMP_WORKSPACE_REGION
-          workspaceId=$AMP_WORKSPACE_ID
-          EOF
-
-          kustomize build deployments/add-ons/prometheus | kubectl apply -f -
+          if aws cloudformation describe-stacks --stack-name eks-prometheus >/dev/null 2>&1; then
+            echo "::set-output name=exists::true"
+          else
+            echo "::set-output name=exists::false"
+          fi
+      - name: deploy Prometheus
+        if: steps.check-stack-eks-prometheus.outputs.exists == 'false'
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        with:
+          name: eks-vpc
+          template: cloudformation/eks-prometheus-template.yaml
+          no-fail-on-empty-changeset: "1"
+          parameter-overrides: >-
+            KubeClusterName=${{env.CLUSTER_NAME}},
+            Namespace=prometheus
