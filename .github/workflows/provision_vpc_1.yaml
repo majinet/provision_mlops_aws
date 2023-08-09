@@ -64,11 +64,11 @@ jobs:
         if: steps.check-stack-eks-vpc.outputs.exists == 'false'
         run: |
           aws cloudformation create-stack --stack-name eks-vpc --template-body file://cloudformation/amazon-eks-vpc-private-subnets.yaml \
-            --parameters ParameterKey=VpcBlock, ParameterValue=192.168.0.0/16 \
-              ParameterKey=PublicSubnet01Block, ParameterValue=192.168.0.0/20 \
-              ParameterKey=PublicSubnet02Block, ParameterValue=192.168.16.0/20 \
-              ParameterKey=PrivateSubnet01Block, ParameterValue=192.168.32.0/20 \
-              ParameterKey=PrivateSubnet02Block, ParameterValue=192.168.48.0/20
+            --parameters ParameterKey=VpcBlock,ParameterValue=192.168.0.0/16 \
+              ParameterKey=PublicSubnet01Block,ParameterValue=192.168.0.0/20 \
+              ParameterKey=PublicSubnet02Block,ParameterValue=192.168.16.0/20 \
+              ParameterKey=PrivateSubnet01Block,ParameterValue=192.168.32.0/20 \
+              ParameterKey=PrivateSubnet02Block,ParameterValue=192.168.48.0/20
       - name: Set VPC ID
         id: set-vpc-id
         run: |
