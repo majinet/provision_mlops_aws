@@ -108,7 +108,7 @@ jobs:
       - name: Deploy DB VPC Subnet
         if: steps.check-stack.outputs.exists == 'false'
         run: |
-          aws cloudformation create-stack --stack-name aws-db-vpc --template-body file://cloudformation/private-db-vpc-subnet-group.yaml
+          aws cloudformation create-stack --stack-name aws-db-vpc --template-body file://private-db-vpc-subnet-group.yaml
       - name: Check status of cloudformation (aws-db-vpc)
         run: |
           STACK_NAME="aws-db-vpc"
