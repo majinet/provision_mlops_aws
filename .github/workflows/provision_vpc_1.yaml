@@ -69,6 +69,23 @@ jobs:
               ParameterKey=PublicSubnet02Block,ParameterValue=192.168.16.0/20 \
               ParameterKey=PrivateSubnet01Block,ParameterValue=192.168.32.0/20 \
               ParameterKey=PrivateSubnet02Block,ParameterValue=192.168.48.0/20
+      - name: Check status of cloudformation (eks-vpc)
+        run: |
+          STACK_NAME="eks-vpc"
+          INTERVAL_SECONDS=300
+
+          while true; do
+            STATUS=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].StackStatus' --output text)
+            echo "StackStatus: $STATUS"
+
+            if [ "$STATUS" = "CREATE_COMPLETE" ]; then
+              echo "Stack creation is complete."
+              break
+            fi
+
+            echo "Sleeping for $INTERVAL_SECONDS seconds..."
+            sleep $INTERVAL_SECONDS
+          done
       - name: Set VPC ID
         id: set-vpc-id
         run: |
@@ -92,3 +109,20 @@ jobs:
         if: steps.check-stack.outputs.exists == 'false'
         run: |
           aws cloudformation create-stack --stack-name aws-db-vpc --template-body file://cloudformation/private-db-vpc-subnet-group.yaml
+      - name: Check status of cloudformation (aws-db-vpc)
+        run: |
+          STACK_NAME="aws-db-vpc"
+          INTERVAL_SECONDS=300
+
+          while true; do
+            STATUS=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].StackStatus' --output text)
+            echo "StackStatus: $STATUS"
+
+            if [ "$STATUS" = "CREATE_COMPLETE" ]; then
+              echo "Stack creation is complete."
+              break
+            fi
+
+            echo "Sleeping for $INTERVAL_SECONDS seconds..."
+            sleep $INTERVAL_SECONDS
+          done
