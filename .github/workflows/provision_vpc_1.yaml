@@ -117,6 +117,11 @@ jobs:
           while true; do
             STATUS=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].StackStatus' --output text)
             echo "StackStatus: $STATUS"
+          
+            if [ "$STATUS" = "ROLLBACK_COMPLETE" ]; then
+              echo "Stack rollback is complete."
+              exit -1
+            fi
 
             if [ "$STATUS" = "CREATE_COMPLETE" ]; then
               echo "Stack creation is complete."
