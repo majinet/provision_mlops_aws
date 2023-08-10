@@ -71,9 +71,9 @@ jobs:
           kustomize build upstream/common/cert-manager/cert-manager/base | kubectl apply -f -
       - name: install istio
         run: |
-          kustomize build upstream/common/istio-1-17/istio-crds/base | kubectl apply -f -
-          kustomize build upstream/common/istio-1-17/istio-namespace/base | kubectl apply -f -
-          kustomize build upstream/common/istio-1-17/istio-install/base | kubectl apply -f -
+          kustomize build upstream/common/istio-1-16/istio-crds/base | kubectl apply -f -
+          kustomize build upstream/common/istio-1-16/istio-namespace/base | kubectl apply -f -
+          kustomize build upstream/common/istio-1-16/istio-install/base | kubectl apply -f -
       - name: deploy Admission Webhook (cert-manager)
         run: |
           kustomize build upstream/apps/admission-webhook/upstream/overlays/cert-manager | kubectl apply -f -
