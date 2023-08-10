@@ -99,9 +99,15 @@ jobs:
       - name: Check CloudFormation stack existence (eks-cluster)
         id: check-stack-eks-cluster
         run: |
-          if aws cloudformation describe-stacks --stack-name "eksctl-eks-cluster-cluster" >/dev/null 2>&1; then
+          aws cloudformation describe-stacks --stack-name "eksctl-eks-cluster-cluster" >/dev/null 2>&1
+
+          exit_code=$?
+
+          if [ $exit_code -eq 0 ]; then
+            echo "The command was successful (Exit code: $exit_code)"
             echo "::set-output name=exists::true"
           else
+            echo "The command encountered an error (Exit code: $exit_code)"
             echo "::set-output name=exists::false"
           fi
       - name: create eks cluster
