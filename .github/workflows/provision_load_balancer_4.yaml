@@ -54,7 +54,7 @@ jobs:
       - name: health check eks
         run: |
           aws eks update-kubeconfig --region us-east-1 --name eks-cluster
-      - name: configure Ingress
+      - name: configure Ingress (kubeflow)
         run: |
           export CognitoUserPoolArn="arn:aws:cognito-idp:us-east-1:${AWS_ACCOUNT_ID}:userpool/us-east-1_W2dfRzwxz"
           export CognitoAppClientId="2na549bv5jf9atq8k0t6e40oo2"
