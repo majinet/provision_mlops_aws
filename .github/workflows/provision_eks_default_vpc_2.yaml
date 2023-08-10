@@ -96,18 +96,19 @@ jobs:
           IFS=", " read -r var1 var2 <<< "$subnetIds"
           echo "EKS_PRIVATE_SUBNET_ID_1=$var1" >> $GITHUB_ENV
           echo "EKS_PRIVATE_SUBNET_ID_2=$var2" >> $GITHUB_ENV
+      - name: Get CloudFormation stack status (eks-cluster)
+        id: get-status-eks-cluster
+        continue-on-error: true
+        run: |
+          aws cloudformation describe-stacks --stack-name "eksctl-eks-cluster-cluster"
       - name: Check CloudFormation stack existence (eks-cluster)
         id: check-stack-eks-cluster
         run: |
-          aws cloudformation describe-stacks --stack-name "eksctl-eks-cluster-cluster" >/dev/null 2>&1
-
-          exit_code=$?
-
-          if [ $exit_code -eq 0 ]; then
-            echo "The command was successful (Exit code: $exit_code)"
+          STATUS = ${{ steps.get-status-eks-cluster.outcome }}
+          
+          if [ "$STATUS" = "success" ]; then
             echo "::set-output name=exists::true"
           else
-            echo "The command encountered an error (Exit code: $exit_code)"
             echo "::set-output name=exists::false"
           fi
       - name: create eks cluster
