@@ -1,4 +1,4 @@
-name: Step 4.0 - Provisioning Load Balancer
+name: Step 4.3 - Provisioning Load Balancer
 
 on:
   workflow_dispatch:
