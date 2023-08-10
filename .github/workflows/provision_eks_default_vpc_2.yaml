@@ -105,9 +105,9 @@ jobs:
         id: check-stack-eks-cluster
         run: |
           if [ "${{ steps.get-status-eks-cluster.outcome }}" = "success" ]; then
-            echo "::set-output name=exists::true"
+            echo "exists=true" >> $GITHUB_OUTPUT
           else
-            echo "::set-output name=exists::false"
+            echo "exists=false" >> $GITHUB_OUTPUT
           fi
       - name: debug
         run: |
