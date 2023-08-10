@@ -12,7 +12,7 @@ managedNodeGroups:
     desiredCapacity: 2
     privateNetworking: true # if only 'Private' subnets are given, this must be enabled
     instanceName: ng-system
-    instanceTypes: [ "r5.large" ]
+    instanceTypes: [ "t2.micro" ]
     spot: true
     volumeSize: 20
     minSize: 0
@@ -63,7 +63,7 @@ managedNodeGroups:
   - name: ng-kafka
     amiFamily: Ubuntu2004
     labels: { role: workers, node-type: kafka }
-    desiredCapacity: 1
+    desiredCapacity: 0
     privateNetworking: true # if only 'Private' subnets are given, this must be enabled
     instanceName: ng-kafka
     instanceTypes: ["r5.large"]
@@ -80,10 +80,10 @@ managedNodeGroups:
       #instanceRoleARN: "arn:aws:iam::${AWS_ACCOUNT_ID}:role/AmazonEKSNodeRole"
       withAddonPolicies:
         #imageBuilder: true
-        #autoScaler: true
+        autoScaler: true
         ebs: true
-        #efs: true
-        #awsLoadBalancerController: true
+        efs: true
+        awsLoadBalancerController: true
         #appMesh: true
     taints:
       - key: dedicated
