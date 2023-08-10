@@ -9,10 +9,10 @@ managedNodeGroups:
   - name: ng-frontend
     amiFamily: Ubuntu2004
     labels: { role: workers, node-type: system, frontend: "true" }
-    desiredCapacity: 1
+    desiredCapacity: 2
     privateNetworking: true # if only 'Private' subnets are given, this must be enabled
     instanceName: ng-frontend
-    instanceTypes: [ "t2.micro" ]
+    instanceTypes: [ "r5.large" ]
     volumeSize: 20
     minSize: 0
     maxSize: 2
@@ -30,86 +30,61 @@ managedNodeGroups:
         efs: true
         awsLoadBalancerController: true
         #appMesh: true
-  - name: ng-system
-    amiFamily: Ubuntu2004
-    labels: { role: workers, node-type: system }
-    desiredCapacity: 1
-    privateNetworking: true # if only 'Private' subnets are given, this must be enabled
-    instanceName: ng-system
-    instanceTypes: [ "r5.large" ]
-    spot: true
-    volumeSize: 20
-    minSize: 0
-    maxSize: 4
-    ssh:
-      allow: false
-      publicKeyName: eks_connect
-      enableSsm: true
-    maxPodsPerNode: 110
-    iam:
-      #instanceRoleARN: "arn:aws:iam::${AWS_ACCOUNT_ID}:role/AmazonEKSNodeRole"
-      withAddonPolicies:
-        #imageBuilder: true
-        autoScaler: true
-        ebs: true
-        efs: true
-        awsLoadBalancerController: true
-        #appMesh: true
-  - name: ng-kubeflow
-    amiFamily: Ubuntu2004
-    labels: { role: workers, node-type: kserve }
-    desiredCapacity: 0
-    privateNetworking: true # if only 'Private' subnets are given, this must be enabled
-    instanceName: ng-kubeflow
-    instanceTypes: ["r5.large"]
-    spot: true
-    volumeSize: 20
-    minSize: 0
-    maxSize: 3
-    ssh:
-      allow: false
-      publicKeyName: eks_connect
-      enableSsm: true
-    maxPodsPerNode: 110
-    iam:
-      #instanceRoleARN: "arn:aws:iam::${AWS_ACCOUNT_ID}:role/AmazonEKSNodeRole"
-      withAddonPolicies:
-        #imageBuilder: true
-        autoScaler: true
-        ebs: true
-        efs: true
-        awsLoadBalancerController: true
-        #appMesh: true
-    taints:
-      - key: dedicated
-        value: "kserve"
-        effect: NoSchedule
-  - name: ng-kafka
-    amiFamily: Ubuntu2004
-    labels: { role: workers, node-type: kafka }
-    desiredCapacity: 0
-    privateNetworking: true # if only 'Private' subnets are given, this must be enabled
-    instanceName: ng-kafka
-    instanceTypes: ["r5.large"]
-    spot: true
-    volumeSize: 20
-    minSize: 0
-    maxSize: 1
-    ssh:
-      allow: false
-      publicKeyName: eks_connect
-      enableSsm: true
-    maxPodsPerNode: 110
-    iam:
-      #instanceRoleARN: "arn:aws:iam::${AWS_ACCOUNT_ID}:role/AmazonEKSNodeRole"
-      withAddonPolicies:
-        #imageBuilder: true
-        autoScaler: true
-        ebs: true
-        efs: true
-        awsLoadBalancerController: true
-        #appMesh: true
-    taints:
-      - key: dedicated
-        value: "kafka"
-        effect: NoSchedule
+  #- name: ng-kubeflow
+  #  amiFamily: Ubuntu2004
+  #  labels: { role: workers, node-type: kserve }
+  #  desiredCapacity: 0
+  #  privateNetworking: true # if only 'Private' subnets are given, this must be enabled
+  #  instanceName: ng-kubeflow
+  #  instanceTypes: ["r5.large"]
+  #  spot: true
+  #  volumeSize: 20
+  #  minSize: 0
+  #  maxSize: 3
+  #  ssh:
+  #    allow: false
+  #    publicKeyName: eks_connect
+  #    enableSsm: true
+  #  maxPodsPerNode: 110
+  #  iam:
+  #    #instanceRoleARN: "arn:aws:iam::${AWS_ACCOUNT_ID}:role/AmazonEKSNodeRole"
+  #    withAddonPolicies:
+  #      #imageBuilder: true
+  #      autoScaler: true
+  #      ebs: true
+  #      efs: true
+  #      awsLoadBalancerController: true
+  #      #appMesh: true
+  #  taints:
+  #    - key: dedicated
+  #      value: "kserve"
+  #      effect: NoSchedule
+  #- name: ng-kafka
+  #  amiFamily: Ubuntu2004
+  #  labels: { role: workers, node-type: kafka }
+  #  desiredCapacity: 0
+  #  privateNetworking: true # if only 'Private' subnets are given, this must be enabled
+  #  instanceName: ng-kafka
+  #  instanceTypes: ["r5.large"]
+  #  spot: true
+  #  volumeSize: 20
+  #  minSize: 0
+  #  maxSize: 1
+  #  ssh:
+  #    allow: false
+  #    publicKeyName: eks_connect
+  #   enableSsm: true
+  #  maxPodsPerNode: 110
+  #  iam:
+  #    #instanceRoleARN: "arn:aws:iam::${AWS_ACCOUNT_ID}:role/AmazonEKSNodeRole"
+  #    withAddonPolicies:
+  #      #imageBuilder: true
+  #      autoScaler: true
+  #      ebs: true
+  #      efs: true
+  #      awsLoadBalancerController: true
+  #      #appMesh: true
+  #  taints:
+  #    - key: dedicated
+  #      value: "kafka"
+  #      effect: NoSchedule
