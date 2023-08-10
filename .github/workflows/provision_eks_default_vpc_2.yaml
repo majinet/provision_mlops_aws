@@ -109,9 +109,6 @@ jobs:
           else
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
-      - name: debug
-        run: |
-          echo "status: ${{steps.check-stack-eks-cluster.outputs.exists}}"
       - name: create eks cluster
         id: create-eks-cluster
         if: steps.check-stack-eks-cluster.outputs.exists == 'false'
