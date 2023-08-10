@@ -111,10 +111,10 @@ jobs:
           fi
       - name: debug
         run: |
-          echo "status: ${{steps.check-stack-eks-cluster.exists}}"
+          echo "status: ${{steps.check-stack-eks-cluster.outputs.exists}}"
       - name: create eks cluster
         id: create-eks-cluster
-        if: steps.check-stack-eks-cluster.exists == 'false'
+        if: steps.check-stack-eks-cluster.outputs.exists == 'false'
         run: | 
           cat config/eks/amazon-eks-cluster.yaml | envsubst  > amazon-eks-cluster.yaml
           cat amazon-eks-cluster.yaml
