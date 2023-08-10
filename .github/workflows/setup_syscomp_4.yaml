@@ -77,7 +77,7 @@ jobs:
       - name: deploy Admission Webhook (cert-manager)
         run: |
           kustomize build upstream/apps/admission-webhook/upstream/overlays/cert-manager | kubectl apply -f -
-      - name: deploy NGINX ingress controller
-        run: |
-          forgeops/bin/ingress-controller-deploy.sh --eks
+      #- name: deploy NGINX ingress controller
+      #  run: |
+      #    forgeops/bin/ingress-controller-deploy.sh --eks
           
