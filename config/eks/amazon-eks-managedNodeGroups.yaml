@@ -15,7 +15,7 @@ managedNodeGroups:
     instanceTypes: [ "r5.large" ]
     volumeSize: 20
     minSize: 0
-    maxSize: 2
+    maxSize: 4
     ssh:
       allow: false
       publicKeyName: eks_connect

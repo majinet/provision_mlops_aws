@@ -69,6 +69,9 @@ jobs:
       - name: install cert-manager
         run: |
           kustomize build upstream/common/cert-manager/cert-manager/base | kubectl apply -f -
+      - name: deploy AWS Secret Manager
+        run: |
+          kustomize build kubeflow-manifests/awsconfigs/common/aws-secrets-manager | kubectl apply -f -
       - name: install istio
         run: |
           kustomize build upstream/common/istio-1-16/istio-crds/base | kubectl apply -f -
@@ -82,4 +85,8 @@ jobs:
           cp main/config/nginx-ingress-controller/eks.yaml forgeops/cluster/addons/nginx-ingress-controller/eks.yaml
           cd forgeops/bin
           ./ingress-controller-deploy.sh --eks
+      - name: deploy snapshot-controller
+        run: |
+          helm repo add piraeus-charts https://piraeus.io/helm-charts/
+          helm install snapshot-controller piraeus-charts/snapshot-controller
           
