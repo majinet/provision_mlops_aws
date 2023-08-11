@@ -38,6 +38,12 @@ jobs:
           repository: ForgeRock/forgeops
           ref: release/7.3-20230706
           path: forgeops
+      - name: Checkout ForgeRock extra
+        uses: actions/checkout@v3
+        with:
+          repository: ForgeRock/forgeops-extras
+          ref: master
+          path: forgeops-extras
       - name: Configure AWS credentials
         id: creds
         uses: aws-actions/configure-aws-credentials@v2
@@ -103,17 +109,7 @@ jobs:
            --password-stdin ${{env.AWS_ACCOUNT_ID}}.dkr.ecr.${{env.AWS_REGION}}.amazonaws.com
           
           skaffold config set default-repo ${{env.AWS_ACCOUNT_ID}}.dkr.ecr.${{env.AWS_REGION}}.amazonaws.com/forgeops
-      - name: deploy CDM
+      - name: CDM deploy (ForgeRock)
         run: |
           cd forgeops/bin
-          ./config.sh init --profile cdk
-      - name: create secrets
-        run: |
-          cd forgeops
-          # Deploy the secrets
-          cd kustomize/base/secrets 
-          kubectl apply --filename secret_agent_config.yaml
-      - name: deploy ForgeRock
-        run: |
-          cd forgeops
-          skaffold run --profile small
+          ./forgeops install --small --fqdn cdm.platform.whatautomatech.com --namespace forgerock
