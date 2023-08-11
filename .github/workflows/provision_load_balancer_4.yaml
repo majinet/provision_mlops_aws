@@ -86,10 +86,10 @@ jobs:
           kustomize build kubeflow-manifests/awsconfigs/common/aws-alb-ingress-controller/base | kubectl apply -f -
           
           kubectl wait --for condition=established crd/ingressclassparams.elbv2.k8s.aws
-      - name: Create Ingress
-        run: |
-          kustomize build kubeflow-manifests/awsconfigs/common/aws-authservice/base | kubectl apply -f -
-          kustomize build kubeflow-manifests/awsconfigs/common/istio-ingress/overlays/cognito | kubectl apply -f -
+      #- name: Create Ingress
+      #  run: |
+      #    kustomize build kubeflow-manifests/awsconfigs/common/aws-authservice/base | kubectl apply -f -
+      #    kustomize build kubeflow-manifests/awsconfigs/common/istio-ingress/overlays/cognito | kubectl apply -f -
           
 
 
