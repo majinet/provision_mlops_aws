@@ -109,11 +109,11 @@ jobs:
           ./config.sh init --profile cdk
       - name: create secrets
         run: |
-          pwd
           cd forgeops
           # Deploy the secrets
           cd kustomize/base/secrets 
           kubectl apply --filename secret_agent_config.yaml
       - name: deploy ForgeRock
         run: |
+          cd forgeops
           skaffold run --profile small
