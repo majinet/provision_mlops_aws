@@ -111,7 +111,7 @@ jobs:
         run: |
           cd ..
           # Deploy the secrets
-          cd forgeops/kustomize/base/secrets 
+          cd kustomize/base/secrets 
           kubectl apply --filename secret_agent_config.yaml
       - name: deploy ForgeRock
         run: |
