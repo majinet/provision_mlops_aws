@@ -78,6 +78,10 @@ jobs:
         run: |
           wget http://ftp.de.debian.org/debian/pool/main/k/kubectx/kubectx_0.9.3-1_all.deb
           sudo dpkg -i kubectx_0.9.3-1_all.deb
+      - name: install skaffold
+        run: |
+          curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64 && \
+          sudo install skaffold /usr/local/bin/
       - name: Health Check Cluster
         id: health-check-eks
         run: |
