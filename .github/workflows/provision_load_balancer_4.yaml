@@ -80,7 +80,19 @@ jobs:
           printf '
             LOGOUT_URL='$CognitoLogoutURL'
           ' > kubeflow-manifests/awsconfigs/common/aws-authservice/base/params.env
+      - name: Check Pod with Label (aws-load-balancer-controller)
+        id: check-alb-controller
+        run: |
+          POD_COUNT=$(kubectl get pods -l app.kubernetes.io/name=aws-load-balancer-controller --no-headers=true | wc -l)
+          if [[ "$POD_COUNT" -gt 0 ]]; then
+            echo "Pod with label exists."
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "Pod with label does not exist."
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
       - name: Install Load Balancer Controller
+        if: steps.check-alb-controller.outputs.exists == 'false'
         run: |
           printf 'clusterName='${{env.CLUSTER_NAME}}'' > kubeflow-manifests/awsconfigs/common/aws-alb-ingress-controller/base/params.env
           kustomize build kubeflow-manifests/awsconfigs/common/aws-alb-ingress-controller/base | kubectl apply -f -

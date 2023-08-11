@@ -75,7 +75,8 @@ jobs:
           sudo apt install yq -y
       - name: install kubectx and kubens
         run: |
-          sudo apt install kubectx -y
+          wget http://ftp.de.debian.org/debian/pool/main/k/kubectx/kubectx_0.9.3-1_all.deb
+          sudo dpkg -i kubectx_0.9.3-1_all.deb
       - name: Health Check Cluster
         id: health-check-eks
         run: |
