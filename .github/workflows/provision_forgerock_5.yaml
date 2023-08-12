@@ -114,8 +114,8 @@ jobs:
           kubectl apply -f main/config/eks/storageclass/forgerock_sc.yaml
       - name: CDM deploy (ForgeRock)
         run: |
-          yq -i '.spec.podTemplate.volumeClaimSpec.resources.requests.storage = "8Gi"' forgeops/kustomize/overlay/small/ds-cts.yaml
-          yq -i '.spec.podTemplate.volumeClaimSpec.resources.requests.storage = "8Gi"' forgeops/kustomize/overlay/small/ds-idrepo.yaml
+          yq -i eval '.spec.podTemplate.volumeClaimSpec.resources.requests.storage = "8Gi"' forgeops/kustomize/overlay/small/ds-cts.yaml
+          yq -i eval '.spec.podTemplate.volumeClaimSpec.resources.requests.storage = "8Gi"' forgeops/kustomize/overlay/small/ds-idrepo.yaml
           
           cd forgeops/bin
           ./forgeops install --small --fqdn cdm.platform.whatautomatech.com --namespace forgerock
