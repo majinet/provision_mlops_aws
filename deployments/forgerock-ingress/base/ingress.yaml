@@ -11,11 +11,11 @@ metadata:
 spec:
   rules:
     - http:
-      paths:
-      - backend:
-          service:
-            name: ingress-nginx-controller
-            port:
-              number: 80
-        path: /*
-        pathType: ImplementationSpecific
+        paths:
+        - backend:
+            service:
+              name: ingress-nginx-controller
+              port:
+                number: 80
+          path: /*
+          pathType: ImplementationSpecific
