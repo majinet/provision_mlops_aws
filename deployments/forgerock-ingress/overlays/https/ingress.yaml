@@ -15,3 +15,5 @@ spec:
               name: ingress-nginx-controller
               port:
                 number: 443
+          path: /*
+          pathType: ImplementationSpecific
