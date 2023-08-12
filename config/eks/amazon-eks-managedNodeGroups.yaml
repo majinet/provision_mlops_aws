@@ -12,10 +12,10 @@ managedNodeGroups:
     desiredCapacity: 2
     privateNetworking: true # if only 'Private' subnets are given, this must be enabled
     instanceName: ng-frontend
-    instanceTypes: [ "r5.large" ]
+    instanceTypes: [ "r5.xlarge" ]
     volumeSize: 20
     minSize: 0
-    maxSize: 4
+    maxSize: 10
     ssh:
       allow: false
       publicKeyName: eks_connect
