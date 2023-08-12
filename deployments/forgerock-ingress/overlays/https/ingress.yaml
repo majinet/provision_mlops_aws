@@ -6,3 +6,12 @@ metadata:
     kubernetes.io/ingress.class: alb
     alb.ingress.kubernetes.io/certificate-arn: $(certArn)
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+spec:
+  rules:
+    - http:
+        paths:
+        - backend:
+            service:
+              name: ingress-nginx-controller
+              port:
+                number: 443
