@@ -16,6 +16,6 @@ spec:
             service:
               name: ingress-nginx-controller
               port:
-                number: 31364
+                number: 31109
           path: /*
           pathType: ImplementationSpecific
