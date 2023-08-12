@@ -78,8 +78,8 @@ jobs:
           kustomize build upstream/common/cert-manager/cert-manager/base | kubectl apply -f -
       - name: deploy AWS Secret Manager
         run: |
-          helm3 repo add secrets-store-csi-driver https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts
-          helm3 install -n kube-system csi-secrets-store secrets-store-csi-driver/secrets-store-csi-driver
+          helm repo add secrets-store-csi-driver https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts
+          helm install -n kube-system csi-secrets-store secrets-store-csi-driver/secrets-store-csi-driver
           
           #kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/secrets-store-csi-driver/v1.3.2/deploy/rbac-secretproviderclass.yaml
           #kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/secrets-store-csi-driver/v1.3.2/deploy/csidriver.yaml
