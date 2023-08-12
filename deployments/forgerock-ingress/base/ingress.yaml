@@ -10,7 +10,7 @@ metadata:
   name: forgerock-ingress
 spec:
   rules:
-    http:
+    - http:
       paths:
       - backend:
           service:
