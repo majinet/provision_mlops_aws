@@ -9,6 +9,7 @@ metadata:
     alb.ingress.kubernetes.io/target-type: ip
   name: forgerock-ingress
 spec:
+  ingressClassName: alb
   rules:
     - http:
         paths:
