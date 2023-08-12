@@ -13,6 +13,7 @@ managedNodeGroups:
     privateNetworking: true # if only 'Private' subnets are given, this must be enabled
     instanceName: ng-frontend
     instanceTypes: [ "r5.xlarge" ]
+    spot: true
     volumeSize: 20
     minSize: 0
     maxSize: 10
