@@ -3,6 +3,6 @@ kind: Ingress
 metadata:
   name: forgerock-ingress
   annotations:
-    #kubernetes.io/ingress.class: alb
+    kubernetes.io/ingress.class: alb
     alb.ingress.kubernetes.io/certificate-arn: $(certArn)
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
