@@ -103,12 +103,12 @@ jobs:
       - name: Environment Setup (deploy Secret Agent Operator)
         run: |
           kubectl apply -f https://github.com/ForgeRock/secret-agent/releases/latest/download/secret-agent.yaml
-      - name: Environment Setup (Prepare to push Docker images)
-        run: |
-          aws ecr get-login-password | docker login --username AWS  \
-           --password-stdin ${{env.AWS_ACCOUNT_ID}}.dkr.ecr.${{env.AWS_REGION}}.amazonaws.com
+      #- name: Environment Setup (Prepare to push Docker images)
+      #  run: |
+      #    aws ecr get-login-password | docker login --username AWS  \
+      #     --password-stdin ${{env.AWS_ACCOUNT_ID}}.dkr.ecr.${{env.AWS_REGION}}.amazonaws.com
           
-          skaffold config set default-repo ${{env.AWS_ACCOUNT_ID}}.dkr.ecr.${{env.AWS_REGION}}.amazonaws.com/forgeops
+      #    skaffold config set default-repo ${{env.AWS_ACCOUNT_ID}}.dkr.ecr.${{env.AWS_REGION}}.amazonaws.com/forgeops
       - name: create storage class
         run: |
           kubectl apply -f main/config/eks/storageclass/forgerock_sc.yaml
@@ -119,3 +119,10 @@ jobs:
           
           cd forgeops/bin
           ./forgeops install --small --fqdn cdm.platform.whatautomatech.com --namespace forgerock
+      - name: deploy ingress
+        run: |
+          printf '
+          certArn='arn:aws:acm:us-east-1:404886641986:certificate/3fd97db7-6bd6-4a12-a7ef-47c9bea5eac2'
+          ' > main/deployments/forgerock-ingress/overlays/https/params.env
+          
+          kustomize build main/deployments/forgerock-ingress | kubectl apply -f -
