@@ -111,7 +111,7 @@ jobs:
           skaffold config set default-repo ${{env.AWS_ACCOUNT_ID}}.dkr.ecr.${{env.AWS_REGION}}.amazonaws.com/forgeops
       - name: create storage class
         run: |
-          kubectl apply -f config/eks/storageclass/forgerock_sc.yaml
+          kubectl apply -f main/config/eks/storageclass/forgerock_sc.yaml
       - name: CDM deploy (ForgeRock)
         run: |
           yq -i '.spec.podTemplate.volumeClaimSpec.resources.requests.storage = "8Gi"' forgeops/kustomize/overlay/small/ds-cts.yaml
