@@ -102,9 +102,11 @@ jobs:
           kustomize build upstream/apps/admission-webhook/upstream/overlays/cert-manager | kubectl apply -f -
       - name: deploy NGINX ingress controller
         run: |
-          cp main/config/nginx-ingress-controller/eks.yaml forgeops/cluster/addons/nginx-ingress-controller/eks.yaml
-          cd forgeops/bin
-          ./ingress-controller-deploy.sh --eks
+          kubectl apply -f main/config/nginx-ingress-controller/deploy_nodeport.yaml
+          
+          #cp main/config/nginx-ingress-controller/eks.yaml forgeops/cluster/addons/nginx-ingress-controller/eks.yaml
+          #cd forgeops/bin
+          #./ingress-controller-deploy.sh --eks
       - name: deploy snapshot-controller
         run: |
           helm repo add piraeus-charts https://piraeus.io/helm-charts/
