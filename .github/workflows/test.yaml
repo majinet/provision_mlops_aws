@@ -80,7 +80,7 @@ jobs:
       - name: deploy ingress
         run: |
           printf '
-          certArn='arn:aws:acm:us-east-1:404886641986:certificate/3fd97db7-6bd6-4a12-a7ef-47c9bea5eac2'
-          ' > main/deployments/forgerock-ingress/overlays/https/params.env
+          certArn='arn:aws:acm:us-east-1:404886641986:certificate/c5522102-77a1-4c68-873a-f7355a5edd75'
+          ' > main/deployments/alb-ingress/overlays/https/params.env
           
-          kustomize build main/deployments/forgerock-ingress/overlays/https | kubectl apply -f -
+          kustomize build main/deployments/alb-ingress/overlays/https | kubectl apply -f -
