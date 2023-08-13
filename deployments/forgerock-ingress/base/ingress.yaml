@@ -8,7 +8,7 @@ metadata:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
     alb.ingress.kubernetes.io/target-type: instance
     alb.ingress.kubernetes.io/group.name: "tg-ng-frontend"
-  name: ingress-nginx
+  name: ingress-alb
 spec:
   rules:
     - http:
