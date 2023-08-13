@@ -1,4 +1,4 @@
-apiVersion: networking.k8s.io/v1
+﻿apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   annotations:
@@ -15,7 +15,7 @@ spec:
         paths:
         - backend:
             service:
-              name: ingress-nginx-controller
+              name: "ingress-nginx-controller.ingress-nginx.svc.cluster.local"
               port:
                 number: 80
           path: /*
