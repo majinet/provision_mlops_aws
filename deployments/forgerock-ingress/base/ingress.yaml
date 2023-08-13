@@ -15,7 +15,7 @@ spec:
         paths:
         - backend:
             service:
-              name: ingress-nginx-controller.ingress-nginx.svc.cluster.local
+              name: ingress-nginx-controller
               port:
                 number: 80
           path: /*
