@@ -8,14 +8,14 @@ metadata:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
     alb.ingress.kubernetes.io/target-type: instance
     alb.ingress.kubernetes.io/group.name: "tg-ng-frontend"
-  name: forgerock-ingress
+  name: ingress-nginx
 spec:
   rules:
     - http:
         paths:
         - backend:
             service:
-              name: "ingress-nginx-controller.ingress-nginx.svc.cluster.local"
+              name: ingress-nginx-controller
               port:
                 number: 80
           path: /*
