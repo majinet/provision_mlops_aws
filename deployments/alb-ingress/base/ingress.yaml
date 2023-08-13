@@ -11,7 +11,8 @@ metadata:
   name: ingress-alb
 spec:
   rules:
-    - http:
+    - host: cdm.platform.whatautomatech.com
+      http:
         paths:
         - backend:
             service:
