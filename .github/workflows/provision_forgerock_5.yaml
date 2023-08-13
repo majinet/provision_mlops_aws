@@ -116,6 +116,7 @@ jobs:
         run: |
           yq -i eval '.spec.podTemplate.volumeClaimSpec.resources.requests.storage = "8Gi"' forgeops/kustomize/overlay/small/ds-cts.yaml
           yq -i eval '.spec.podTemplate.volumeClaimSpec.resources.requests.storage = "8Gi"' forgeops/kustomize/overlay/small/ds-idrepo.yaml
+          yq -i eval '.metadata.annotations[0]."nginx.ingress.kubernetes.io/ssl-redirect" = "false"' forgeops/kustomize/base/ingress/ingress.yaml
           
           cd forgeops/bin
           ./forgeops install --small --fqdn cdm.platform.whatautomatech.com --namespace forgerock
