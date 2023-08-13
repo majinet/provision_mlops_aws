@@ -18,6 +18,5 @@ spec:
               name: ingress-nginx-controller.ingress-nginx.svc.cluster.local
               port:
                 number: 80
-              namespace: ingress-nginx
           path: /*
           pathType: ImplementationSpecific
