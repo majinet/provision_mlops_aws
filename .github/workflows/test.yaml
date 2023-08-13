@@ -77,9 +77,6 @@ jobs:
         run: |
           aws eks update-kubeconfig --name ${{env.CLUSTER_NAME}} --region ${{env.AWS_REGION}}
           kubectl config get-contexts
-      - name: switch namespace
-        run: |
-          kubens forgerock
       - name: deploy ingress
         run: |
           printf '
