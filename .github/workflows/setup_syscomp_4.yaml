@@ -100,6 +100,28 @@ jobs:
       - name: deploy Admission Webhook (cert-manager)
         run: |
           kustomize build upstream/apps/admission-webhook/upstream/overlays/cert-manager | kubectl apply -f -
+      - name: Check Pod with Label (aws-load-balancer-controller)
+        id: check-alb-controller
+        run: |
+          POD_COUNT=$(kubectl get pods -l app.kubernetes.io/name=aws-load-balancer-controller --no-headers=true | wc -l)
+          if [[ "$POD_COUNT" -gt 0 ]]; then
+            echo "Pod with label exists."
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "Pod with label does not exist."
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+      - name: Install Load Balancer Controller
+        if: steps.check-alb-controller.outputs.exists == 'false'
+        run: |
+          printf 'clusterName='${{env.CLUSTER_NAME}}'' > kubeflow-manifests/awsconfigs/common/aws-alb-ingress-controller/base/params.env
+          kustomize build kubeflow-manifests/awsconfigs/common/aws-alb-ingress-controller/base | kubectl apply -f -
+          
+          kubectl wait --for condition=established crd/ingressclassparams.elbv2.k8s.aws
+      #- name: Create Ingress
+      #  run: |
+      #    kustomize build kubeflow-manifests/awsconfigs/common/aws-authservice/base | kubectl apply -f -
+      #    kustomize build kubeflow-manifests/awsconfigs/common/istio-ingress/overlays/cognito | kubectl apply -f -
       - name: deploy NGINX ingress controller
         run: |
           kubectl apply -f main/config/nginx-ingress-controller/deploy_nodeport.yaml
