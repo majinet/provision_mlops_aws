@@ -346,7 +346,6 @@ metadata:
 spec:
   # this setting is t make sure the source IP address is preserved.
   externalTrafficPolicy: Local
-  externalName: ingress-nginx-controller.ingress-nginx.svc.cluster.local
   ipFamilies:
   - IPv4
   ipFamilyPolicy: SingleStack
