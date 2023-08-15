@@ -49,11 +49,11 @@ resources:
   # Configured for AWS Cognito
 
   # Ingress
-  #- ../../awsconfigs/common/istio-ingress/overlays/cognito
+  - ../../awsconfigs/common/istio-ingress/overlays/cognito
   # ALB controller
   #- ../../awsconfigs/common/aws-alb-ingress-controller/base
   # Authservice
-  #- ../../awsconfigs/common/aws-authservice/base
+  - ../../awsconfigs/common/aws-authservice/base
 
   # Configured for AWS RDS and AWS S3
 
