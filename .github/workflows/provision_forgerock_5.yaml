@@ -112,10 +112,6 @@ jobs:
       - name: create storage class
         run: |
           kubectl apply -f main/config/eks/storageclass/forgerock_sc.yaml
-      - name: deploy IG
-        run: |
-          cd forgeops/bin
-          ./forgeops install ig --cdk --fqdn cdm.platform.whatautomatech.com --namespace forgerock
       - name: CDM deploy (ForgeRock)
         run: |
           yq -i eval '.spec.podTemplate.volumeClaimSpec.resources.requests.storage = "8Gi"' forgeops/kustomize/overlay/small/ds-cts.yaml
@@ -127,3 +123,7 @@ jobs:
                 
           cd forgeops/bin
           ./forgeops install --small --fqdn cdm.platform.whatautomatech.com --namespace forgerock
+      - name: deploy IG
+        run: |
+          cd forgeops/bin
+          ./forgeops install ig --cdk --fqdn cdm.platform.whatautomatech.com --namespace forgerock
