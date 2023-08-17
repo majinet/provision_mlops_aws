@@ -1,11 +1,11 @@
 config:
   clusters:
-    - name: your-cluster
-      short_description: "Your cluster"
-      description: "Your EKS cluster"
+    - name: eks-cluster
+      short_description: "eks cluster"
+      description: "EKS cluster"
       issuer: https://dex.platform.whatautomatech.com
-      client_id: ${OIDC_GITHUB_CLIENT_ID}
-      client_secret: ${OIDC_GITHUB_CLIENT_SECRET}
+      client_id: eks-client-1
+      client_secret: "password"
       redirect_uri: https://login.platform.whatautomatech.com/callback
       k8s_master_uri: https://${EKS_ENDPOINT}
       k8s_ca_pem: |
