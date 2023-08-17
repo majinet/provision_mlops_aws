@@ -14,6 +14,8 @@ on:
 env:
   AWS_REGION : ${{ github.event.inputs.region}} #Change to reflect your Region
   AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+  OIDC_GITHUB_CLIENT_SECRET: ${{ secrets.OIDC_GITHUB_CLIENT_SECRET}}
+  OIDC_GITHUB_CLIENT_ID: ${{ secrets.OIDC_GITHUB_CLIENT_ID}}
   CLUSTER_NAME: eks-cluster
 
 # Permission can be added at job level or workflow level
@@ -152,4 +154,44 @@ jobs:
         run: |
           helm repo add piraeus-charts https://piraeus.io/helm-charts/
           helm install snapshot-controller piraeus-charts/snapshot-controller
+      - name: deploy dex
+        run: |
+          helm repo add dex https://charts.dexidp.io
+          helm repo update
+          cat main/helm/charts/dex/dex.yaml | envsubst  > dex.yaml
+          cat dex.yaml
+          
+          helm install dex dex/dex --namespace dex --create-namespace --version 0.2.0 --values dex.yaml
+      - name: get client cert
+        run: |
+          client_cert=$(aws eks describe-cluster --name ${{env.CLUSTER_NAME}} --query 'cluster.certificateAuthority' --region ${{env.AWS_REGION}} --output text | base64 -d)
+          
+          echo "CLIENT_CERT: $client_cert"
+          echo "CLIENT_CERT=$client_cert" >> $GITHUB_ENV
+      - name: get eks endpoint
+        run: |
+          eks_endpoint=$(aws eks describe-cluster --name your-cluster-name --query "cluster.endpoint" --output text)
+          
+          echo "EKS_ENDPOINT: $eks_endpoint"
+          echo "EKS_ENDPOINT=$eks_endpoint" >> $GITHUB_ENV
+      - name: deploy dex-k8s-authenticator
+        run: |
+          cat main/helm/charts/dex-k8s-authenticator/dex-k8s-authenticator.yaml | envsubst  > dex-k8s-authenticator.yaml
+          cat dex-k8s-authenticator.yaml
+          
+          helm repo add skm https://charts.sagikazarmark.dev
+          helm repo update
+          
+          helm install dex-k8s-authenticator skm/dex-k8s-authenticator --namespace dex --version 0.0.1 --values dex-k8s-authenticator.yaml
+      - name: apply clusterrolebinding
+        run: |
+          kubectl apply -f main/config/eks/clusterrolebinding/dex-k8s-clusterrolebinding.yaml
+      - name: apply cluster issuer cert
+        run: |
+           kubectl apply -f main/config/eks/dex-k8s-clusterrolebinding.yaml
+          
+          
+          
+          
+
           

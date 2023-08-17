@@ -1,0 +1,51 @@
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    kubernetes.io/tls-acme: "true"
+    cert-manager.io/cluster-issuer: acme
+  hosts:
+    - host: dex.platform.whatautomatech.com
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls:
+    - secretName: dex-tls
+      hosts:
+        - dex.platform.whatautomatech.com
+
+config:
+  issuer: https://dex.platform.whatautomatech.com
+
+  storage:
+    type: kubernetes
+    config:
+      inCluster: true
+
+  oauth2:
+    responseTypes: ["code", "token", "id_token"]
+    skipApprovalScreen: true
+
+  connectors:
+    - type: github
+      id: github
+      name: GitHub
+      config:
+        clientID: "{{ .Env.GITHUB_CLIENT_ID }}"
+        clientSecret: "{{ .Env.GITHUB_CLIENT_SECRET }}"
+        redirectURI: https://dex.platform.whatautomatech.com/callback
+        orgs:
+          - name: Devops-Blocks-Builder
+            teams:
+              - mlops
+
+  staticClients:
+    - id: eks-client-1
+      secret: "password"
+      name: "eks-cluster"
+      redirectURIs:
+        - https://login.platform.whatautomatech.com/callback
+# Note: this will inject the environment variables directly to the pods.# In a production environment you should mount these keys from a secret using envFrom.# See https://artifacthub.io/packages/helm/dex/dex#values
+env:
+  GITHUB_CLIENT_ID: ${OIDC_GITHUB_CLIENT_ID} #"b4b78476ffc91a619617"
+  GITHUB_CLIENT_SECRET: ${OIDC_GITHUB_CLIENT_SECRET} #"4559b72b032f4e165d9af4d412abde634d4c8e97"

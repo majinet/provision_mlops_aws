@@ -20,6 +20,13 @@ privateCluster:
 
 #availabilityZones: ["us-east-1f",  "us-east-1d"]
 
+identityProviders:
+  - name: dex-eks
+    issuerURL: https://dex.platform.whatautomatech.com
+    clientID: eks-client-1
+    usernameClaim: email
+    type: oidc
+
 addons:
   - name: vpc-cni # no version is specified so it deploys the default version
     version: latest
