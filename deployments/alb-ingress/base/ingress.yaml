@@ -14,13 +14,12 @@ metadata:
   name: ingress-alb
 spec:
   rules:
-    - host: cdm.platform.whatautomatech.com
-      http:
-        paths:
-        - backend:
-            service:
-              name: ingress-nginx-controller
-              port:
-                number: 80
-          path: /*
-          pathType: ImplementationSpecific
+    http:
+      paths:
+      - backend:
+          service:
+            name: ingress-nginx-controller
+            port:
+              number: 80
+        path: /*
+        pathType: ImplementationSpecific
