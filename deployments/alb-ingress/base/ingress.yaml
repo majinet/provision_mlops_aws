@@ -14,7 +14,7 @@ metadata:
   name: ingress-alb
 spec:
   rules:
-    http:
+  - http:
       paths:
       - backend:
           service:
