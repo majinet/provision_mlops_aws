@@ -178,7 +178,7 @@ jobs:
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
       - name: deploy dex
-        if: steps.dex.outputs.exists == 'false'
+        if: steps.check-dex.outputs.exists == 'false'
         run: |
           helm repo add dex https://charts.dexidp.io
           helm repo update
