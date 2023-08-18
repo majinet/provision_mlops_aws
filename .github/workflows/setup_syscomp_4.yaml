@@ -162,20 +162,16 @@ jobs:
           cat dex.yaml
           
           helm install dex dex/dex --namespace dex --create-namespace --version 0.2.0 --values dex.yaml
-      - name: get client cert
-        run: |
-          client_cert=$(aws eks describe-cluster --name ${{env.CLUSTER_NAME}} --query 'cluster.certificateAuthority' --region ${{env.AWS_REGION}} --output text | base64 -d)
-          
-          echo "CLIENT_CERT: $client_cert"
-          echo "CLIENT_CERT=$client_cert" >> $GITHUB_ENV
       - name: get eks endpoint
         run: |
-          eks_endpoint=$(aws eks describe-cluster --name your-cluster-name --query "cluster.endpoint" --output text)
+          eks_endpoint=$(aws eks describe-cluster --name eks-cluster --query "cluster.endpoint" --output text)
           
           echo "EKS_ENDPOINT: $eks_endpoint"
           echo "EKS_ENDPOINT=$eks_endpoint" >> $GITHUB_ENV
       - name: deploy dex-k8s-authenticator
         run: |
+          client_cert=$(aws eks describe-cluster --name ${{env.CLUSTER_NAME}} --query 'cluster.certificateAuthority' --region ${{env.AWS_REGION}} --output text | base64 -d)
+          export CLIENT_CERT=$client_cert
           cat main/helm/charts/dex-k8s-authenticator/dex-k8s-authenticator.yaml | envsubst  > dex-k8s-authenticator.yaml
           cat dex-k8s-authenticator.yaml
           
