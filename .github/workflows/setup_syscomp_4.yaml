@@ -150,7 +150,19 @@ jobs:
           ' > main/deployments/alb-ingress/overlays/https/params.env
 
           kustomize build main/deployments/alb-ingress/overlays/https | kubectl apply -f -
+      - name: Check Pod with Label (snapshot-controller)
+        id: check-snapshot-controller
+        run: |
+          POD_COUNT=$(kubectl get pods -l app.kubernetes.io/name=snapshot-controller --no-headers=true | wc -l)
+          if [[ "$POD_COUNT" -gt 0 ]]; then
+            echo "Pod with label exists."
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "Pod with label does not exist."
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
       - name: deploy snapshot-controller
+        if: steps.check-snapshot-controller.outputs.exists == 'false'
         run: |
           helm repo add piraeus-charts https://piraeus.io/helm-charts/
           helm install snapshot-controller piraeus-charts/snapshot-controller
