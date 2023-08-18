@@ -114,3 +114,6 @@ jobs:
           
           # replace _example by "platform.whatautomatech.com"
           # kubectl edit configmap config-domain -n knative-serving
+      - name: apply ingress
+        run: |
+          kubectl apply -f config/dex/dex_kubeflow_ingress.yaml
