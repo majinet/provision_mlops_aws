@@ -9,10 +9,7 @@ config:
       redirect_uri: https://login.platform.whatautomatech.com/callback
       k8s_master_uri: https://${EKS_ENDPOINT}
       k8s_ca_pem: |
-        -----BEGIN CERTIFICATE-----
         ${CLIENT_CERT}
-        -----END CERTIFICATE-----
-
 ingress:
   enabled: true
   className: nginx
