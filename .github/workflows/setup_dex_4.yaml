@@ -75,7 +75,7 @@ jobs:
       - name: health check eks
         run: |
           aws eks update-kubeconfig --region us-east-1 --name eks-cluster
-      - name: apply cluster issue
+      - name: apply cluster issuer
         run: |
           kubectl apply -f main/config/eks/k8s-clusterissuer.yaml
       - name: Check Pod with Label (dex)
@@ -136,9 +136,6 @@ jobs:
       - name: apply clusterrolebinding
         run: |
           kubectl apply -f main/config/eks/clusterrolebinding/dex-k8s-clusterrolebinding.yaml
-      - name: apply cluster issuer cert
-        run: |
-           kubectl apply -f main/config/eks/clusterrolebinding/dex-k8s-clusterrolebinding.yaml
-      - name: apply ingress for dex
-        run: |
-          kubectl apply -f main/config/dex/dex_ingress.yaml
+      #- name: apply ingress for dex
+      #  run: |
+      #    kubectl apply -f main/config/dex/dex_ingress.yaml

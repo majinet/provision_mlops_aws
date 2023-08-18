@@ -1,3 +1,19 @@
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    kubernetes.io/tls-acme: "true"
+    cert-manager.io/cluster-issuer: acme
+  hosts:
+    - host: dex.platform.whatautomatech.com
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls:
+    - secretName: dex-tls
+      hosts:
+        - dex.platform.whatautomatech.com
+
 config:
   issuer: https://dex.platform.whatautomatech.com
 

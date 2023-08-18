@@ -25,6 +25,7 @@ identityProviders:
     issuerURL: https://dex.platform.whatautomatech.com
     clientID: eks-client-1
     usernameClaim: email
+    groupsClaim: groups
     type: oidc
 
 addons:
