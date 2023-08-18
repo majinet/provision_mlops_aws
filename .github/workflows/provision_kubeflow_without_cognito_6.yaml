@@ -1,4 +1,4 @@
-ame: Step 6.0 - Provisioning Kubeflow without cognito
+name: Step 6.0 - Provisioning Kubeflow without cognito
 
 on:
   workflow_dispatch:
