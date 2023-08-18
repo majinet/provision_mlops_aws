@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: acme
+    kubernetes.io/tls-acme: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+  name: dex-kubeflow
+  namespace: kubeflow
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: kubeflow.platform.whatautomatech.com
+    http:
+      paths:
+      - backend:
+          service:
+            name: istio-ingressgateway
+            port:
+              number: 80
+        path: /
+        pathType: ImplementationSpecific
+  tls:
+  - hosts:
+    - kubeflow.platform.whatautomatech.com
+    secretName: dex-kubeflowtls
