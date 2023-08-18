@@ -195,7 +195,13 @@ jobs:
       - name: deploy dex-k8s-authenticator
         run: |
           client_cert=$(aws eks describe-cluster --name ${{env.CLUSTER_NAME}} --query 'cluster.certificateAuthority' --region ${{env.AWS_REGION}} --output text | base64 -d)
-          export CLIENT_CERT=$client_cert
+          
+          text=$client_cert
+
+          result=$(echo "$text" | sed 's/^/        /')
+          echo "$result"
+
+          export CLIENT_CERT=$result
           cat main/helm/charts/dex-k8s-authenticator/dex-k8s-authenticator.yaml | envsubst  > dex-k8s-authenticator.yaml
           cat dex-k8s-authenticator.yaml
           
