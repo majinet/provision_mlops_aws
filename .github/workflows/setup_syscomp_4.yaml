@@ -192,7 +192,19 @@ jobs:
           
           echo "EKS_ENDPOINT: $eks_endpoint"
           echo "EKS_ENDPOINT=$eks_endpoint" >> $GITHUB_ENV
+      - name: Check Pod with Label (dex-k8s-authenticator)
+        id: check-dex-k8s-authenticator
+        run: |
+          POD_COUNT=$(kubectl get pods -n dex -l app.kubernetes.io/name=dex-k8s-authenticator --no-headers=true | wc -l)
+          if [[ "$POD_COUNT" -gt 0 ]]; then
+            echo "Pod with label exists."
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "Pod with label does not exist."
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
       - name: deploy dex-k8s-authenticator
+        if: steps.check-dex-k8s-authenticator.outputs.exists == 'false'
         run: |
           client_cert=$(aws eks describe-cluster --name ${{env.CLUSTER_NAME}} --query 'cluster.certificateAuthority' --region ${{env.AWS_REGION}} --output text | base64 -d)
           
@@ -214,7 +226,7 @@ jobs:
           kubectl apply -f main/config/eks/clusterrolebinding/dex-k8s-clusterrolebinding.yaml
       - name: apply cluster issuer cert
         run: |
-           kubectl apply -f main/config/eks/dex-k8s-clusterrolebinding.yaml
+           kubectl apply -f main/config/eks/clusterrolebinding/dex-k8s-clusterrolebinding.yaml
       - name: apply ingress for dex
         run: |
           kubectl apply -f main/config/dex/dex_ingress.yaml
