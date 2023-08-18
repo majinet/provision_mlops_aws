@@ -169,7 +169,7 @@ jobs:
       - name: Check Pod with Label (dex)
         id: check-dex
         run: |
-          POD_COUNT=$(kubectl get pods -l app.kubernetes.io/name=dex --no-headers=true | wc -l)
+          POD_COUNT=$(kubectl get pods -n dex -l app.kubernetes.io/name=dex --no-headers=true | wc -l)
           if [[ "$POD_COUNT" -gt 0 ]]; then
             echo "Pod with label exists."
             echo "exists=true" >> $GITHUB_OUTPUT
