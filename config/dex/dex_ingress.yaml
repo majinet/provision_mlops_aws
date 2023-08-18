@@ -1,0 +1,67 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: acme
+    kubernetes.io/tls-acme: "true"
+    meta.helm.sh/release-name: dex
+    meta.helm.sh/release-namespace: dex
+  labels:
+    app.kubernetes.io/instance: dex
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: dex
+    app.kubernetes.io/version: 2.37.0
+    helm.sh/chart: dex-0.15.3
+  name: dex
+  namespace: dex
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: dex.platform.whatautomatech.com
+    http:
+      paths:
+      - backend:
+          service:
+            name: dex
+            port:
+              number: 5556
+        path: /
+        pathType: ImplementationSpecific
+  tls:
+  - hosts:
+    - dex.platform.whatautomatech.com
+    secretName: dex-tls
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: acme
+    kubernetes.io/tls-acme: "true"
+    meta.helm.sh/release-name: dex-k8s-authenticator
+    meta.helm.sh/release-namespace: dex
+  labels:
+    app.kubernetes.io/instance: dex-k8s-authenticator
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: dex-k8s-authenticator
+    app.kubernetes.io/version: 1.4.0
+    helm.sh/chart: dex-k8s-authenticator-0.0.2
+  name: dex-k8s-authenticator
+  namespace: dex
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: login.platform.whatautomatech.com
+    http:
+      paths:
+      - backend:
+          service:
+            name: dex-k8s-authenticator
+            port:
+              number: 80
+        path: /
+        pathType: ImplementationSpecific
+  tls:
+  - hosts:
+    - login.platform.whatautomatech.com
+    secretName: dex-k8s-authenticator-tls
