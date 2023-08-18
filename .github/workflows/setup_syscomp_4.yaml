@@ -209,6 +209,9 @@ jobs:
       - name: apply cluster issuer cert
         run: |
            kubectl apply -f main/config/eks/dex-k8s-clusterrolebinding.yaml
+      - name: apply ingress for dex
+        run: |
+          kubectl apply -f main/config/dex/dex_ingress.yaml
           
           
           
