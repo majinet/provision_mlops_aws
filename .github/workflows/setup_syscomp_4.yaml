@@ -166,7 +166,19 @@ jobs:
         run: |
           helm repo add piraeus-charts https://piraeus.io/helm-charts/
           helm install snapshot-controller piraeus-charts/snapshot-controller
+      - name: Check Pod with Label (dex)
+        id: check-dex
+        run: |
+          POD_COUNT=$(kubectl get pods -l app.kubernetes.io/name=dex --no-headers=true | wc -l)
+          if [[ "$POD_COUNT" -gt 0 ]]; then
+            echo "Pod with label exists."
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "Pod with label does not exist."
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
       - name: deploy dex
+        if: steps.dex.outputs.exists == 'false'
         run: |
           helm repo add dex https://charts.dexidp.io
           helm repo update

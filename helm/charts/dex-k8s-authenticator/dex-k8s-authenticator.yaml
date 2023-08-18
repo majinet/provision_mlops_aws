@@ -10,6 +10,7 @@ config:
       k8s_master_uri: https://${EKS_ENDPOINT}
       k8s_ca_pem: |
         ${CLIENT_CERT}
+
 ingress:
   enabled: true
   className: nginx
