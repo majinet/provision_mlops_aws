@@ -41,6 +41,13 @@ config:
             teams:
               - mlops
 
+  expiry:
+    idTokens: 60m
+    refreshTokens:
+      absoluteLifetime: 24h
+      reuseInterval: 30m
+      validIfNotUsedFor: 15m
+
   staticClients:
     - id: eks-client-1
       secret: "password"
