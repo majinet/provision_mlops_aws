@@ -9,8 +9,8 @@ metadata:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
     alb.ingress.kubernetes.io/target-type: instance
     alb.ingress.kubernetes.io/group.name: "tg-ng-frontend"
-    alb.ingress.kubernetes.io/ssl-redirect: '443'
-    alb.ingress.kubernetes.io/backend-protocol: HTTPS
+    #alb.ingress.kubernetes.io/ssl-redirect: '443'
+    #alb.ingress.kubernetes.io/backend-protocol: HTTPS
   name: ingress-alb
 spec:
   rules:
