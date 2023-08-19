@@ -3,7 +3,7 @@ ingress:
   className: nginx
   annotations:
     kubernetes.io/tls-acme: "true"
-    cert-manager.io/cluster-issuer: acme
+    cert-manager.io/cluster-issuer: acme-staging
   hosts:
     - host: dex.platform.whatautomatech.com
       paths:

@@ -1,0 +1,25 @@
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: cert-auth-dex
+  namespace: kube-system
+spec:
+  secretName: dex-tls
+  dnsNames:
+    - dex.platform.whatautomatech.com
+  issuerRef:
+    name: acme-staging
+    kind: ClusterIssuer
+---
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: cert-auth-login
+  namespace: kube-system
+spec:
+  secretName: dex-k8s-authenticator-tls
+  dnsNames:
+    - login.platform.whatautomatech.com
+  issuerRef:
+    name: acme-staging
+    kind: ClusterIssuer

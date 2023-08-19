@@ -75,9 +75,10 @@ jobs:
       - name: health check eks
         run: |
           aws eks update-kubeconfig --region us-east-1 --name eks-cluster
-      - name: apply cluster issuer
+      - name: creat cert
         run: |
-          kubectl apply -f main/config/eks/k8s-clusterissuer.yaml
+          kubectl apply -f main/config/dex/dex_cert.yaml
+          kubectl apply -f main/config/dex/k8s-clusterissuer.yaml
       - name: Check Pod with Label (dex)
         id: check-dex
         run: |
