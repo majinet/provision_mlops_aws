@@ -1,7 +1,7 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: cert-auth-dex
+  name: dex-tls
   namespace: kube-system
 spec:
   secretName: dex-tls
@@ -14,7 +14,7 @@ spec:
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: cert-auth-login
+  name: dex-k8s-authenticator-tls
   namespace: kube-system
 spec:
   secretName: dex-k8s-authenticator-tls
