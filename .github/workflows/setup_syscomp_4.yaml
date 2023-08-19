@@ -143,6 +143,10 @@ jobs:
           #cp main/config/nginx-ingress-controller/eks.yaml forgeops/cluster/addons/nginx-ingress-controller/eks.yaml
           #cd forgeops/bin
           #./ingress-controller-deploy.sh --eks
+      - name: Sleep for 30 seconds
+        uses: jakejarvis/wait-action@master
+        with:
+          time: '60s'
       - name: deploy ingress
         run: |
           printf '
