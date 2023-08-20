@@ -114,12 +114,12 @@ jobs:
           kubectl apply -f main/config/eks/storageclass/forgerock_sc.yaml
       - name: CDM deploy (ForgeRock)
         run: |
-          yq -i eval '.spec.podTemplate.volumeClaimSpec.resources.requests.storage = "8Gi"' forgeops/kustomize/overlay/small/ds-cts.yaml
-          yq -i eval '.spec.podTemplate.volumeClaimSpec.resources.requests.storage = "8Gi"' forgeops/kustomize/overlay/small/ds-idrepo.yaml
+          #yq -i eval '.spec.podTemplate.volumeClaimSpec.resources.requests.storage = "8Gi"' forgeops/kustomize/overlay/small/ds-cts.yaml
+          #yq -i eval '.spec.podTemplate.volumeClaimSpec.resources.requests.storage = "8Gi"' forgeops/kustomize/overlay/small/ds-idrepo.yaml
           #yq -i eval '.metadata.annotations[0]."nginx.ingress.kubernetes.io/ssl-redirect" = "false"' forgeops/kustomize/base/ingress/ingress.yaml
           #yq -i eval '.metadata.annotations[0]."nginx.ingress.kubernetes.io/force-ssl-redirect: "true"' forgeops/kustomize/base/ingress/ingress.yaml
           
-          cp main/deployments/forgeops/ingress.yaml forgeops/kustomize/base/ingress/ingress.yaml
+          cp -r main/deployments/forgeops/kustomize forgeops/
                 
           cd forgeops/bin
           ./forgeops install --mini --fqdn cdm.platform.whatautomatech.com --namespace forgerock
