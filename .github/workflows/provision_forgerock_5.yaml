@@ -74,12 +74,12 @@ jobs:
           chmod +x ./kubectl
           mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$HOME/bin:$PATH
           kubectl version --short --client
-      - name: install yq
-        id: install-yq
-        run: |
-          sudo add-apt-repository ppa:rmescandon/yq
-          sudo apt update -y
-          sudo apt install yq -y
+      #- name: install yq
+      #  id: install-yq
+      #  run: |
+      #    sudo add-apt-repository ppa:rmescandon/yq
+      #    sudo apt update -y
+      #    sudo apt install yq -y
       - name: install kubectx and kubens
         run: |
           wget http://ftp.de.debian.org/debian/pool/main/k/kubectx/kubectx_0.9.3-1_all.deb
