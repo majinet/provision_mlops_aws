@@ -115,13 +115,13 @@ spec:
         path: /am-client/XUI
         pathType: Prefix
 
-       - backend:
-           service:
-             name: ig
-             port:
-               number: 8080
-         path: /ig
-         pathType: Prefix
+      - backend:
+          service:
+            name: ig
+            port:
+              number: 8080
+        path: /ig
+        pathType: Prefix
 
   tls:
   - hosts:
