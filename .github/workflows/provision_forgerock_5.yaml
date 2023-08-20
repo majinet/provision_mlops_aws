@@ -122,8 +122,8 @@ jobs:
           cp main/deployments/forgeops/ingress.yaml forgeops/kustomize/base/ingress/ingress.yaml
                 
           cd forgeops/bin
-          ./forgeops install --small --fqdn cdm.platform.whatautomatech.com --namespace forgerock
-      - name: deploy IG
-        run: |
-          cd forgeops/bin
-          ./forgeops install ig --cdk --fqdn cdm.platform.whatautomatech.com --namespace forgerock
+          ./forgeops install --mini --fqdn cdm.platform.whatautomatech.com --namespace forgerock
+      #- name: deploy IG
+      #  run: |
+      #    cd forgeops/bin
+      #    ./forgeops install ig --cdk --fqdn cdm.platform.whatautomatech.com --namespace forgerock
