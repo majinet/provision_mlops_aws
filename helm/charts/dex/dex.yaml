@@ -17,8 +17,6 @@ ingress:
         - dex.platform.whatautomatech.com
 
 config:
-  issuer: https://dex.platform.whatautomatech.com
-
   storage:
     type: kubernetes
     config:
@@ -33,6 +31,7 @@ config:
       id: github
       name: GitHub
       config:
+        issuer: https://dex.platform.whatautomatech.com
         clientID: "{{ .Env.GITHUB_CLIENT_ID }}"
         clientSecret: "{{ .Env.GITHUB_CLIENT_SECRET }}"
         redirectURI: https://dex.platform.whatautomatech.com/callback

@@ -45,6 +45,22 @@ spec:
 
       - backend:
           service:
+            name: am-client
+            port:
+              number: 80
+        path: /am-client
+        pathType: Prefix
+
+      - backend:
+          service:
+            name: idm
+            port:
+              number: 80
+        path: /openidm
+        pathType: Prefix
+
+      - backend:
+          service:
             name: idm
             port:
               number: 80
@@ -96,7 +112,7 @@ spec:
             name: login-ui
             port:
               number: 8080
-        path: /am/XUI
+        path: /am-client/XUI
         pathType: Prefix
 
        - backend:
