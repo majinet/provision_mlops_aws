@@ -6,16 +6,8 @@ commonLabels:
   app.kubernetes.io/component: am-client
   app.kubernetes.io/part-of: forgerock
   tier: middle
-  app: am
+  app: am-client
 resources:
 - deployment.yaml
 - service.yaml
 # - hpa.yaml
-
-configMapGenerator:
-- name: am-logback
-  files:
-  - config/logback.xml
-
-generatorOptions:
-  disableNameSuffixHash: true

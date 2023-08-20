@@ -5,27 +5,27 @@ commonLabels:
 images:
 - name: am
   newName: us-docker.pkg.dev/forgeops-public/images/am
-  newTag: dev
-- name: am-client
-  newName: us-docker.pkg.dev/forgeops-public/images/am
-  newTag: dev
+  newTag: 7.3.0
 - name: amster
   newName: us-docker.pkg.dev/forgeops-public/images/amster
-  newTag: dev
+  newTag: 7.3.0
+- name: am-client
+  newName: us-docker.pkg.dev/forgeops-public/images/am
+  newTag: 7.3.0
 - name: ds
   newName: us-docker.pkg.dev/forgeops-public/images/ds
-  newTag: dev
+  newTag: 7.3.2
 - name: ds-cts
   newName: us-docker.pkg.dev/forgeops-public/images/ds-cts
-  newTag: dev
+  newTag: 7.3.2
 - name: ds-idrepo
   newName: us-docker.pkg.dev/forgeops-public/images/ds-idrepo
-  newTag: dev
+  newTag: 7.3.2
 - name: git-server
   newName: us-docker.pkg.dev/forgeops-public/images/git-server
 - name: idm
   newName: us-docker.pkg.dev/forgeops-public/images/idm
-  newTag: dev
+  newTag: 7.3.0
 - name: ig
   newName: us-docker.pkg.dev/forgeops-public/images/ig
-  newTag: dev
+  newTag: 2023.6.0

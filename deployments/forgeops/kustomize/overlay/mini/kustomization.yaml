@@ -6,8 +6,8 @@ resources:
 - ../../base/ds/cts
 - ../../base/ds/idrepo
 - ../../base/am
-- ../../base/am-client
 - ../../base/amster
+- ../../base/am-client
 - ../../base/idm
 - ../../base/end-user-ui
 - ../../base/login-ui
@@ -18,7 +18,6 @@ resources:
 
 patches:
 - path: am.yaml
-  path: am-client.yaml
 - path: base.yaml
 - path: ds-cts-old.yaml
 - path: ds-idrepo-old.yaml

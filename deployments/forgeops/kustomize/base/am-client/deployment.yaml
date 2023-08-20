@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: am-client
+  name: am
 spec:
   replicas: 1
   selector:
@@ -20,7 +20,7 @@ spec:
       initContainers:
       # This init container copies the "immutable" configuration from the Docker image
       # to shared volume that is mounted by the am container. Putting this on an emptyDir volume
-      # preserves configuration across container restarts (for example, if AM crashes or suffers an OOM kill from k8s).
+      # preserves configuration across pod restarts (for example, if AM crashes or suffers an OOM kill from k8s).
       # This is most useful in development environments, so users do not lose their changes if the pod restarts.
       - name: fbc-init
         image: am
@@ -54,12 +54,11 @@ spec:
           value: /truststore/amtruststore
         - name: TRUSTSTORE_PASSWORD
           value: changeit
-        # secret agent generated truststore.
         - name: AM_PEM_TRUSTSTORE
+          # For using secret agent generated truststore
           value: "/var/run/secrets/truststore/cacerts"
-        # cert-manager truststore used for the connection to DS
-        - name: AM_PEM_TRUSTSTORE_DS
-          value: "/var/run/secrets/truststore/ca.crt"
+          # cert-manager truststore
+          # value: "/var/run/secrets/truststore/ca.crt"
       containers:
       - name: openam
         image: am
@@ -91,13 +90,13 @@ spec:
             name: ds-env-secrets # passwords for cts, userstore, etc
         startupProbe:
           httpGet:
-            path: /am-client/json/health/live
+            path: /am/json/health/live
             port: 8080
           failureThreshold: 40
           periodSeconds: 10
         livenessProbe:
           httpGet:
-            path: /am-client/json/health/live
+            path: /am/json/health/live
             port: 8080
           initialDelaySeconds: 30
           periodSeconds: 30
@@ -107,14 +106,14 @@ spec:
           name: http
         readinessProbe:
           httpGet:
-            path: /am-client/json/health/ready
+            path: /am/json/health/ready
             port: 8080
           initialDelaySeconds: 20
           periodSeconds: 10
           timeoutSeconds: 5
         resources:
           limits:
-            memory: 1800Mi
+            memory: 2000Mi
           requests:
             memory: 1800Mi
             cpu: 250m
@@ -129,8 +128,6 @@ spec:
           mountPath: /var/run/secrets/amster
         - name: fbc
           mountPath: /home/forgerock/openam
-        - name: am-logback
-          mountPath: /home/forgerock/logging
       terminationGracePeriodSeconds: 10
       # Shared volume that holds the AM configuration.
       volumes:
@@ -150,14 +147,10 @@ spec:
           - key: id_rsa.pub
             path: authorized_keys
       - name: truststore
-        projected:
-          sources:
-          - secret:
-              name: truststore-pem
-          - secret:
-              name: ds-ssl-keypair
+        secret:
+          # Secret agent generated truststore
+          secretName: truststore-pem
+          # cert-manager generated truststore
+          # secretName: ds-ssl-keypair
       - name: new-truststore
         emptyDir: {}
-      - name: am-logback
-        configMap:
-          name: am-logback

@@ -2,7 +2,7 @@
 apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: am-client
+  name: am
 spec:
   maxReplicas: 10
   minReplicas: 1

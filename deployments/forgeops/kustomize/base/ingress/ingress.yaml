@@ -37,14 +37,6 @@ spec:
 
       - backend:
           service:
-            name: idm
-            port:
-              number: 80
-        path: /openidm
-        pathType: Prefix
-
-      - backend:
-          service:
             name: am-client
             port:
               number: 80
@@ -112,14 +104,15 @@ spec:
             name: login-ui
             port:
               number: 8080
-        path: /am-client/XUI
+        path: /am/XUI
         pathType: Prefix
+
 
       - backend:
           service:
             name: ig
             port:
-              number: 8080
+            number: 8080
         path: /ig
         pathType: Prefix
 
@@ -133,10 +126,11 @@ kind: Ingress
 metadata:
   name: ig
   annotations:
-    haproxy-ingress.github.io/ssl-redirect: "true"
+    haproxy-ingress.github.io/ssl-redirect: "false"
+    haproxy-ingress.github.io/force-ssl-redirect: "false"
     haproxy-ingress.github.io/rewrite-target: "/$2"
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
     nginx.ingress.kubernetes.io/rewrite-target: "/$2"
     cert-manager.io/cluster-issuer: $(CERT_ISSUER)
 
