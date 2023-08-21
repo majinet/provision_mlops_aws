@@ -38,6 +38,12 @@ jobs:
           repository: ForgeRock/forgeops
           ref: release/7.3-20230706
           path: forgeops
+      - name: Checkout ForgeRock for Client
+        uses: actions/checkout@v3
+        with:
+          repository: ForgeRock/forgeops
+          ref: release/7.3-20230706
+          path: forgeops-client
       - name: Checkout ForgeRock extra
         uses: actions/checkout@v3
         with:
@@ -123,7 +129,18 @@ jobs:
                 
           cd forgeops/bin
           ./forgeops install --mini --fqdn cdm.platform.whatautomatech.com --namespace forgerock
-      #- name: deploy IG
-      #  run: |
-      #    cd forgeops/bin
-      #    ./forgeops install ig --cdk --fqdn cdm.platform.whatautomatech.com --namespace forgerock
+      - name: deploy IG
+        run: |
+          cd forgeops/bin
+          ./forgeops install ig --mini --namespace forgerock
+      - name: CDM deploy (ForgeRock Client)
+        run: |
+
+          cp -r main/deployments/forgeops-client/kustomize forgeops-client/
+
+          cd forgeops-client/bin
+          ./forgeops install --mini --fqdn cdm-client.platform.whatautomatech.com --namespace forgerock-client
+      - name: deploy IG for Client
+        run: |
+          cd forgeops-client/bin
+          ./forgeops install ig --mini --namespace forgerock-client
