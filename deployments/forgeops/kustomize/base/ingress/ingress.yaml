@@ -107,12 +107,11 @@ spec:
         path: /am/XUI
         pathType: Prefix
 
-
       - backend:
           service:
             name: ig
             port:
-            number: 8080
+              number: 8080
         path: /ig
         pathType: Prefix
 
