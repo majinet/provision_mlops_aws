@@ -95,9 +95,9 @@ jobs:
         run: |
           #RDS_DB_USERNAME="admin"
 
-          kubectl create secret generic -n kubeflow-aws rds-secret \
-            --from-literal=username="${RDS_DB_USERNAME}" \
-            --from-literal=password="${{secrets.KUBEFLOW_ADMIN}}"
+          #kubectl create secret generic -n kubeflow-aws rds-secret \
+          #  --from-literal=username="${RDS_DB_USERNAME}" \
+          #  --from-literal=password="${{secrets.KUBEFLOW_ADMIN}}"
 
           cat config/ack/resources/rds/kubeflow-db.yaml | envsubst  > kubeflow-db.yaml
           cat kubeflow-db.yaml
