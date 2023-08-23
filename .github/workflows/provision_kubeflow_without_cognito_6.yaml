@@ -15,6 +15,7 @@ env:
   AWS_REGION : ${{ github.event.inputs.region}} #Change to reflect your Region
   AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
   CLUSTER_NAME: eks-cluster
+  CLUSTER_REGION: ${{ github.event.inputs.region}}
 
 # Permission can be added at job level or workflow level
 permissions:
@@ -110,11 +111,11 @@ jobs:
           
           cd kubeflow-manifests
           kustomize build awsconfigs/common/istio-ingress/overlays/api | kubectl apply -f -
-          kubectl apply -f config/istio/AuthorizationPolicy/allow-predictor.yaml
-          kubectl apply -f config/istio/AuthorizationPolicy/allow-transformer.yaml
+          kubectl apply -f main/config/istio/AuthorizationPolicy/allow-predictor.yaml
+          kubectl apply -f main/config/istio/AuthorizationPolicy/allow-transformer.yaml
           
           # replace _example by "platform.whatautomatech.com"
           # kubectl edit configmap config-domain -n knative-serving
       - name: apply ingress
         run: |
-          kubectl apply -f config/dex/dex_kubeflow_ingress.yaml
+          kubectl apply -f main/config/dex/dex_kubeflow_ingress.yaml
