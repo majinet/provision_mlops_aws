@@ -63,7 +63,7 @@ jobs:
           aws eks update-kubeconfig --region us-east-1 --name eks-cluster
       - name: deploy aws secret manager for kubeflow
         run: |
-          kustomize build upstream/common/kubeflow-namespace/base | kubectl apply -f -
+          kustomize build kubeflow-manifests/awsconfigs/common/aws-secrets-manager | kubectl apply -f -
       - name: deploy Admission Webhook (cert-manager)
         run: |
           kustomize build upstream/apps/admission-webhook/upstream/overlays/cert-manager | kubectl apply -f -
