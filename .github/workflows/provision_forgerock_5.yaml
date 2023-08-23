@@ -131,6 +131,9 @@ jobs:
           
           cp -r main/deployments/forgeops/kustomize forgeops/
           cp -r main/deployments/forgeops/docker forgeops/
+          
+          cat forgeops/docker/ig/Dockerfile
+          ls -lrt forgeops/docker/*
                 
           cd forgeops/bin
           ./forgeops install --mini --fqdn cdm.platform.whatautomatech.com --namespace forgerock
