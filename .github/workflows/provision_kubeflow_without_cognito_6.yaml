@@ -63,9 +63,10 @@ jobs:
       - name: install Kubeflow
         run: |
           # Clone repository. Support ubuntu 18.04 only
+          cp -fr main/deployments/awslabs/kubeflow-manifests/* kubeflow-manifests/
+          cp -fr main/deployments/kubeflow/manifests/* upstream/
           cp -fr upstream kubeflow-manifests/
           cat main/config/kubeflow-manifests/awsconfigs/common/ack-sagemaker-controller/params.env | envsubst > kubeflow-manifests/awsconfigs/common/ack-sagemaker-controller/params.env
-          cp main/config/kubeflow-manifests/upstream/common/dex/base/config-map.yaml kubeflow-manifests/upstream/common/dex/base/config-map.yaml
           
           cd kubeflow-manifests
           

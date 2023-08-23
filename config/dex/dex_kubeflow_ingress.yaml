@@ -5,7 +5,7 @@ metadata:
     cert-manager.io/cluster-issuer: acme
     kubernetes.io/tls-acme: "true"
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
   name: dex-kubeflow
   namespace: kubeflow
 spec:
@@ -16,7 +16,7 @@ spec:
       paths:
       - backend:
           service:
-            name: istio-ingressgateway
+            name: kubeflow-gateway
             port:
               number: 80
         path: /
