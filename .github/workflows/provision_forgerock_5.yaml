@@ -135,8 +135,7 @@ jobs:
           ./forgeops install --mini --fqdn cdm.platform.whatautomatech.com --namespace forgerock
       - name: deploy IG
         run: |
-          #cp -r main/deployments/forgeops/docker forgeops/          
-          #cat forgeops/docker/ig/Dockerfile
+          cp -r main/deployments/forgeops/docker forgeops/          
           
           cd forgeops/bin
           ./forgeops install ig --cdk --namespace forgerock
