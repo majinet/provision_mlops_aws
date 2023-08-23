@@ -102,6 +102,7 @@ jobs:
       - name: create namespace (forgerock)
         run: |
           kubectl create ns "forgerock"
+        continue-on-error: true
       - name: create namespace (forgerock-client)
         run: |
           kubectl create ns "forgerock-client"
