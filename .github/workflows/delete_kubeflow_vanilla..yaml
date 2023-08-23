@@ -61,7 +61,30 @@ jobs:
       - name: health check eks
         run: |
           aws eks update-kubeconfig --region us-east-1 --name eks-cluster
-      - name: install Kubeflow
+      - name: delete ingress
+        run: |
+          kubectl delete -f main/config/dex/dex_kubeflow_ingress.yaml
+      - name: delete alb for istio-ingress-api (KServe)
+        run: |
+          printf '
+          certArn='arn:aws:acm:us-east-1:404886641986:certificate/3fd97db7-6bd6-4a12-a7ef-47c9bea5eac2'
+          httpHeaderName='x-api-key'
+          httpHeaderValues='["token1"]'
+          ' > kubeflow-manifests/awsconfigs/common/istio-ingress/overlays/api/params.env
+          
+          cd kubeflow-manifests
+          kustomize build awsconfigs/common/istio-ingress/overlays/api | kubectl delete -f -
+          kubectl delete -f main/config/istio/AuthorizationPolicy/allow-predictor.yaml
+          kubectl delete -f main/config/istio/AuthorizationPolicy/allow-transformer.yaml
+          
+          # replace _example by "platform.whatautomatech.com"
+          # kubectl edit configmap config-domain -n knative-serving
+      - name: delete user profile in Kubeflow
+        run: |
+          cat main/config/kubeflow/profile-testenv.yaml | envsubst  > profile-testenv.yaml
+          kubectl delete -f profile-testenv.yaml
+          kubectl delete -f main/config/eks/clusterrolebinding/user-example-com-cluster-role-binding-pipeline.yaml
+      - name: delete Kubeflow
         run: |
           # Clone repository. Support ubuntu 18.04 only
           cp -fr main/deployments/awslabs/kubeflow-manifests/* kubeflow-manifests/
@@ -95,27 +118,3 @@ jobs:
           export PIPELINE_S3_CREDENTIAL_OPTION=static
 
           make delete-kubeflow INSTALLATION_OPTION=kustomize DEPLOYMENT_OPTION=vanilla
-
-      - name: Create user profile in Kubeflow
-        run: |
-          cat main/config/kubeflow/profile-testenv.yaml | envsubst  > profile-testenv.yaml
-          kubectl delete -f profile-testenv.yaml
-          kubectl delete -f main/config/eks/clusterrolebinding/user-example-com-cluster-role-binding-pipeline.yaml
-      - name: setup alb for istio-ingress-api (KServe)
-        run: |
-          printf '
-          certArn='arn:aws:acm:us-east-1:404886641986:certificate/3fd97db7-6bd6-4a12-a7ef-47c9bea5eac2'
-          httpHeaderName='x-api-key'
-          httpHeaderValues='["token1"]'
-          ' > kubeflow-manifests/awsconfigs/common/istio-ingress/overlays/api/params.env
-          
-          cd kubeflow-manifests
-          kustomize build awsconfigs/common/istio-ingress/overlays/api | kubectl delete -f -
-          kubectl delete -f main/config/istio/AuthorizationPolicy/allow-predictor.yaml
-          kubectl delete -f main/config/istio/AuthorizationPolicy/allow-transformer.yaml
-          
-          # replace _example by "platform.whatautomatech.com"
-          # kubectl edit configmap config-domain -n knative-serving
-      - name: apply ingress
-        run: |
-          kubectl delete -f main/config/dex/dex_kubeflow_ingress.yaml

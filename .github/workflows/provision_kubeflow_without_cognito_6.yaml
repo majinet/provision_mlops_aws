@@ -101,19 +101,19 @@ jobs:
           cat main/config/kubeflow/profile-testenv.yaml | envsubst  > profile-testenv.yaml
           kubectl apply -f profile-testenv.yaml
           kubectl apply -f main/config/eks/clusterrolebinding/user-example-com-cluster-role-binding-pipeline.yaml
-      - name: setup alb for istio-ingress-api (KServe)
-        run: |
-          printf '
-          certArn='arn:aws:acm:us-east-1:404886641986:certificate/3fd97db7-6bd6-4a12-a7ef-47c9bea5eac2'
-          httpHeaderName='x-api-key'
-          httpHeaderValues='["token1"]'
-          ' > kubeflow-manifests/awsconfigs/common/istio-ingress/overlays/api/params.env
+      #- name: setup alb for istio-ingress-api (KServe)
+      #  run: |
+      #    printf '
+      #    certArn='arn:aws:acm:us-east-1:404886641986:certificate/3fd97db7-6bd6-4a12-a7ef-47c9bea5eac2'
+      #    httpHeaderName='x-api-key'
+      #    httpHeaderValues='["token1"]'
+      #    ' > kubeflow-manifests/awsconfigs/common/istio-ingress/overlays/api/params.env
           
-          cd kubeflow-manifests
-          kustomize build awsconfigs/common/istio-ingress/overlays/api | kubectl apply -f -
-          kubectl apply -f main/config/istio/AuthorizationPolicy/allow-predictor.yaml
-          kubectl apply -f main/config/istio/AuthorizationPolicy/allow-transformer.yaml
-          
+      #    cd kubeflow-manifests
+      #    kustomize build awsconfigs/common/istio-ingress/overlays/api | kubectl apply -f -
+      #    kubectl apply -f main/config/istio/AuthorizationPolicy/allow-predictor.yaml
+      #    kubectl apply -f main/config/istio/AuthorizationPolicy/allow-transformer.yaml
+
           # replace _example by "platform.whatautomatech.com"
           # kubectl edit configmap config-domain -n knative-serving
       - name: apply ingress
