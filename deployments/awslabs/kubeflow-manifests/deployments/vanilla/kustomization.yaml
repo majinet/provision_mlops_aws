@@ -14,9 +14,9 @@ resources:
   # Dex
   - ../../upstream/common/dex/overlays/forgerock
   # KNative
-  - ../../upstream/common/knative/knative-serving/overlays/gateways
-  - ../../upstream/common/knative/knative-eventing/base
-  - ../../upstream/common/istio-1-16/cluster-local-gateway/base
+  #- ../../upstream/common/knative/knative-serving/overlays/gateways
+  #- ../../upstream/common/knative/knative-eventing/base
+  #- ../../upstream/common/istio-1-16/cluster-local-gateway/base
   # Kubeflow namespace
   - ../../upstream/common/kubeflow-namespace/base
   # Kubeflow Roles
@@ -50,11 +50,11 @@ resources:
   - ../../upstream/common/user-namespace/base
 
   # KServe
-  - ../../awsconfigs/apps/kserve
-  - ../../upstream/contrib/kserve/models-web-app/overlays/kubeflow
+  #- ../../awsconfigs/apps/kserve
+  #- ../../upstream/contrib/kserve/models-web-app/overlays/kubeflow
 
   # ACK Sagemaker
-  - ../../awsconfigs/common/ack-sagemaker-controller
+  #- ../../awsconfigs/common/ack-sagemaker-controller
 
   # AWS Telemetry - This is an optional component. See usage tracking documentation for more information
-  - ../../awsconfigs/common/aws-telemetry
+  #- ../../awsconfigs/common/aws-telemetry
