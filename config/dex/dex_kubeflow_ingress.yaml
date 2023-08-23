@@ -7,7 +7,7 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
   name: dex-kubeflow
-  namespace: kubeflow
+  namespace: istio-system
 spec:
   ingressClassName: nginx
   rules:
@@ -16,7 +16,7 @@ spec:
       paths:
       - backend:
           service:
-            name: kubeflow-gateway
+            name: istio-ingressgateway
             port:
               number: 80
         path: /
