@@ -3,12 +3,12 @@ kind: Kustomization
 
 resources:
   # Cert-Manager
-  #- ../../upstream/common/cert-manager/cert-manager/base
+  - ../../upstream/common/cert-manager/cert-manager/base
   - ../../upstream/common/cert-manager/kubeflow-issuer/base
   # Istio
-  #- ../../upstream/common/istio-1-16/istio-crds/base
-  #- ../../upstream/common/istio-1-16/istio-namespace/base
-  #- ../../upstream/common/istio-1-16/istio-install/base
+  - ../../upstream/common/istio-1-16/istio-crds/base
+  - ../../upstream/common/istio-1-16/istio-namespace/base
+  - ../../upstream/common/istio-1-16/istio-install/base
   # OIDC Authservice
   - ../../upstream/common/oidc-authservice/base
   # Dex
@@ -50,11 +50,11 @@ resources:
   - ../../upstream/common/user-namespace/base
 
   # KServe
-  #- ../../awsconfigs/apps/kserve
-  #- ../../upstream/contrib/kserve/models-web-app/overlays/kubeflow
+  - ../../awsconfigs/apps/kserve
+  - ../../upstream/contrib/kserve/models-web-app/overlays/kubeflow
 
   # ACK Sagemaker
-  #- ../../awsconfigs/common/ack-sagemaker-controller
+  - ../../awsconfigs/common/ack-sagemaker-controller
 
   # AWS Telemetry - This is an optional component. See usage tracking documentation for more information
-  #- ../../awsconfigs/common/aws-telemetry
+  - ../../awsconfigs/common/aws-telemetry
