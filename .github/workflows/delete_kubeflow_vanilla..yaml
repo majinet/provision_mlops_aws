@@ -1,0 +1,121 @@
+name: Delete Kubeflow without cognito
+
+on:
+  workflow_dispatch:
+    inputs:
+      region:
+        description: 'AWS Region'
+        required: true
+        default: 'us-east-1'
+      #keypair:
+      #  description: 'SSH Key Pair'
+      #  required: true
+
+env:
+  AWS_REGION : ${{ github.event.inputs.region}} #Change to reflect your Region
+  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+  CLUSTER_NAME: eks-cluster
+  CLUSTER_REGION: ${{ github.event.inputs.region}}
+
+# Permission can be added at job level or workflow level
+permissions:
+      id-token: write   # This is required for requesting the JWT
+      contents: read    # This is required for actions/checkout
+
+jobs:
+  eks_aws:
+    name: Delete Kubeflow without cognito
+    runs-on: ubuntu-20.04
+    outputs:
+      env-name: ${{ steps.env-name.outputs.environment }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          path: main
+      - name: Checkout awslabs kubeflow-manifests
+        uses: actions/checkout@v3
+        with:
+          repository: awslabs/kubeflow-manifests
+          ref: v1.7.0-aws-b1.0.2
+          path: kubeflow-manifests
+      - name: Checkout kubeflow
+        uses: actions/checkout@v3
+        with:
+          repository: kubeflow/manifests
+          ref: v1.7.0
+          path: upstream
+      - name: Configure AWS credentials
+        id: creds
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/DeployKubeflow
+          role-session-name: deploykubeflow
+          aws-region: ${{ github.event.inputs.region}}
+      - name: install envsubst
+        id: install-envsubst
+        run: |
+          curl -L https://github.com/a8m/envsubst/releases/download/v1.2.0/envsubst-`uname -s`-`uname -m` -o envsubst
+          chmod +x envsubst
+          sudo mv envsubst /usr/local/bin
+      - name: health check eks
+        run: |
+          aws eks update-kubeconfig --region us-east-1 --name eks-cluster
+      - name: install Kubeflow
+        run: |
+          # Clone repository. Support ubuntu 18.04 only
+          cp -fr main/deployments/awslabs/kubeflow-manifests/* kubeflow-manifests/
+          cp -fr main/deployments/kubeflow/manifests/* upstream/
+          cp -fr upstream kubeflow-manifests/
+          cat main/config/kubeflow-manifests/awsconfigs/common/ack-sagemaker-controller/params.env | envsubst > kubeflow-manifests/awsconfigs/common/ack-sagemaker-controller/params.env
+          
+          cd kubeflow-manifests
+          
+          make install-tools
+
+          alias python=python3.8
+          
+          export DB_HOST=kubeflow.c7c9lvin3sa8.us-east-1.rds.amazonaws.com
+          export MLMD_DB=metadata_db
+          
+          printf '
+            dbHost='$DB_HOST'
+            mlmdDb='$MLMD_DB'
+          ' > awsconfigs/apps/pipeline/rds/params.env
+          
+          export S3_BUCKET=ack-kubeflow-bucket-${{env.AWS_ACCOUNT_ID}}
+          export MINIO_SERVICE_HOST=s3.amazonaws.com
+          
+          printf '
+            bucketName='$S3_BUCKET' #ack-kubeflow-bucket-${{env.AWS_ACCOUNT_ID}}
+            minioServiceHost='$MINIO_SERVICE_HOST' #s3.amazonaws.com
+            minioServiceRegion='${{env.AWS_REGION}}'
+          ' > awsconfigs/apps/pipeline/s3/params.env
+          
+          export PIPELINE_S3_CREDENTIAL_OPTION=static
+
+          make delete-kubeflow INSTALLATION_OPTION=kustomize DEPLOYMENT_OPTION=vanilla
+
+      - name: Create user profile in Kubeflow
+        run: |
+          cat main/config/kubeflow/profile-testenv.yaml | envsubst  > profile-testenv.yaml
+          kubectl delete -f profile-testenv.yaml
+          kubectl delete -f main/config/eks/clusterrolebinding/user-example-com-cluster-role-binding-pipeline.yaml
+      - name: setup alb for istio-ingress-api (KServe)
+        run: |
+          printf '
+          certArn='arn:aws:acm:us-east-1:404886641986:certificate/3fd97db7-6bd6-4a12-a7ef-47c9bea5eac2'
+          httpHeaderName='x-api-key'
+          httpHeaderValues='["token1"]'
+          ' > kubeflow-manifests/awsconfigs/common/istio-ingress/overlays/api/params.env
+          
+          cd kubeflow-manifests
+          kustomize build awsconfigs/common/istio-ingress/overlays/api | kubectl delete -f -
+          kubectl delete -f main/config/istio/AuthorizationPolicy/allow-predictor.yaml
+          kubectl delete -f main/config/istio/AuthorizationPolicy/allow-transformer.yaml
+          
+          # replace _example by "platform.whatautomatech.com"
+          # kubectl edit configmap config-domain -n knative-serving
+      - name: apply ingress
+        run: |
+          kubectl delete -f main/config/dex/dex_kubeflow_ingress.yaml
