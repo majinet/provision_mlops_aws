@@ -1,0 +1,26 @@
+{
+  "handler": {
+    "type": "Chain",
+    "config": {
+      "filters": [
+        {
+          "type": "StaticRequestFilter",
+          "config": {
+            "method": "POST",
+            "uri": "https://kubeflow.platform.whatautomatech.com",
+            "form": {
+              "username": [
+                "user@example.com"
+              ],
+              "password": [
+                "43214321"
+              ]
+            }
+          }
+        }
+      ],
+      "handler": "ReverseProxyHandler"
+    }
+  },
+  "condition": "${find(request.uri.path, '^/static')}"
+}

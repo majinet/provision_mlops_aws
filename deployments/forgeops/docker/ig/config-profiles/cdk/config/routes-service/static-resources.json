@@ -1,0 +1,6 @@
+{
+  "name" : "kubeflow-resources",
+  "baseURI" : "https://kubeflow.platform.whatautomatech.com",
+  "condition": "${find(request.uri.path,'^/css')}",
+  "handler": "ReverseProxyHandler"
+}

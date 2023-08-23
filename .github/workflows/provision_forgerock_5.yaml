@@ -111,7 +111,7 @@ jobs:
           kubectl apply -f https://github.com/ForgeRock/secret-agent/releases/latest/download/secret-agent.yaml
       #- name: Environment Setup (Prepare to push Docker images)
       #  run: |
-      #    aws ecr get-login-password | docker login --username AWS  \
+      #    aws ecr get-login-password | ig login --username AWS  \
       #     --password-stdin ${{env.AWS_ACCOUNT_ID}}.dkr.ecr.${{env.AWS_REGION}}.amazonaws.com
           
       #    skaffold config set default-repo ${{env.AWS_ACCOUNT_ID}}.dkr.ecr.${{env.AWS_REGION}}.amazonaws.com/forgeops
@@ -138,7 +138,7 @@ jobs:
 
           cp -r main/deployments/forgeops-client/kustomize forgeops-client/
 
-          cd forgeops-client/bin
+          cd forgeops-client  /bin
           ./forgeops install --mini --fqdn cdm-client.platform.whatautomatech.com --namespace forgerock-client
       - name: deploy IG for Client
         run: |

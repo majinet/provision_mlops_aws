@@ -1,0 +1,80 @@
+{
+  "name": "07-openid",
+  "baseURI": "https://kubeflow.platform.whatautomatech.com",
+  "condition": "${find(request.uri.path, '^/home/id_token')}",
+  "heap": [
+    {
+      "name": "SystemAndEnvSecretStore-1",
+      "type": "SystemAndEnvSecretStore"
+    },
+    {
+      "name": "AuthenticatedRegistrationHandler-1",
+      "type": "Chain",
+      "config": {
+        "filters": [
+          {
+            "name": "ClientSecretBasicAuthenticationFilter-1",
+            "type": "ClientSecretBasicAuthenticationFilter",
+            "config": {
+              "clientId": "oidc_client",
+              "clientSecretId": "oidc.secret.id",
+              "secretsProvider": "SystemAndEnvSecretStore-1"
+            }
+          }
+        ],
+        "handler": "ForgeRockClientHandler"
+      }
+    }
+  ],
+  "handler": {
+    "type": "Chain",
+    "config": {
+      "filters": [
+        {
+          "name": "AuthorizationCodeOAuth2ClientFilter-1",
+          "type": "AuthorizationCodeOAuth2ClientFilter",
+          "config": {
+            "clientEndpoint": "/home/id_token",
+            "failureHandler": {
+              "type": "StaticResponseHandler",
+              "config": {
+                "status": 500,
+                "headers": {
+                  "Content-Type": [
+                    "text/plain"
+                  ]
+                },
+                "entity": "Error in OAuth 2.0 setup."
+              }
+            },
+            "registrations": [
+              {
+                "name": "oidc-user-info-client",
+                "type": "ClientRegistration",
+                "config": {
+                  "clientId": "oidc_client",
+                  "issuer": {
+                    "name": "Issuer",
+                    "type": "Issuer",
+                    "config": {
+                      "wellKnownEndpoint": "https://cdm.platform.whatautomatech.com/am/openam/oauth2/.well-known/openid-configuration"
+                    }
+                  },
+                  "scopes": [
+                    "openid",
+                    "profile",
+                    "email"
+                  ],
+                  "authenticatedRegistrationHandler": "AuthenticatedRegistrationHandler-1"
+                }
+              }
+            ],
+            "requireHttps": false,
+            "cacheExpiration": "disabled"
+          }
+        }
+      ],
+      "handler": "ReverseProxyHandler"
+    }
+  }
+}

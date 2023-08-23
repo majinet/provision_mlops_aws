@@ -1,0 +1,41 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: auth
+resources:
+- virtual-service.yaml
+- ../../base
+
+patchesStrategicMerge:
+- config-map.yaml
+
+configMapGenerator:
+- name: dex-parameters
+  behavior: merge
+  envs:
+  - params.env
+generatorOptions:
+  disableNameSuffixHash: true
+vars:
+- name: namespace
+  objref:
+    kind: ConfigMap
+    name: dex-parameters
+    apiVersion: v1
+  fieldref:
+    fieldpath: data.namespace
+- name: fr_client_id
+  objref:
+    kind: ConfigMap
+    name: dex-parameters
+    apiVersion: v1
+  fieldref:
+    fieldpath: data.fr_client_id
+- name: fr_client_secret
+  objref:
+    kind: ConfigMap
+    name: dex-parameters
+    apiVersion: v1
+  fieldref:
+    fieldpath: data.fr_client_secret
+configurations:
+- params.yaml
