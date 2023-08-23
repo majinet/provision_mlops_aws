@@ -126,6 +126,7 @@ jobs:
           #yq -i eval '.metadata.annotations[0]."nginx.ingress.kubernetes.io/force-ssl-redirect: "true"' forgeops/kustomize/base/ingress/ingress.yaml
           
           cp -r main/deployments/forgeops/kustomize forgeops/
+          cp -r main/deployments/forgeops/docker forgeops/
                 
           cd forgeops/bin
           ./forgeops install --mini --fqdn cdm.platform.whatautomatech.com --namespace forgerock
@@ -137,8 +138,9 @@ jobs:
         run: |
 
           cp -r main/deployments/forgeops-client/kustomize forgeops-client/
+          cp -r main/deployments/forgeops/docker forgeops-client/
 
-          cd forgeops-client  /bin
+          cd forgeops-client/bin
           ./forgeops install --mini --fqdn cdm-client.platform.whatautomatech.com --namespace forgerock-client
       - name: deploy IG for Client
         run: |
