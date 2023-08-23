@@ -130,17 +130,16 @@ jobs:
           #yq -i eval '.metadata.annotations[0]."nginx.ingress.kubernetes.io/force-ssl-redirect: "true"' forgeops/kustomize/base/ingress/ingress.yaml
           
           cp -r main/deployments/forgeops/kustomize forgeops/
-          cp -r main/deployments/forgeops/docker forgeops/
-          
-          cat forgeops/docker/ig/Dockerfile
-          ls -lrt forgeops/docker/*
                 
           cd forgeops/bin
           ./forgeops install --mini --fqdn cdm.platform.whatautomatech.com --namespace forgerock
       - name: deploy IG
         run: |
+          #cp -r main/deployments/forgeops/docker forgeops/          
+          #cat forgeops/docker/ig/Dockerfile
+          
           cd forgeops/bin
-          ./forgeops install ig --mini --namespace forgerock
+          ./forgeops install ig --cdk --namespace forgerock
       #- name: switch namespace
       #  run: |
       #    kubens forgerock-client
