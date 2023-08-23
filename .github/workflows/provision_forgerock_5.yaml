@@ -137,6 +137,9 @@ jobs:
         run: |
           cd forgeops/bin
           ./forgeops install ig --mini --namespace forgerock
+      - name: switch namespace
+        run: |
+          kubens forgerock-client
       - name: CDM deploy (ForgeRock Client)
         run: |
 
