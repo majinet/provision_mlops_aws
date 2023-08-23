@@ -138,18 +138,18 @@ jobs:
         run: |
           cd forgeops/bin
           ./forgeops install ig --mini --namespace forgerock
-      - name: switch namespace
-        run: |
-          kubens forgerock-client
-      - name: CDM deploy (ForgeRock Client)
-        run: |
+      #- name: switch namespace
+      #  run: |
+      #    kubens forgerock-client
+      #- name: CDM deploy (ForgeRock Client)
+      #  run: |
 
-          cp -r main/deployments/forgeops-client/kustomize forgeops-client/
-          cp -r main/deployments/forgeops/docker forgeops-client/
+      #    cp -r main/deployments/forgeops-client/kustomize forgeops-client/
+      #    cp -r main/deployments/forgeops/docker forgeops-client/
 
-          cd forgeops-client/bin
-          ./forgeops install --mini --fqdn cdm-client.platform.whatautomatech.com --namespace forgerock-client
-      - name: deploy IG for Client
-        run: |
-          cd forgeops-client/bin
-          ./forgeops install ig --mini --namespace forgerock-client
+      #    cd forgeops-client/bin
+      #    ./forgeops install --mini --fqdn cdm-client.platform.whatautomatech.com --namespace forgerock-client
+      #- name: deploy IG for Client
+      #  run: |
+      #    cd forgeops-client/bin
+      #    ./forgeops install ig --mini --namespace forgerock-client
