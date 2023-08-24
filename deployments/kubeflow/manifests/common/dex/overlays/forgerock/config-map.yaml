@@ -27,7 +27,7 @@ data:
           # Credentials can be string literals or pulled from the environment.
           clientID: $(fr_client_id)
           clientSecret: $(fr_client_secret)
-          redirectURI: https://cdm.platform.whatautomatech.com/ig/callback
+          redirectURI: https://kubeflow.platform.whatautomatech.com/dex/callback
     
           # Some providers require passing client_secret via POST parameters instead
           # of basic auth, despite the OAuth2 RFC discouraging it. Many of these
