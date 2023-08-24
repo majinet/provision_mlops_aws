@@ -23,6 +23,34 @@ vars:
     apiVersion: v1
   fieldref:
     fieldpath: data.namespace
+- name: issuer
+  objref:
+    kind: ConfigMap
+    name: dex-parameters
+    apiVersion: v1
+  fieldref:
+    fieldpath: data.issuer
+- name: application_secret
+  objref:
+    kind: ConfigMap
+    name: dex-parameters
+    apiVersion: v1
+  fieldref:
+    fieldpath: data.application_secret
+- name: client_id
+  objref:
+    kind: ConfigMap
+    name: dex-parameters
+    apiVersion: v1
+  fieldref:
+    fieldpath: data.client_id
+- name: oidc_redirect_uris
+  objref:
+    kind: ConfigMap
+    name: dex-parameters
+    apiVersion: v1
+  fieldref:
+    fieldpath: data.oidc_redirect_uris
 - name: fr_client_id
   objref:
     kind: ConfigMap
