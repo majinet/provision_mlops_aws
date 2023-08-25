@@ -52,7 +52,7 @@
                 "name": "oidc-user-info-client",
                 "type": "ClientRegistration",
                 "config": {
-                  "clientId": "oidc_client",
+                  "clientId": "kubeflow-oidc-authservice",
                   "issuer": {
                     "name": "Issuer",
                     "type": "Issuer",

@@ -1,0 +1,82 @@
+name: Build Docker image
+
+on:
+  workflow_dispatch:
+    inputs:
+      region:
+        description: 'AWS Region'
+        required: true
+        default: 'us-east-1'
+      #keypair:
+      #  description: 'SSH Key Pair'
+      #  required: true
+
+env:
+  AWS_REGION : ${{ github.event.inputs.region}} #Change to reflect your Region
+  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+  CLUSTER_NAME: eks-cluster
+  CLUSTER_REGION: ${{ github.event.inputs.region}}
+
+# Permission can be added at job level or workflow level
+permissions:
+      id-token: write   # This is required for requesting the JWT
+      contents: read    # This is required for actions/checkout
+
+jobs:
+  eks_aws:
+    name: Build Docker image
+    runs-on: ubuntu-20.04
+    outputs:
+      env-name: ${{ steps.env-name.outputs.environment }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          path: main
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          path: main
+      - name: Checkout ForgeRock
+        uses: actions/checkout@v3
+        with:
+          repository: ForgeRock/forgeops
+          ref: release/7.3-20230706
+          path: forgeops
+      - name: Configure AWS credentials
+        id: creds
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/DeployKubeflow
+          role-session-name: deploykubeflow
+          aws-region: ${{ github.event.inputs.region}}
+      - name: install envsubst
+        id: install-envsubst
+        run: |
+          curl -L https://github.com/a8m/envsubst/releases/download/v1.2.0/envsubst-`uname -s`-`uname -m` -o envsubst
+          chmod +x envsubst
+          sudo mv envsubst /usr/local/bin
+      - name: health check eks
+        run: |
+          aws eks update-kubeconfig --region us-east-1 --name eks-cluster
+      - name: install docker
+        run: | 
+          sudo apt update -y
+          sudo apt install apt-transport-https ca-certificates curl software-properties-common -y
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+          sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+          sudo apt install docker-ce -y
+          
+          echo $USER
+          sudo usermod -aG docker $USER
+          newgrp $USER
+      - name: login aws private ecr
+        run: |
+          aws ecr get-login-password | docker login --username AWS --password-stdin 404886641986.dkr.ecr.us-east-1.amazonaws.com/forgeops-ig
+      - name: build docker image
+        run: |
+          cp -r main/deployments/forgeops/docker forgeops/
+          
+          cd forgeops/bin
+          ./forgeops build ig --config-profile cdk --push-to 404886641986.dkr.ecr.us-east-1.amazonaws.com
+          
