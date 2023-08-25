@@ -14,7 +14,7 @@ managedNodeGroups:
     instanceName: ng-frontend
     instanceTypes: [ "c5.4xlarge" ] #c5.4xlarge
     spot: true
-    volumeSize: 20
+    volumeSize: 100
     minSize: 0
     maxSize: 10
     ssh:
