@@ -12,7 +12,7 @@ managedNodeGroups:
     desiredCapacity: 2
     privateNetworking: true # if only 'Private' subnets are given, this must be enabled
     instanceName: ng-frontend
-    instanceTypes: [ "r5.2xlarge" ] #c5.4xlarge
+    instanceTypes: [ "c5.4xlarge" ] #c5.4xlarge
     spot: true
     volumeSize: 20
     minSize: 0
