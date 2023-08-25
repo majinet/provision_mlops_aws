@@ -9,7 +9,7 @@ managedNodeGroups:
   - name: ng-frontend
     amiFamily: Ubuntu2004
     labels: { role: workers, node-type: system, frontend: "true" }
-    desiredCapacity: 2
+    desiredCapacity: 1
     privateNetworking: true # if only 'Private' subnets are given, this must be enabled
     instanceName: ng-frontend
     instanceTypes: [ "c5.4xlarge" ] #c5.4xlarge
