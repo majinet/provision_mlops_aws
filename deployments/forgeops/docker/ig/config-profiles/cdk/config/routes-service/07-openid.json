@@ -1,7 +1,7 @@
 {
   "name": "07-openid",
   "baseURI": "https://kubeflow.platform.whatautomatech.com",
-  "condition": "${find(request.uri.path, '^/home/id_token')}",
+  "condition": "${find(request.uri.path, '^/ig/home/id_token')}",
   "heap": [
     {
       "name": "SystemAndEnvSecretStore-1",
@@ -34,7 +34,7 @@
           "name": "AuthorizationCodeOAuth2ClientFilter-1",
           "type": "AuthorizationCodeOAuth2ClientFilter",
           "config": {
-            "clientEndpoint": "/home/id_token",
+            "clientEndpoint": "/ig/home/id_token",
             "failureHandler": {
               "type": "StaticResponseHandler",
               "config": {
@@ -57,7 +57,7 @@
                     "name": "Issuer",
                     "type": "Issuer",
                     "config": {
-                      "wellKnownEndpoint": "https://cdm.platform.whatautomatech.com/am/openam/oauth2/.well-known/openid-configuration"
+                      "wellKnownEndpoint": "https://cdm.platform.whatautomatech.com/am/oauth2/.well-known/openid-configuration"
                     }
                   },
                   "scopes": [
