@@ -58,7 +58,7 @@ dex:
   installation_options:
     kustomize:
       paths:
-        - ../../upstream/common/dex/overlays/forgerock
+        - ../../upstream/common/dex/overlays/istio
     helm:
       paths: ../../charts/common/dex
   validations:
